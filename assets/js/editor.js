@@ -25,19 +25,38 @@
 
   const Themes = window.Themes;
 
+  const PRO = window.PRO || { enabled: false, upgradeUrl: '' };
+  const library = () => window.ProLibrary || [];
+
   const state = {
     themeId: null,
     plotId: null,
-    settings: { difficulty: 'medium', count: null, chapters: null, w: null, h: null, reverse: 1, paper: '', ink: '', motif: 'auto', seed: newSeed() },
+    settings: { difficulty: 'medium', count: null, chapters: null, w: null, h: null, reverse: 1, paper: '', ink: '', motif: 'auto', seed: newSeed(),
+      mode: 'letter', modeChapters: 2, chapterTypes: ['letter', 'mosaic'], kit: false, kitPlayers: 4, kitPlay: 'together', kitTeams: 2 },
     story: null,
     puzzles: [],
+    mosaics: {},
     titleTouched: false
   };
 
   // ---------------------------------------------------------------- helpers
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const codeSpaced = () => (state.story ? state.story.chapters.map((c) => c.word).join(' ') : '');
-  const puzzleCount = () => (state.story ? state.story.chapters.reduce((n, c) => n + c.word.length, 0) : 0);
+  const puzzleCount = () => gameSlots().length;
+
+  // Chapter types chosen on the start screen, or null for a classic letters game.
+  function chapterTypes() {
+    const st = state.settings;
+    if (st.mode === 'mosaic') return Array(st.modeChapters).fill('mosaic');
+    if (st.mode === 'mixed') return st.chapterTypes.slice(0, st.modeChapters);
+    return null;
+  }
+
+  // Pictures offered to the AI: those of the chosen theme when it has enough, otherwise all.
+  function imagesForPrompt() {
+    const own = library().filter((m) => m.theme === state.themeId);
+    return own.length >= 3 ? own : library();
+  }
 
   function newSeed() {
     const hex = () => Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0');
@@ -89,6 +108,7 @@
       customTheme: $('#theme-input').value,
       code: $('#code-input').value,
       settings: state.settings,
+      mosaics: state.mosaics,
       titleTouched: state.titleTouched,
       story: state.story,
       puzzles: state.puzzles
@@ -136,14 +156,22 @@
     if (dirty && (project.id || state.story)) { save(); e.preventDefault(); e.returnValue = ''; }
   });
 
-  function letterSlots() {
+  // One slot per puzzle, in game order: a letter of a letter chapter or a piece of a Mosaic chapter.
+  function gameSlots() {
     if (!state.story) return [];
     const out = [];
+    let title = 0;
     state.story.chapters.forEach((c, ci) => {
-      c.word.split('').forEach((ch, li) => out.push({ letter: ch, chapter: ci, pos: li, len: c.word.length }));
+      if (Story.isMosaic(c)) {
+        const plan = state.mosaics[ci];
+        (plan ? plan.pieces : []).forEach((p) => out.push({ kind: 'piece', chapter: ci, slot: p.slot, label: p.label, showLabel: p.showLabel, mask: p.mask }));
+        return;
+      }
+      c.word.split('').forEach((ch, li) => out.push({ kind: 'letter', letter: ch, chapter: ci, pos: li, len: c.word.length, titleIndex: title++ }));
     });
     return out;
   }
+  const slotName = (slot) => (slot.kind === 'piece' ? `piece ${slot.label}` : `letter ${slot.letter}`);
 
   function showScreen(name) {
     $('#screen-start').classList.toggle('hidden', name !== 'start');
@@ -160,6 +188,69 @@
     $('#adv-reverse-field').classList.toggle('hidden', !PRESETS[b.dataset.diff].reverse);
     renderPrompt(); markDirty();
   });
+
+  // ---------------------------------------------------------------- game type (PRO)
+  function offerUpgrade(what) {
+    const box = $('#pro-note');
+    box.classList.remove('hidden');
+    box.innerHTML = `<b>${esc(what)}</b> is part of SlitherEscape PRO.${PRO.upgradeUrl ? ` <a href="${esc(PRO.upgradeUrl)}" target="_blank" rel="noopener">Upgrade to PRO</a>` : ' Contact support to upgrade.'}`;
+  }
+
+  function renderMode() {
+    const st = state.settings;
+    $$('#mode-grid .diff').forEach((b) => {
+      b.classList.toggle('on', b.dataset.mode === st.mode);
+      b.classList.toggle('locked', !PRO.enabled && b.dataset.mode !== 'letter');
+    });
+    const types = chapterTypes();
+    $('#mode-options').classList.toggle('hidden', !types);
+    $('#mode-chapters').value = String(st.modeChapters);
+    $('#mode-chapter-types').innerHTML = st.mode !== 'mixed' ? '' : Array.from({ length: st.modeChapters }, (_, i) =>
+      `<label class="field"><span>Chapter ${i + 1}</span><select data-chapter-type="${i}">
+        <option value="letter" ${st.chapterTypes[i] !== 'mosaic' ? 'selected' : ''}>Letters</option>
+        <option value="mosaic" ${st.chapterTypes[i] === 'mosaic' ? 'selected' : ''}>Mosaic picture</option>
+      </select></label>`).join('');
+    // Mosaic words are picture names, so the seller's code and the puzzle count don't apply.
+    $('#code-section').classList.toggle('hidden', !!types);
+    renderCode();
+    $('#kit-on').checked = !!st.kit;
+    $('#kit-options').classList.toggle('hidden', !st.kit);
+    $('#kit-players').value = String(st.kitPlayers);
+    $('#kit-play').value = st.kitPlay;
+    $('#kit-teams').value = String(st.kitTeams);
+    $('#kit-teams-field').classList.toggle('hidden', st.kitPlay !== 'teams');
+    if (PRO.enabled) {
+      const note = $('#pro-note');
+      const empty = types && !library().length;
+      note.classList.toggle('hidden', !empty);
+      if (empty) note.textContent = 'No pictures have been approved yet. Approve some in Admin > Image library first.';
+    }
+  }
+
+  $('#mode-grid').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-mode]');
+    if (!b) return;
+    if (!PRO.enabled && b.dataset.mode !== 'letter') { offerUpgrade(b.dataset.mode === 'mosaic' ? 'Mosaic' : 'Mixed mode'); return; }
+    state.settings.mode = b.dataset.mode;
+    renderMode(); renderPrompt(); markDirty();
+  });
+  $('#mode-chapters').addEventListener('change', (e) => { state.settings.modeChapters = +e.target.value; renderMode(); renderPrompt(); markDirty(); });
+  $('#mode-chapter-types').addEventListener('change', (e) => {
+    const i = e.target.dataset.chapterType;
+    if (i === undefined) return;
+    state.settings.chapterTypes[+i] = e.target.value;
+    renderPrompt(); markDirty();
+  });
+  $('#kit-on').addEventListener('change', (e) => {
+    if (!PRO.enabled) { e.target.checked = false; offerUpgrade('The Party Props Kit'); return; }
+    state.settings.kit = e.target.checked;
+    renderMode(); renderPrompt(); markDirty();
+    if (state.story) renderResult();
+  });
+  const kitBind = (id, key, num) => $('#' + id).addEventListener('change', (e) => { state.settings[key] = num ? +e.target.value : e.target.value; renderMode(); markDirty(); });
+  kitBind('kit-players', 'kitPlayers', true);
+  kitBind('kit-play', 'kitPlay', false);
+  kitBind('kit-teams', 'kitTeams', true);
 
   function renderThemes() {
     const groups = [];
@@ -219,9 +310,9 @@
         + `<span class="ok">${c.words.length} chapters · ${c.letters} puzzles</span>`;
     }
     // A fixed code decides the puzzle and chapter counts.
-    const fixed = !!sellerCode();
+    const fixed = !!sellerCode() || !!chapterTypes();
     ['#adv-count', '#adv-chapters'].forEach((id) => { $(id).disabled = fixed; });
-    $('#adv-count').title = fixed ? 'Set by your secret code' : '';
+    $('#adv-count').title = fixed ? (chapterTypes() ? 'Set by the game type' : 'Set by your secret code') : '';
   }
 
   $('#code-input').addEventListener('input', () => { renderCode(); renderPrompt(); markDirty(); });
@@ -230,7 +321,8 @@
     const st = state.settings;
     $('#prompt-box').value = Story.buildPrompt({
       themeId: state.themeId, customTheme: $('#theme-input').value, plotId: state.plotId,
-      difficulty: st.difficulty, puzzleCount: st.count, chapterCount: st.chapters, code: sellerCode()
+      difficulty: st.difficulty, puzzleCount: st.count, chapterCount: st.chapters, code: sellerCode(),
+      chapterTypes: chapterTypes(), images: imagesForPrompt(), partyKit: !!st.kit
     });
   }
 
@@ -238,7 +330,7 @@
     const missing = !state.themeId ? ['#theme-grid', 'Pick a theme first']
       : state.themeId === 'other' && !$('#theme-input').value.trim() ? ['#theme-input', 'Describe your custom theme first']
       : !state.plotId ? ['#plot-grid', 'Pick a story type first']
-      : $('#code-input').value.trim() && Story.codeError($('#code-input').value) ? ['#code-input', 'Fix your secret code first, or leave it empty'] : null;
+      : !chapterTypes() && $('#code-input').value.trim() && Story.codeError($('#code-input').value) ? ['#code-input', 'Fix your secret code first, or leave it empty'] : null;
     if (missing) {
       $(missing[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
       if (missing[0] === '#theme-input' || missing[0] === '#code-input') $(missing[0]).focus();
@@ -274,11 +366,16 @@
 
   function acceptStory(raw, opts = {}) {
     const story = Story.normalise(raw);
+    const types = opts.fixedCount ? null : chapterTypes();
+    // The AI writes only the words; which chapters are pictures comes from the chosen game type.
+    if (!opts.fixedCount) story.chapters.forEach((c, i) => { c.type = types && types[i] === 'mosaic' ? 'mosaic' : 'letter'; });
     const { errors, warnings } = Story.validate(story, {
       puzzleCount: opts.fixedCount ? null : state.settings.count,
-      chapterCount: opts.fixedCount ? null : state.settings.chapters,
+      chapterCount: opts.fixedCount ? null : types ? types.length : state.settings.chapters,
       code: opts.fixedCount ? null : sellerCode(),
-      hasGlyph: () => true
+      hasGlyph: () => true,
+      images: library(),
+      partyKit: !opts.fixedCount && !!state.settings.kit
     });
     showCheck(errors, warnings);
     if (errors.length) {
@@ -286,6 +383,7 @@
       return false;
     }
     state.story = story;
+    state.mosaics = {};
     if (!state.titleTouched) $('#project-title').value = story.title;
     markDirty();
     buildGame();
@@ -309,6 +407,10 @@
     acceptStory(raw);
   });
 
+  function templates() {
+    return window.STORY_TEMPLATES.concat(window.ProPacks || []);
+  }
+
   $('#demo-error').addEventListener('click', () => {
     const broken = JSON.parse(JSON.stringify(window.STORY_TEMPLATES[0].story));
     broken.chapters[1].word = 'SLEIGH2';
@@ -319,9 +421,14 @@
   });
 
   function renderTemplates() {
-    $('#template-grid').innerHTML = window.STORY_TEMPLATES.map((t, i) => {
+    const locked = PRO.enabled ? '' : `<div class="card template-card locked" data-pack-locked="1">
+        <h3>Theme Packs <span class="badge warn pro-tag">PRO</span></h3>
+        <p class="small muted">Ready-made picture games with stories, questions and party props.</p>
+        <button class="btn sm" style="margin-top:6px">See what's inside</button>
+      </div>`;
+    $('#template-grid').innerHTML = templates().map((t, i) => {
       const s = t.story;
-      const total = s.chapters.reduce((n, c) => n + c.word.length, 0);
+      const total = s.chapters.reduce((n, c) => n + (c.type === 'mosaic' ? 4 : c.word.length), 0);
       return `<div class="card template-card" data-template="${i}">
         <h3>${esc(s.title)}</h3>
         <div class="code">${esc(s.chapters.map((c) => c.word).join(' '))}</div>
@@ -329,12 +436,13 @@
         <div class="project-meta"><span class="badge">${total} puzzles</span><span class="badge">${s.chapters.length} chapters</span></div>
         <button class="btn primary sm" style="margin-top:6px">Use this story</button>
       </div>`;
-    }).join('');
+    }).join('') + locked;
   }
   $('#template-grid').addEventListener('click', (e) => {
+    if (e.target.closest('[data-pack-locked]')) { offerUpgrade('Theme Packs'); $('#mode-section').scrollIntoView({ behavior: 'smooth' }); return; }
     const card = e.target.closest('[data-template]');
     if (!card) return;
-    const t = window.STORY_TEMPLATES[+card.dataset.template];
+    const t = templates()[+card.dataset.template];
     state.themeId = t.themeId;
     state.plotId = t.plotId;
     renderThemes(); renderPlots();
@@ -408,6 +516,9 @@
   // One generator job per letter. Reverse-mode puzzles (Adults only) go last in a chapter;
   // repeated letters get different glyph variants.
   function jobFor(i, slot, seed, seen) {
+    if (slot.kind === 'piece') {
+      return { index: i, mask: slot.mask, W: 10, H: 10, difficulty: state.settings.difficulty, seed: `${seed}-${i}-piece` };
+    }
     const eff = effective();
     const occurrence = seen ? (seen[slot.letter] = (seen[slot.letter] || 0) + 1) - 1 : 0;
     return {
@@ -442,15 +553,78 @@
     });
   }
 
+  // Plans the cut of every picture chapter that has no plan yet. Returns an error sentence or null.
+  function planMosaics() {
+    const chapters = state.story.chapters;
+    for (let ci = 0; ci < chapters.length; ci++) {
+      if (!Story.isMosaic(chapters[ci]) || state.mosaics[ci]) continue;
+      if (!window.Mosaic) return 'This game uses Mosaic chapters, which need SlitherEscape PRO.';
+      const img = library().find((m) => m.name === chapters[ci].word);
+      if (!img) return `The picture ${chapters[ci].word} is no longer in the library.`;
+      try {
+        state.mosaics[ci] = window.Mosaic.plan({ rows: img.rows, difficulty: state.settings.difficulty, seed: `${state.settings.seed}-m${ci}` });
+      } catch (e) {
+        return `${chapters[ci].word}: ${e.message}`;
+      }
+    }
+    return null;
+  }
+
+  // The picture printed on the Answer Board plus decoys: first those that look alike, then
+  // the same theme, then any other. Never another picture of this game.
+  function answerBoards() {
+    const lib = library();
+    const used = state.story.chapters.filter(Story.isMosaic).map((c) => c.word);
+    const r = window.Generator ? window.Generator.rng(state.settings.seed + '-board') : null;
+    const boards = {};
+    state.story.chapters.forEach((c, ci) => {
+      if (!Story.isMosaic(c)) return;
+      const img = lib.find((m) => m.name === c.word);
+      const size = state.settings.difficulty === 'hard' ? 8 : 6;
+      const free = lib.filter((m) => !used.includes(m.name));
+      const near = free.filter((m) => (img.similar || []).includes(m.name));
+      const theme = r.shuffle(free.filter((m) => m.theme === img.theme && !near.includes(m)));
+      const rest = r.shuffle(free.filter((m) => m.theme !== img.theme && !near.includes(m)));
+      boards[ci] = r.shuffle([img].concat(near, theme, rest).slice(0, size));
+      // The true picture must survive the cut even when many decoys look alike.
+      if (!boards[ci].includes(img)) boards[ci][0] = img;
+    });
+    return boards;
+  }
+
+  function drawPicture(canvas, plan) {
+    const cell = 5;
+    canvas.width = canvas.height = cell * 20;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFCF6';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#3B2412';
+    plan.slots.forEach((slot, s) => {
+      const ox = (s % 2) * 10, oy = (s >> 1) * 10;
+      slot.cells.forEach((v, i) => { if (v) ctx.fillRect((ox + i % 10) * cell, (oy + Math.floor(i / 10)) * cell, cell, cell); });
+    });
+    ctx.strokeStyle = '#C9A877';
+    ctx.beginPath();
+    ctx.moveTo(50, 0); ctx.lineTo(50, 100); ctx.moveTo(0, 50); ctx.lineTo(100, 50);
+    ctx.stroke();
+  }
+
   // ---------------------------------------------------------------- build
   let building = false;
   function buildGame() {
     if (building || !state.story) return;
+    const planError = planMosaics();
+    if (planError) {
+      showScreen('start');
+      showCheck([{ msg: planError, ai: planError }], []);
+      $('#check-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     building = true;
     showScreen('result');
     $('#building').classList.remove('hidden');
     $('#result-body').classList.add('hidden');
-    const slots = letterSlots();
+    const slots = gameSlots();
     const seen = {};
     const jobs = slots.map((slot, i) => jobFor(i, slot, state.settings.seed, seen));
     state.puzzles = [];
@@ -458,7 +632,7 @@
     let done = 0;
     const started = Date.now();
     $('#gen-fill').style.width = '0';
-    $('#gen-status').textContent = `Puzzle 1 of ${slots.length}: letter ${slots[0].letter}`;
+    $('#gen-status').textContent = `Puzzle 1 of ${slots.length}: ${slotName(slots[0])}`;
     $('#gen-count').textContent = '0%';
     const finish = () => {
       building = false;
@@ -475,7 +649,7 @@
         done++;
         const next = slots[done];
         $('#gen-fill').style.width = (100 * done / slots.length) + '%';
-        $('#gen-status').textContent = next ? `Puzzle ${done + 1} of ${slots.length}: letter ${next.letter}` : 'Final checks…';
+        $('#gen-status').textContent = next ? `Puzzle ${done + 1} of ${slots.length}: ${slotName(next)}` : 'Final checks…';
         $('#gen-count').textContent = `${Math.round(100 * done / slots.length)}%`;
       },
       onError(i, msg) { errors.push(msg); done++; if (i < 0) finish(); },
@@ -490,13 +664,20 @@
     const pages = [['Cover', 1], ['Prologue and mission', 1], ['How to Play (rules + example)', 1], ['Code Sheet', 1]];
     s.chapters.forEach((c, ci) => {
       pages.push([`Chapter ${ci + 1}: ${c.name} — intro`, 1]);
-      pages.push([`Chapter ${ci + 1} — ${c.word.length} puzzle pages`, c.word.length]);
+      if (Story.isMosaic(c)) {
+        const pieces = state.mosaics[ci] ? state.mosaics[ci].pieces.length : 4;
+        pages.push([`Chapter ${ci + 1} — ${pieces} picture pieces`, Math.ceil(pieces / 4)]);
+        pages.push([`Chapter ${ci + 1} — Assembly Board`, 1]);
+        pages.push([`Chapter ${ci + 1} — Answer Board`, 1]);
+      } else {
+        pages.push([`Chapter ${ci + 1} — ${c.word.length} puzzle pages`, c.word.length]);
+      }
     });
     pages.push(['Final Lock', 1]);
     pages.push(['Host guide', 2, true]);
     pages.push(['20 hint questions', 2, true]);
     pages.push([`Cut-out hint cards (${n * 2} cards)`, Math.ceil(n * 2 / 6), true]);
-    pages.push(['Answer key', Math.ceil(n / 4), true]);
+    pages.push(['Answer key', Math.ceil(n / 4) + (s.chapters.some(Story.isMosaic) ? 1 : 0), true]);
     pages.push(['Certificate (landscape)', 1]);
     return pages;
   }
@@ -506,18 +687,21 @@
     const n = puzzleCount();
     const out = [];
     // The code was checked when the story was loaded; here only the text limits matter.
-    const { errors } = Story.validate(s, { code: s.chapters.map((c) => c.word).join(' '), hasGlyph: () => true });
+    const { errors } = Story.validate(s, { code: s.chapters.map((c) => c.word).join(' '), hasGlyph: () => true, images: library() });
     out.push([errors.length ? 'err' : 'ok', 'Story and word limits', errors.length ? errors.slice(0, 3).map((e) => e.msg).join(' ') : 'Every part fits its printed page']);
     const built = state.puzzles.filter(Boolean);
-    const slots = letterSlots();
-    out.push([built.length === n ? 'ok' : 'err', `${built.length} of ${n} puzzles built`, built.length === n ? 'Every letter of the code has its puzzle' : 'Use "New puzzles" to try again']);
-    const wrongLetter = state.puzzles.filter((p, i) => p && p.letter !== slots[i].letter).length;
+    const slots = gameSlots();
+    out.push([built.length === n ? 'ok' : 'err', `${built.length} of ${n} puzzles built`, built.length === n ? 'Every letter and picture piece has its puzzle' : 'Use "New puzzles" to try again']);
+    const wrongLetter = state.puzzles.filter((p, i) => p && slots[i] && slots[i].kind === 'letter' && p.letter !== slots[i].letter).length;
     out.push([wrongLetter ? 'err' : 'ok', 'Letters match the code', wrongLetter ? `${wrongLetter} puzzle(s) spell the wrong letter` : 'Each loop traces its letter of the code']);
+    const wrongPiece = state.puzzles.filter((p, i) => p && slots[i] && slots[i].kind === 'piece' && p.inside.join('') !== slots[i].mask.join('')).length;
+    if (slots.some((x) => x.kind === 'piece')) out.push([wrongPiece ? 'err' : 'ok', 'Pieces match the pictures', wrongPiece ? `${wrongPiece} piece(s) do not match` : 'Each loop traces its part of the picture']);
     const broken = built.filter((p) => !p.verify || p.verify.problems.some((x) => x !== 'more than one solution' && x !== 'no solution'));
     out.push([broken.length ? 'err' : 'ok', 'Valid Slitherlink', broken.length ? broken[0].verify.problems.join('; ') : 'One closed loop, every dot has degree 0 or 2, clues match the loop']);
     const notUnique = built.filter((p) => !p.verify || !p.verify.unique);
     out.push([notUnique.length ? 'err' : 'ok', 'Unique solution', notUnique.length ? `${notUnique.length} puzzle(s) failed the solution count` : 'The solution counter confirms exactly one solution per puzzle']);
     out.push(['ok', 'Answers shuffled', 'Correct answers spread evenly over A, B and C']);
+    if (s.chapters.some(Story.isMosaic) && !window.PdfPro) out.push(['err', 'SlitherEscape PRO', 'This game has Mosaic chapters, so downloading it needs SlitherEscape PRO']);
     return out;
   }
 
@@ -554,6 +738,8 @@
     $('#checklist').innerHTML = list.map(([k, t, d]) =>
       `<li><span class="check-icon ${k}">${k === 'ok' ? '✓' : '×'}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></li>`).join('');
     $('#export-pdf').disabled = bad > 0;
+    $('#export-kit').classList.toggle('hidden', !state.settings.kit || !window.PdfPro);
+    $('#export-kit').disabled = bad > 0;
 
     let from = 1;
     $('#page-list').innerHTML = pages.map(([name, count, host]) => {
@@ -568,27 +754,29 @@
   const REGEN_ICON = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 10a6 6 0 1 1-2-4.5M16 3v4h-4"/></svg>';
 
   function renderPuzzles() {
-    const slots = letterSlots();
+    const slots = gameSlots();
     const show = $('#show-solution').checked;
     let i = 0;
     $('#puzzle-chapters').innerHTML = state.story.chapters.map((c, ci) => `<div class="chapter-block">
-      <h3>Chapter ${ci + 1}: ${esc(c.name)} <small>${esc(c.word)}</small></h3>
-      <div class="puzzle-grid">${c.word.split('').map(() => {
+      <h3>Chapter ${ci + 1}: ${esc(c.name)} <small>${esc(c.word)}${Story.isMosaic(c) ? ' · Mosaic picture' : ''}</small></h3>
+      ${Story.isMosaic(c) && state.mosaics[ci] ? `<div class="mosaic-preview"><canvas data-picture="${ci}"></canvas><span class="small muted">The finished picture, as players assemble it. Pieces are numbered in shuffled order.</span></div>` : ''}
+      <div class="puzzle-grid">${slots.filter((x) => x.chapter === ci).map(() => {
         const n = i++, p = state.puzzles[n], slot = slots[n];
+        const tag = slot.kind === 'piece' ? slot.label : slot.letter;
         if (!p) {
-          return `<div class="card puzzle-card"><div class="puzzle-thumb"><span class="letter-tag">${esc(slot.letter)}</span><div class="small" style="padding:60px 0;color:var(--err)">Not built</div></div>
+          return `<div class="card puzzle-card"><div class="puzzle-thumb"><span class="letter-tag">${esc(tag)}</span><div class="small" style="padding:60px 0;color:var(--err)">Not built</div></div>
           <div class="puzzle-foot"><span class="badge err">Failed</span><button class="icon-btn" title="Try again" data-regen="${n}">${REGEN_ICON}</button></div></div>`;
         }
         const ok = p.verify && p.verify.ok;
         return `<div class="card puzzle-card">
           <div class="puzzle-thumb">
-            <span class="letter-tag">${esc(slot.letter)}</span>
+            <span class="letter-tag">${esc(tag)}</span>
             ${p.reverse ? '<span class="badge warn mode-tag">Reverse</span>' : ''}
             <canvas data-puzzle="${n}"></canvas>
           </div>
           <div class="puzzle-info">
-            <div class="t">${n + 1}. ${esc(state.story.puzzleTitles[n] || '')}</div>
-            <div class="s">Word ${ci + 1}, letter ${slot.pos + 1} of ${slot.len} · ${p.clueCount} clues</div>
+            <div class="t">${n + 1}. ${esc(slot.kind === 'piece' ? `Piece for square ${slot.label}` : state.story.puzzleTitles[slot.titleIndex] || '')}</div>
+            <div class="s">${slot.kind === 'piece' ? (slot.showLabel ? 'Square printed on the piece' : 'Players work out the square') : `Word ${ci + 1}, letter ${slot.pos + 1} of ${slot.len}`} · ${p.clueCount} clues</div>
           </div>
           <div class="puzzle-foot">
             ${ok ? '<span class="badge ok"><span class="dot"></span>Unique</span>' : '<span class="badge err">Check failed</span>'}
@@ -598,6 +786,7 @@
       }).join('')}</div>
     </div>`).join('');
     $$('canvas[data-puzzle]').forEach((cv) => drawPuzzle(cv, state.puzzles[+cv.dataset.puzzle], show));
+    $$('canvas[data-picture]').forEach((cv) => drawPicture(cv, state.mosaics[+cv.dataset.picture]));
   }
   $('#show-solution').addEventListener('change', renderPuzzles);
   $('#puzzle-chapters').addEventListener('click', (e) => {
@@ -607,7 +796,7 @@
     b.disabled = true;
     b.closest('.puzzle-card').style.opacity = '.5';
     let failed = false;
-    runJobs([jobFor(n, letterSlots()[n], newSeed())], {
+    runJobs([jobFor(n, gameSlots()[n], newSeed())], {
       onPuzzle(i, p) { state.puzzles[i] = p; },
       onError(i, msg) { failed = true; toast(`Puzzle ${n + 1}: ${msg}`); },
       onDone() { renderResult(); markDirty(); if (!failed) toast(`Puzzle ${n + 1} replaced`); }
@@ -616,6 +805,7 @@
 
   $('#btn-regen').addEventListener('click', () => {
     state.settings.seed = newSeed();
+    state.mosaics = {};
     buildGame();
   });
   $('#btn-restart').addEventListener('click', () => {
@@ -638,6 +828,54 @@
 
   const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'escape-game';
 
+  async function gameForPdf() {
+    const eff = effective();
+    const p = PRESETS[state.settings.difficulty];
+    const n = puzzleCount();
+    const audienceLong = { easy: 'children aged 11 to 13', medium: 'teenagers aged 14 to 17', hard: 'adults' }[state.settings.difficulty];
+    const hasMosaic = state.story.chapters.some(Story.isMosaic);
+    return {
+      story: state.story,
+      puzzles: state.puzzles,
+      slots: gameSlots(),
+      mosaics: state.mosaics,
+      answerBoards: hasMosaic ? answerBoards() : {},
+      partyKit: !!state.settings.kit && !!window.PdfPro,
+      kit: { players: state.settings.kitPlayers, play: state.settings.kitPlay, teams: state.settings.kitTeams },
+      example: await exampleFor(state.settings.seed),
+      paper: eff.paper,
+      inkSaver: eff.inkSaver,
+      motif: eff.motif,
+      shop: DEFAULTS.shop,
+      audience: p.audience.replace('–', '-'),
+      audienceLong,
+      minutes: [p.minutes[0] * n, p.minutes[1] * n],
+      seed: state.settings.seed
+    };
+  }
+
+  $('#export-kit').addEventListener('click', async () => {
+    const btn = $('#export-kit');
+    const status = (pct, text) => {
+      $('#export-fill').style.width = Math.round(pct * 100) + '%';
+      $('#export-status').textContent = text;
+    };
+    btn.disabled = true;
+    $('#export-progress').classList.remove('hidden');
+    status(0, 'Preparing…');
+    try {
+      const doc = await window.PdfPro.buildKit(await gameForPdf(), (pct, text) => status(pct, `${text}…`));
+      const file = `${slug(state.story.title)}-party-kit-${effective().paper}.pdf`;
+      doc.save(file);
+      status(1, `Downloaded ${file} (${doc.getNumberOfPages()} pages)`);
+    } catch (err) {
+      console.error(err);
+      status(0, 'Export failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   $('#export-pdf').addEventListener('click', async () => {
     const btn = $('#export-pdf');
     const status = (pct, text) => {
@@ -649,23 +887,7 @@
     status(0, 'Preparing…');
     try {
       const eff = effective();
-      const p = PRESETS[state.settings.difficulty];
-      const n = puzzleCount();
-      const audienceLong = { easy: 'children aged 11 to 13', medium: 'teenagers aged 14 to 17', hard: 'adults' }[state.settings.difficulty];
-      const game = {
-        story: state.story,
-        puzzles: state.puzzles,
-        slots: letterSlots(),
-        example: await exampleFor(state.settings.seed),
-        paper: eff.paper,
-        inkSaver: eff.inkSaver,
-        motif: eff.motif,
-        shop: DEFAULTS.shop,
-        audience: p.audience.replace('–', '-'),
-        audienceLong,
-        minutes: [p.minutes[0] * n, p.minutes[1] * n],
-        seed: state.settings.seed
-      };
+      const game = await gameForPdf();
       const doc = await window.PdfBuilder.build(game, (pct, text) => status(pct, `${text}…`));
       const file = `${slug(state.story.title)}-${eff.paper}.pdf`;
       doc.save(file);
@@ -696,6 +918,13 @@
     const L = Story.LIMITS;
     let idx = 0;
     const chapters = s.chapters.map((c, ci) => {
+      if (Story.isMosaic(c)) {
+        return `<div class="chapter">
+          <div class="chapter-head"><h4>Chapter ${ci + 1} · Mosaic picture</h4><span class="badge">${esc(c.word)}</span></div>
+          ${fieldText(`chapters.${ci}.name`, 'Chapter name', c.name, L.chapterName.words)}
+          ${fieldText(`chapters.${ci}.intro`, 'Chapter intro', c.intro, L.chapterIntro.words, 4)}
+        </div>`;
+      }
       const titles = c.word.split('').map((ch, li) => {
         const i = idx++;
         return `<div class="title-row">
@@ -770,7 +999,7 @@
     if (!state.titleTouched) $('#project-title').value = state.story.title;
     if (codeSpaced() !== wordsAtEditStart) {
       // New letters mean new puzzles; keep titles aligned with the new letter count.
-      const n = puzzleCount();
+      const n = Story.titleCount(state.story);
       state.story.puzzleTitles = Array.from({ length: n }, (_, i) => state.story.puzzleTitles[i] || '');
       buildGame();
     } else {
@@ -806,6 +1035,7 @@
 
   // ---------------------------------------------------------------- init
   $('#adv-reverse-field').classList.add('hidden');
+  renderMode();
   renderThemes();
   renderPlots();
   renderTemplates();
@@ -832,12 +1062,14 @@
     $('#adv-reverse').value = String(st.reverse ?? 1);
     $('#adv-paper').value = st.paper || '';
     $('#adv-ink').value = st.ink || '';
-    renderThemes(); renderPlots(); renderCode(); renderMotifs(); renderPrompt();
+    state.mosaics = data.mosaics && !Array.isArray(data.mosaics) ? data.mosaics : {};
+    renderMode(); renderThemes(); renderPlots(); renderCode(); renderMotifs(); renderPrompt();
     if (!data.story) return;
     state.story = Story.normalise(data.story);
     const puzzles = Array.isArray(data.puzzles) ? data.puzzles : [];
-    const slots = letterSlots();
-    const complete = puzzles.length === slots.length && puzzles.every((p, i) => p && p.letter === slots[i].letter);
+    const slots = gameSlots();
+    const planned = state.story.chapters.every((c, ci) => !Story.isMosaic(c) || state.mosaics[ci]);
+    const complete = planned && puzzles.length === slots.length && puzzles.every((p, i) => p && (slots[i].kind === 'piece' ? p.kind === 'piece' : p.letter === slots[i].letter));
     if (complete) {
       state.puzzles = puzzles;
       showScreen('result');

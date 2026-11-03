@@ -15,6 +15,7 @@ if (isset($_GET['id'])) {
     }
 }
 $title = $project['title'] ?? 'New game';
+$pro = has_plan($user, 'pro');
 $boot = [
     'id' => $project ? (int)$project['id'] : 0,
     'title' => $title,
@@ -31,6 +32,7 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_
 window.ACCOUNT_DEFAULTS = <?= json_encode($defaults, $jsonFlags) ?>;
 window.PROJECT = <?= json_encode($boot, $jsonFlags) ?>;
 window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
+window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config()['upgrade_url'] ?? '')], $jsonFlags) ?>;
 </script>
 <main class="workspace">
 
@@ -59,8 +61,32 @@ window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
       </div>
     </div>
 
+    <div class="card card-pad section" id="mode-section">
+      <h3 class="q-title"><span class="n">2</span>Choose the game type</h3>
+      <div class="diff-grid" id="mode-grid">
+        <button class="diff on" data-mode="letter"><span class="check"></span><h4>Classic letters</h4><div class="age">Each puzzle reveals one letter</div></button>
+        <button class="diff" data-mode="mosaic"><span class="check"></span><h4>Mosaic <span class="badge warn pro-tag">PRO</span></h4><div class="age">Puzzles are pieces of a big picture</div></button>
+        <button class="diff" data-mode="mixed"><span class="check"></span><h4>Mixed <span class="badge warn pro-tag">PRO</span></h4><div class="age">Each chapter picks its own type</div></button>
+      </div>
+      <div class="mode-options hidden" id="mode-options">
+        <label class="field"><span>Chapters</span>
+          <select id="mode-chapters"><option value="2">2 chapters</option><option value="3">3 chapters</option></select>
+        </label>
+        <div class="mode-chapter-types" id="mode-chapter-types"></div>
+      </div>
+      <div class="kit-row" id="kit-row">
+        <label class="toggle small"><input type="checkbox" id="kit-on"><span class="track"></span> Add the Party Props Kit <span class="badge warn pro-tag">PRO</span></label>
+        <div class="kit-options hidden" id="kit-options">
+          <label class="field"><span>Players</span><select id="kit-players"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></label>
+          <label class="field"><span>How they play</span><select id="kit-play"><option value="together">Together</option><option value="teams">Competing teams</option></select></label>
+          <label class="field hidden" id="kit-teams-field"><span>Teams</span><select id="kit-teams"><option>2</option><option>3</option><option>4</option></select></label>
+        </div>
+      </div>
+      <div class="alert info hidden" id="pro-note"></div>
+    </div>
+
     <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">2</span>Pick a theme</h3>
+      <h3 class="q-title"><span class="n">3</span>Pick a theme</h3>
       <div id="theme-grid"></div>
       <div class="other-theme hidden" id="other-theme">
         <input type="text" id="theme-input" class="big-input" placeholder="Describe your theme, e.g. A summer wedding by the sea">
@@ -69,12 +95,12 @@ window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
     </div>
 
     <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">3</span>Pick a story type</h3>
+      <h3 class="q-title"><span class="n">4</span>Pick a story type</h3>
       <div class="plot-grid" id="plot-grid"></div>
     </div>
 
-    <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">4</span>Your secret code <span class="optional">optional</span></h3>
+    <div class="card card-pad section" id="code-section">
+      <h3 class="q-title"><span class="n">5</span>Your secret code <span class="optional">optional</span></h3>
       <div class="code-input-row">
         <input type="text" id="code-input" class="big-input mono" maxlength="40" autocomplete="off" spellcheck="false" placeholder="e.g. HAPPY HALLOWEEN">
         <span class="code-count" id="code-count">0/20 letters</span>
@@ -84,7 +110,7 @@ window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
     </div>
 
     <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">5</span>Get the story from your AI</h3>
+      <h3 class="q-title"><span class="n">6</span>Get the story from your AI</h3>
       <div class="ai-steps">
         <div class="ai-step">
           <p class="small muted">Copy the prompt and paste it into ChatGPT or Claude.</p>
@@ -197,6 +223,7 @@ window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
             <div class="progress-track"><div class="progress-fill" id="export-fill"></div></div>
             <div class="progress-text"><span id="export-status">Building pages…</span><span></span></div>
           </div>
+          <button class="btn lg download hidden" id="export-kit">Download Party Kit</button>
           <div class="r-links">
             <button class="btn ghost sm" id="btn-edit">Edit text</button>
             <button class="btn ghost sm" id="btn-regen">New puzzles</button>
@@ -234,4 +261,13 @@ window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
 </main>
 
 <div class="toast" id="toast"></div>
-<?php page_foot(['assets/vendor/jspdf.umd.min.js', 'assets/js/pdf/paper.js', 'assets/js/pdf/pdf.js', 'assets/js/ui.js', 'assets/js/themes.js', 'assets/js/story.js', 'assets/js/templates.js', 'assets/js/editor.js']); ?>
+<?php
+$scripts = ['assets/vendor/jspdf.umd.min.js', 'assets/js/pdf/paper.js', 'assets/js/pdf/pdf.js', 'assets/js/ui.js', 'assets/js/themes.js', 'assets/js/story.js', 'assets/js/templates.js'];
+foreach ($scripts as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
+if ($pro) {
+    // Engine helpers the Mosaic planner needs on this page, then the gated PRO files.
+    foreach (['assets/js/engine/glyphs.js', 'assets/js/engine/slither.js', 'assets/js/engine/generator.js'] as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
+    foreach (['mosaic', 'pdf-mosaic', 'pdf-party', 'packs', 'library'] as $f) echo '<script src="pro.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
+}
+page_foot(['assets/js/editor.js']);
+?>

@@ -41,6 +41,7 @@ function page_head(string $title, string $bodyClass = '', array $opts = []): voi
   <nav class="topnav">
     <a href="dashboard.php" class="<?= ($opts['nav'] ?? '') === 'projects' ? 'active' : '' ?>">Projects</a>
     <a href="account.php" class="<?= ($opts['nav'] ?? '') === 'account' ? 'active' : '' ?>">Account</a>
+    <?php if ($user && !empty($user['is_admin'])): ?><a href="admin.php" class="<?= ($opts['nav'] ?? '') === 'admin' ? 'active' : '' ?>">Admin</a><?php endif; ?>
     <?php if ($user): ?>
     <span class="user-chip" title="<?= h($user['email']) ?>"><?= h(mb_strtoupper(mb_substr($user['shop_name'] ?: $user['email'], 0, 1))) ?></span>
     <form method="post" action="logout.php" class="logout-form"><?= csrf_field() ?><button type="submit">Log out</button></form>
@@ -58,7 +59,8 @@ function asset_version(): string
     if ($v === null) {
         // Newest change across all scripts and styles, so any updated file busts the cache.
         $root = __DIR__ . '/../assets/';
-        $files = array_merge(glob($root . 'js/*.js') ?: [], glob($root . 'js/*/*.js') ?: [], glob($root . 'css/*.css') ?: []);
+        $pro = __DIR__ . '/../pro/';
+        $files = array_merge(glob($root . 'js/*.js') ?: [], glob($root . 'js/*/*.js') ?: [], glob($root . 'css/*.css') ?: [], glob($pro . '*/*.js') ?: []);
         $v = (string)max(array_map('filemtime', $files) ?: [0]);
     }
     return $v;

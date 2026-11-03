@@ -30,8 +30,15 @@ function own_project(int $id, int $userId): array
 function summarise(array $data): array
 {
     $chapters = $data['story']['chapters'] ?? [];
-    $words = array_values(array_filter(array_map(fn($c) => strtoupper((string)($c['word'] ?? '')), is_array($chapters) ? $chapters : [])));
-    $count = array_sum(array_map('strlen', $words));
+    $chapters = is_array($chapters) ? $chapters : [];
+    $words = array_values(array_filter(array_map(fn($c) => strtoupper((string)($c['word'] ?? '')), $chapters)));
+    // A letter chapter has one puzzle per letter; a Mosaic chapter has its planned pieces (usually 4).
+    $count = 0;
+    foreach ($chapters as $i => $c) {
+        $count += ($c['type'] ?? '') === 'mosaic'
+            ? count($data['mosaics'][$i]['pieces'] ?? [1, 2, 3, 4])
+            : strlen((string)($c['word'] ?? ''));
+    }
     $puzzles = is_array($data['puzzles'] ?? null) ? $data['puzzles'] : [];
     $built = count(array_filter($puzzles, fn($p) => is_array($p) && !empty($p['verify']['ok'])));
     $status = !$words ? 'draft' : (($count > 0 && $built === $count) ? 'ready' : 'story');
@@ -81,6 +88,7 @@ switch ($action) {
         // Same story, new seed: the copy rebuilds a completely different set of puzzles.
         $data['settings']['seed'] = new_seed();
         $data['puzzles'] = [];
+        $data['mosaics'] = [];
         $s = summarise($data);
         $title = mb_substr($p['title'] . ' (copy)', 0, 200);
         db_exec('INSERT INTO projects (user_id, title, status, code, difficulty, puzzle_count, chapter_count, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',

@@ -6,6 +6,9 @@ require_once __DIR__ . '/layout.php';
 
 const CONFIG_FILE = __DIR__ . '/../config.php';
 const DATA_DIR = __DIR__ . '/../data';
+// Bump when schema_sql() gains tables, so existing installs pick them up on the next visit.
+const SCHEMA_VERSION = 2;
+const PLANS = ['pro' => 'SlitherEscape PRO', 'bulk' => 'Bulk Creator', 'marketing' => 'Marketing Studio'];
 
 function is_installed(): bool
 {
@@ -108,6 +111,22 @@ function schema_sql(string $driver): array
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ip TEXT NOT NULL,
                 attempted_at TEXT NOT NULL)',
+            'CREATE TABLE IF NOT EXISTS entitlements (
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                plan TEXT NOT NULL,
+                source TEXT NOT NULL DEFAULT \'manual\',
+                created_at TEXT NOT NULL,
+                PRIMARY KEY (user_id, plan))',
+            'CREATE TABLE IF NOT EXISTS library_images (
+                name TEXT NOT NULL PRIMARY KEY,
+                theme TEXT NOT NULL,
+                similar TEXT NOT NULL,
+                grid_rows TEXT NOT NULL,
+                source TEXT NOT NULL,
+                svg TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT \'pending\',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL)',
         ];
     }
     return [
@@ -143,7 +162,39 @@ function schema_sql(string $driver): array
             attempted_at DATETIME NOT NULL,
             KEY login_attempts_ip (ip, attempted_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS entitlements (
+            user_id INT UNSIGNED NOT NULL,
+            plan VARCHAR(20) NOT NULL,
+            source VARCHAR(20) NOT NULL DEFAULT \'manual\',
+            created_at DATETIME NOT NULL,
+            PRIMARY KEY (user_id, plan),
+            CONSTRAINT entitlements_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS library_images (
+            name VARCHAR(20) NOT NULL PRIMARY KEY,
+            theme VARCHAR(30) NOT NULL,
+            similar TEXT NOT NULL,
+            grid_rows TEXT NOT NULL,
+            source VARCHAR(200) NOT NULL,
+            svg MEDIUMTEXT NOT NULL,
+            status VARCHAR(10) NOT NULL DEFAULT \'pending\',
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL,
+            KEY library_status (status, theme)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
     ];
+}
+
+// Adds new tables to an existing install once per schema version.
+function ensure_schema(): void
+{
+    static $done = false;
+    if ($done || !is_installed()) return;
+    $done = true;
+    $mark = DATA_DIR . '/schema-version';
+    if (is_file($mark) && (int)file_get_contents($mark) >= SCHEMA_VERSION) return;
+    foreach (schema_sql(config()['db']['driver'] ?? 'mysql') as $sql) db()->exec($sql);
+    @file_put_contents($mark, (string)SCHEMA_VERSION);
 }
 
 // ------------------------------------------------------------------ session
@@ -214,10 +265,18 @@ function current_user(): ?array
     }
     start_session();
     $user = null;
+    ensure_schema();
     if (!empty($_SESSION['uid'])) {
         $user = db_one('SELECT id, email, shop_name, paper, ink_saver, is_admin FROM users WHERE id = ?', [$_SESSION['uid']]);
     }
     return $user;
+}
+
+// Plans the account owns. Admins can use everything, so the owner can test each plan.
+function has_plan(array $user, string $plan): bool
+{
+    if (!empty($user['is_admin'])) return true;
+    return (bool)db_one('SELECT 1 AS x FROM entitlements WHERE user_id = ? AND plan = ?', [$user['id'], $plan]);
 }
 
 // Page guard: sends visitors to the installer or the login page.

@@ -18,8 +18,12 @@
     certificate: { words: 25 },
     teamName: { words: 6 },
     question: { words: 28 },
-    option: { words: 8 }
+    option: { words: 8 },
+    partyLetter: { words: 150, min: 80 },
+    roleName: { words: 4 },
+    reward: { words: 12 }
   };
+  const ROLES = ['leader', 'scribe', 'hintKeeper', 'timekeeper', 'codebreaker', 'assembler'];
   const STORY_QUESTIONS = 12;
 
   const QUESTION_COUNT = 20;
@@ -59,16 +63,24 @@
     return null;
   }
 
+  const isMosaic = (c) => !!c && c.type === 'mosaic';
+  // Puzzle titles belong to letter chapters only: Mosaic pieces are numbered, not titled.
+  const titleCount = (story) => story.chapters.reduce((n, c) => n + (isMosaic(c) ? 0 : c.word.length), 0);
+
   // puzzleCount / chapterCount may be null ("Auto"): the AI then picks a code of
   // AUTO_LETTERS length in 2 words, and the app takes the count from the code.
   // `code` (optional, already validated) fixes the exact words instead.
   // themeId / plotId come from Themes; themeId 'other' uses the seller's customTheme text.
-  function buildPrompt({ themeId, customTheme, plotId, difficulty, puzzleCount, chapterCount, code }) {
+  // PRO: chapterTypes ('letter' | 'mosaic' per chapter) with `images` (the pictures available),
+  // and partyKit, which asks for the Party Props Kit texts.
+  function buildPrompt({ themeId, customTheme, plotId, difficulty, puzzleCount, chapterCount, code, chapterTypes, images, partyKit }) {
     const T = root.Themes;
     const theme = T && T.theme(themeId);
     const plot = T && T.plot(plotId);
-    const given = code ? parseCode(code) : null;
+    const types = chapterTypes && chapterTypes.includes('mosaic') ? chapterTypes : null;
+    const given = code && !types ? parseCode(code) : null;
     if (given) { puzzleCount = given.letters; chapterCount = given.words.length; }
+    if (types) { chapterCount = types.length; puzzleCount = null; }
     const chapters = chapterCount || 2;
     const letters = puzzleCount || null; // null = the AI chooses within AUTO_LETTERS
     const L = LIMITS;
@@ -95,7 +107,19 @@
 
     // ---- code rules
     let codeRules;
-    if (given) {
+    if (types) {
+      const names = (images || []).map((m) => m.name);
+      const alike = [];
+      (images || []).forEach((m) => (m.similar || []).forEach((o) => { if (names.includes(o) && m.name < o) alike.push(`${m.name}/${o}`); }));
+      codeRules = [
+        ...types.map((t, i) => (t === 'mosaic'
+          ? `Chapter ${i + 1} is a PICTURE chapter: its word is the name of the picture the players assemble.`
+          : `Chapter ${i + 1} is a LETTER chapter: its word is a common English word of 4 to 7 letters, using only A-Z, that ${audience[0]} can spell.`)),
+        `Pictures you may choose from (use these names exactly, each at most once, and do not invent others): ${names.join(', ')}.`,
+        alike.length ? `Never use two pictures that look alike: ${alike.join(', ')}.` : '',
+        'Together the words are the secret code. They need not form a phrase, but each one must be a natural key to the story\'s problem, and the ending explains why.'
+      ].filter(Boolean);
+    } else if (given) {
       codeRules = [
         `The code is FIXED: "${given.text}". Do not change, respell, translate or reorder it.`,
         ...given.words.map((w, i) => `Chapter ${i + 1}'s word is ${w} (${w.length} letters).`),
@@ -116,7 +140,11 @@
     // Which puzzle titles belong to which chapter, when the word lengths are known.
     let titleOrder = 'The titles follow the letters in order: the first titles are scenes from chapter 1, then chapter 2, and so on.';
     let titleCount = 'one item per letter of the code';
-    if (given) {
+    const hasLetters = !types || types.includes('letter');
+    if (types) {
+      titleOrder = 'Picture chapters get no titles.';
+      titleCount = hasLetters ? 'one item per letter of the LETTER chapters only' : 'an empty list, []';
+    } else if (given) {
       let start = 1;
       titleOrder = 'The titles follow the letters in order: ' + given.words.map((w, i) => {
         const range = `titles ${start}-${start + w.length - 1}`;
@@ -139,8 +167,10 @@
       tagline: '...',
       prologue: '...',
       mission: '...',
-      chapters: wordsForSkeleton.map((w) => ({ name: '...', intro: '...', riddle: '...', word: w })),
-      puzzleTitles: ['...', '...', '...'],
+      chapters: wordsForSkeleton.map((w, i) => (types && types[i] === 'mosaic'
+        ? { name: '...', intro: '...', word: 'PICTURE NAME' }
+        : { name: '...', intro: '...', riddle: '...', word: w })),
+      puzzleTitles: hasLetters ? ['...', '...', '...'] : [],
       finalLock: '...',
       ending: '...',
       certificate: '...',
@@ -149,6 +179,7 @@
         { q: '...?', options: ['...', '...', '...'], answer: 0, kind: 'story' },
         { q: '...?', options: ['...', '...', '...'], answer: 2, kind: 'trivia' }
       ],
+      ...(partyKit ? { party: { letter: '...', roles: { leader: '...', scribe: '...', hintKeeper: '...', timekeeper: '...', codebreaker: '...', ...(types ? { assembler: '...' } : {}) }, reward: '...' } } : {}),
       codeCheck: given
         ? given.words.map((w) => `${w} = ${w.split('').join('-')} (${w.length})`).join(' | ') + ` | total ${given.letters}`
         : '...'
@@ -163,8 +194,14 @@
     }).join(',\n') + '\n}';
     const checkExample = given ? '' : '\n"codeCheck" spells each code word letter by letter with its count, then the total. Format example only: "MOON = M-O-O-N (4) | LIGHT = L-I-G-H-T (5) | total 9".';
 
+    const howItWorks = types
+      ? `players solve logic puzzles to get a SECRET CODE of ${chapters} words, one word per chapter. In a LETTER chapter, each solved puzzle reveals one capital letter and the letters spell the word. In a PICTURE chapter, the solved puzzles are pieces of one big picture: the players assemble it, and the name of what it shows is the word. Saying the code at the end opens the final lock and wins the game.`
+      : `players solve logic puzzles, and each solved puzzle reveals ONE capital letter. Read in order, the letters spell a SECRET CODE of ${chapters} words, one word per chapter. Saying the code at the end opens the final lock and wins the game.`;
+    const partyItem = partyKit
+      ? `\n12. party: texts for the printed party props.\n   - letter (${L.partyLetter.min}-${L.partyLetter.words} words): a letter from a character in the story that opens the game and ends by telling the players to pick up their Code Sheet.\n   - roles: a themed title (max ${L.roleName.words} words) for each player role. Keep the keys; only the titles change.\n   - reward (max ${L.reward.words} words): the name of a prize that fits the story, such as a VIP pass.`
+      : '';
     return `You are writing the story for a printable escape-room game for ${audience[0]}.
-How the game works: players solve logic puzzles, and each solved puzzle reveals ONE capital letter. Read in order, the letters spell a SECRET CODE of ${chapters} words, one word per chapter. Saying the code at the end opens the final lock and wins the game.
+How the game works: ${howItWorks}
 
 == BRIEF ==
 ${brief.join('\n')}
@@ -180,7 +217,7 @@ ${codeRules.map((r) => '- ' + r).join('\n')}
 5. chapters: exactly ${chapters}, in the order of the code. For each:
    - name (max ${L.chapterName.words} words)
    - intro (${L.chapterIntro.min}-${L.chapterIntro.words} words): narration that leads into this chapter's puzzles and raises the stakes, with at least 3 new concrete details.
-   - riddle (max ${L.riddle.words} words): printed on the players' Code Sheet; its answer is exactly this chapter's word. Fair and solvable for ${audience[0]}. It must not contain the word or any form of it.
+   - riddle (max ${L.riddle.words} words): printed on the players' Code Sheet; its answer is exactly this chapter's word. Fair and solvable for ${audience[0]}. It must not contain the word or any form of it.${types ? ' Letter chapters only: picture chapters have no riddle.' : ''}
    - word: this chapter's code word in CAPITALS.
 6. puzzleTitles (${titleCount}): one short scene title per letter, max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro. ${titleOrder}
 7. finalLock (${L.finalLock.min}-${L.finalLock.words} words): the tense moment just before the players speak the code.
@@ -191,7 +228,7 @@ ${codeRules.map((r) => '- ' + r).join('\n')}
    - Questions 1-${STORY_QUESTIONS}, kind "story": the answer is stated in the prologue, the mission or a chapter intro. Never ask about the final lock or the ending. Each question asks about a different detail.
    - Questions ${STORY_QUESTIONS + 1}-${QUESTION_COUNT}, kind "trivia": about ${trivia}. Well-known facts that ${audience[0]} can answer or reasonably guess; nothing disputed or likely to change.
    - Exactly 3 options each, exactly 1 correct. Wrong options are plausible, never jokes. Options max ${L.option.words} words, questions max ${L.question.words} words. No "all of the above" or "none of the above".
-   - "answer" is the position of the correct option: 0, 1 or 2.
+   - "answer" is the position of the correct option: 0, 1 or 2.${partyItem}
 
 == STAY IN THE STORY ==
 - Only the mission may mention puzzles. The prologue, chapter intros, final lock and ending stay inside the story world: never mention puzzles, riddles, letters, word lengths, how many puzzles there are, or how the game works.
@@ -213,8 +250,8 @@ Use exactly these keys (replace every "..." with your text; "puzzleTitles" needs
 ${skeletonText}${checkExample}
 
 == CHECK BEFORE YOU ANSWER ==
-- "codeCheck" spells every code word letter by letter, and the letter total is ${totalRule}.
-- "puzzleTitles" has exactly one item per letter of the code.
+- "codeCheck" spells every code word letter by letter${types ? '' : `, and the letter total is ${totalRule}`}.
+- "puzzleTitles" has ${types ? titleCount : 'exactly one item per letter of the code'}.
 - "questions" has exactly ${QUESTION_COUNT} items: ${STORY_QUESTIONS} story questions first, then ${QUESTION_COUNT - STORY_QUESTIONS} trivia questions, each with exactly 3 options.
 - Every word count is inside its limits.
 - No code word appears where it is not allowed, and the story text never mentions puzzles, letters or riddles (only the mission may mention puzzles).
@@ -277,13 +314,19 @@ ${skeletonText}${checkExample}
         name: str(c && c.name),
         intro: str(c && c.intro),
         riddle: str(c && c.riddle),
-        word: str(c && c.word).toUpperCase().replace(/\s+/g, '')
+        word: str(c && c.word).toUpperCase().replace(/\s+/g, ''),
+        type: c && c.type === 'mosaic' ? 'mosaic' : 'letter'
       })),
       puzzleTitles: (Array.isArray(s.puzzleTitles) ? s.puzzleTitles : []).map(str),
       finalLock: str(s.finalLock),
       ending: str(s.ending),
       certificate: str(s.certificate),
       teamName: str(s.teamName),
+      party: s.party && typeof s.party === 'object' ? {
+        letter: str(s.party.letter),
+        roles: ROLES.reduce((o, k) => { o[k] = str(s.party.roles && s.party.roles[k]); return o; }, {}),
+        reward: str(s.party.reward)
+      } : null,
       questions: (Array.isArray(s.questions) ? s.questions : []).map((q) => {
         let answer = q && q.answer;
         if (typeof answer === 'string') {
@@ -303,8 +346,11 @@ ${skeletonText}${checkExample}
   // Returns { errors: [..], warnings: [..] }. Each error has `msg` for the seller
   // and `ai`, a sentence used to build the fix request sent back to the AI.
   // `code` (optional): the seller's fixed code; the story must use it exactly.
-  function validate(story, { puzzleCount, chapterCount, hasGlyph, code }) {
-    const given = code ? parseCode(code) : null;
+  // PRO: `images` (allowed pictures) applies to chapters marked as Mosaic; partyKit requires the kit texts.
+  function validate(story, { puzzleCount, chapterCount, hasGlyph, code, images, partyKit }) {
+    const anyMosaic = story.chapters.some(isMosaic);
+    const given = code && !anyMosaic ? parseCode(code) : null;
+    if (anyMosaic) puzzleCount = null;
     if (given) { puzzleCount = given.letters; chapterCount = given.words.length; }
     const errors = [];
     const warnings = [];
@@ -334,8 +380,18 @@ ${skeletonText}${checkExample}
     words.forEach((w, i) => {
       if (!/^[A-Z]+$/.test(w)) err(`Chapter ${i + 1} word "${w}" may only contain letters A–Z.`, `Chapter ${i + 1} word "${w}" must contain only letters A-Z.`);
     });
-    const total = words.join('').length;
-    if (given && words.join(' ') !== given.text) {
+    const letterWords = story.chapters.filter((c) => !isMosaic(c)).map((c) => c.word);
+    const total = letterWords.join('').length;
+    if (anyMosaic) {
+      const used = story.chapters.filter(isMosaic).map((c) => c.word);
+      used.forEach((w) => {
+        const m = images && images.find((x) => x.name === w);
+        if (images && !m) err(`"${w}" is not a picture in the library.`, `"${w}" is not one of the available pictures. Choose only from: ${images.map((x) => x.name).join(', ')}.`);
+        if (m && used.some((o) => (m.similar || []).includes(o))) err(`The pictures ${w} and ${used.find((o) => m.similar.includes(o))} look too alike for one game.`, `Do not use pictures that look alike: replace ${w}.`);
+      });
+      if (new Set(used).size !== used.length) err('The same picture is used twice.', 'Use each picture at most once.');
+      letterWords.forEach((w) => { if (w.length < 3 || w.length > 10) err(`The letter word "${w}" has ${w.length} letters; use 4 to 7.`, `Letter chapter word "${w}" must have 4 to 7 letters.`); });
+    } else if (given && words.join(' ') !== given.text) {
       err(`The AI changed your code: it wrote "${words.join(' ')}" instead of "${given.text}".`, `The chapter words must be exactly ${given.words.map((w) => `"${w}"`).join(', ')}, in this order. Keep the code unchanged.`);
     } else if (given) {
       // Seller's own code: already checked against CODE_LETTERS when it was entered.
@@ -346,19 +402,30 @@ ${skeletonText}${checkExample}
     }
     const titlesNeeded = puzzleCount || total;
     if (hasGlyph) {
-      const missing = [...new Set(words.join('').split(''))].filter((ch) => !hasGlyph(ch));
+      const missing = [...new Set(letterWords.join('').split(''))].filter((ch) => !hasGlyph(ch));
       if (missing.length) err(`No glyph available for: ${missing.join(', ')}.`, `Avoid the letters ${missing.join(', ')} in the code.`);
     }
     story.chapters.forEach((c, i) => {
       over(`chapters[${i}].name`, c.name, LIMITS.chapterName.words, `Chapter ${i + 1} name`);
       over(`chapters[${i}].intro`, c.intro, LIMITS.chapterIntro.words, `Chapter ${i + 1} intro`, LIMITS.chapterIntro.min);
-      over(`chapters[${i}].riddle`, c.riddle, LIMITS.riddle.words, `Chapter ${i + 1} riddle`);
+      if (!isMosaic(c)) over(`chapters[${i}].riddle`, c.riddle, LIMITS.riddle.words, `Chapter ${i + 1} riddle`);
     });
+
+    if (partyKit) {
+      const p = story.party;
+      if (!p) err('The Party Kit texts are missing.', 'Add the "party" object with "letter", "roles" and "reward".');
+      else {
+        over('party.letter', p.letter, LIMITS.partyLetter.words, 'Party letter', LIMITS.partyLetter.min);
+        over('party.reward', p.reward, LIMITS.reward.words, 'Party reward');
+        ROLES.filter((k) => k !== 'assembler' || anyMosaic).forEach((k) => over(`party.roles.${k}`, p.roles[k], LIMITS.roleName.words, `Role title "${k}"`));
+      }
+    }
 
     // No spoilers. A code word (or its plural) in a riddle, puzzle title, the Final Lock or a
     // question gives the answer away: error. In the opening text it is only a warning, since a
     // code like HAPPY HALLOWEEN naturally shares words with its theme. The ending may use it.
     const hardFields = [['finalLock', 'the Final Lock text', story.finalLock]];
+    if (story.party) hardFields.push(['party.letter', 'the party letter', story.party.letter], ['party.reward', 'the party reward', story.party.reward]);
     const softFields = [['title', 'the title', story.title], ['tagline', 'the tagline', story.tagline],
       ['prologue', 'the prologue', story.prologue], ['mission', 'the mission', story.mission]];
     story.chapters.forEach((c, i) => {
@@ -422,5 +489,5 @@ ${skeletonText}${checkExample}
       + errors.map((e) => '- ' + e.ai).join('\n');
   }
 
-  root.Story = { LIMITS, AUTO_LETTERS, CODE_LETTERS, parseCode, codeError, QUESTION_COUNT, wordCount, suggestWordLengths, buildPrompt, extractJson, normalise, validate, fixRequest };
+  root.Story = { ROLES, isMosaic, titleCount, LIMITS, AUTO_LETTERS, CODE_LETTERS, parseCode, codeError, QUESTION_COUNT, wordCount, suggestWordLengths, buildPrompt, extractJson, normalise, validate, fixRequest };
 })(typeof self !== 'undefined' ? self : globalThis);

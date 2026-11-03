@@ -7,3 +7,4 @@ tools/out/
 
 # Built packages
 releases/
+data/schema-version

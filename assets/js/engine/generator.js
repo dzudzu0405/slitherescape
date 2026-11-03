@@ -244,6 +244,48 @@
     return puzzle;
   }
 
+  // Puzzle from a ready-made shape instead of a letter (Mosaic pieces in SlitherEscape PRO).
+  // opts: { mask: [0|1...], W, H, difficulty, seed, tries }
+  function generateMask(opts) {
+    const preset = LEVELS[opts.difficulty] || LEVELS.medium;
+    const { W, H } = opts;
+    const inside = Uint8Array.from(opts.mask);
+    const why = Glyphs.checkMask(inside, W, H);
+    if (why !== null) throw new Error(`Shape cannot be a single loop: ${why}`);
+    const g = S.grid(W, H);
+    const r = rng(opts.seed);
+    const solution = S.edgesFromMask(g, inside);
+    const full = S.cluesFromEdges(g, solution);
+    if (!solvesTo(g, full, preset.level, solution)) throw new Error('Shape cannot be solved by logic at this level');
+    let best = null;
+    const tries = opts.tries || 6;
+    for (let t = 0; t < tries; t++) {
+      const clues = reduceClues(g, full, solution, preset, r);
+      const leak = opts.difficulty === 'easy' ? 0 : leakScore(g, clues, solution);
+      const tooEasy = preset.level > 1 && new S.Solver(g, clues, preset.level - 1).solve().solved;
+      const clueCount = clues.reduce((n, c) => n + (c >= 0 ? 1 : 0), 0);
+      if (!best || (best.tooEasy && !tooEasy) || (best.tooEasy === tooEasy && leak < best.leak)) best = { clues, leak, tooEasy, clueCount };
+      if (!tooEasy && leak <= preset.leak) break;
+    }
+    const puzzle = {
+      kind: 'piece',
+      W, H,
+      difficulty: opts.difficulty,
+      level: preset.level,
+      reverse: false,
+      clues: Array.from(best.clues),
+      inside: Array.from(inside),
+      letterMask: Array.from(inside),
+      solution: Array.from(solution),
+      hints: makeHints(g, solution, r),
+      clueCount: best.clueCount,
+      leak: Math.round(best.leak * 100) / 100,
+      seed: opts.seed
+    };
+    puzzle.verify = verify(puzzle);
+    return puzzle;
+  }
+
   // ------------------------------------------------------------------ verifier
   // Independent checks before export. Returns { ok, unique, method, problems: [] }.
   function verify(p) {
@@ -259,8 +301,7 @@
     const fromMask = S.edgesFromMask(g, inside);
     for (let e = 0; e < g.E; e++) if (fromMask[e] !== solution[e]) { problems.push('loop does not trace the letter'); break; }
     // The letter cells are what the players see: inside (forward) or the cut-out (reverse).
-    const glyphOk = Glyphs.variants(p.letter).some((v) => v.name === p.variant);
-    if (!glyphOk) problems.push('unknown glyph');
+    if (p.kind !== 'piece' && !Glyphs.variants(p.letter).some((v) => v.name === p.variant)) problems.push('unknown glyph');
     for (let i = 0; i < g.NC; i++) {
       if (!p.reverse && p.letterMask[i] !== inside[i]) { problems.push('shaded area is not the letter'); break; }
       if (p.reverse && p.letterMask[i] && inside[i]) { problems.push('letter overlaps the shaded frame'); break; }
@@ -308,5 +349,5 @@
     throw new Error('Could not build the example puzzle');
   }
 
-  root.Generator = { LEVELS, rng, hashString, generate, verify, example };
+  root.Generator = { LEVELS, rng, hashString, generate, generateMask, verify, example };
 })(typeof self !== 'undefined' ? self : globalThis);

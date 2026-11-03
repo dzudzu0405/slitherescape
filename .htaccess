@@ -3,8 +3,9 @@
 Options -Indexes
 DirectoryIndex index.php
 
-# Never serve internals: config, includes, data (sessions, local DB) and dev tools.
-RedirectMatch 404 ^.*/(inc|data|tools)(/.*)?$
+# Never serve internals: config, includes, data (sessions, local DB), dev tools, and PRO files
+# (pro.php hands those out after checking the account's plan).
+RedirectMatch 404 ^.*/(inc|data|tools|pro)(/.*)?$
 <Files "config.php">
     Require all denied
 </Files>

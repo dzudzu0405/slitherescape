@@ -638,3 +638,24 @@ body.editor > .workspace { flex: 1; }
 .logout-form { margin: 0; }
 .logout-form button { background: none; border: 0; padding: 0; color: #B59C7A; font: inherit; cursor: pointer; }
 .logout-form button:hover { color: #fff; }
+
+/* ---- PRO */
+.pro-tag { font-size: 10px; padding: 1px 6px; vertical-align: middle; }
+.diff.locked { opacity: .72; }
+.mode-options { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.mode-options .field { margin: 0; min-width: 140px; }
+.mode-chapter-types { display: flex; flex-wrap: wrap; gap: 14px; }
+.kit-row { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.kit-options { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 14px; }
+.kit-options .field { margin: 0; min-width: 140px; }
+#pro-note { margin: 14px 0 0; }
+.mosaic-preview { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.mosaic-preview canvas { border: 1px solid var(--line); border-radius: 4px; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.admin-table th, .admin-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.library-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.library-card { padding: 14px; }
+.library-compare { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+.library-compare canvas { max-width: 100%; border: 1px solid var(--line); }
+.library-svg img { width: 84px; height: 84px; object-fit: contain; }

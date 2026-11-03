@@ -33,6 +33,8 @@
     'Tip: mark sides you know are empty with a small x. Use a pencil!',
     'Stuck? Ask your Game Host for a hint. The Host reads you a multiple-choice question about the story or the theme. Answer correctly to receive the hint card. Answer wrongly and you must wait 2 minutes before trying a different question. Each puzzle has two hints.'
   ];
+  const MOSAIC_RULE = 'Picture chapters: every puzzle is a piece of one big picture. Shade the inside of each loop, cut the pieces out and glue them onto the Assembly Board. Pieces never rotate: keep the arrow pointing up. Find the finished picture on the Answer Board: its name is the word of that chapter.';
+  const PARTY_RULE = 'Everyone has a role. Check your role card: it says what only you can do during the game.';
   const REVERSE_NOTE = 'Reverse puzzle: the loop runs around a large frame. When it is complete, shade the inside of the loop - your letter is the UNSHADED shape left inside the frame.';
 
   // Motifs as simple paths in a 32x32 box: M/L/C/Z segments, circles as ['O', cx, cy, r].
@@ -48,6 +50,8 @@
     moon: { stroke: [['M', 20, 4.5], ['C', 13, 4, 6, 9.5, 6, 17], ['C', 6, 24, 12, 29, 19, 29], ['C', 23, 29, 26.5, 27, 28.5, 24], ['C', 21, 25.5, 14.5, 20, 14.5, 13], ['C', 14.5, 9.5, 17, 6, 20, 4.5], ['Z']] },
     key: { stroke: [['O', 10, 16, 5.5], ['M', 15.5, 16], ['L', 28, 16], ['M', 24, 16], ['L', 24, 20], ['M', 28, 16], ['L', 28, 21]] }
   };
+
+  const isMosaic = (c) => !!c && c.type === 'mosaic';
 
   // ------------------------------------------------------------------ small helpers
   function rng(seed) {
@@ -388,18 +392,25 @@
     this.text('How to Play', cx, box.y + 26, { align: 'center' });
     this.divider(cx, box.y + 42, 160);
     let y = box.y + 70;
-    RULES.forEach((rule, i) => {
+    const mosaic = g.story.chapters.some(isMosaic);
+    const onlyMosaic = g.story.chapters.every(isMosaic);
+    const rules = RULES.slice();
+    if (onlyMosaic) rules[4] = 'When the loop is complete, shade the inside. On its own, the shape will not look like anything: it is one piece of a bigger picture.';
+    if (mosaic) rules.splice(5, 0, MOSAIC_RULE);
+    if (g.partyKit) rules.push(PARTY_RULE);
+    const tight = rules.length > RULES.length;
+    rules.forEach((rule, i) => {
       this.font('FellSC', 13, C.red);
       this.text(String(i + 1) + '.', box.x + 6, y);
-      this.font('Fell', 12, C.ink);
-      y = this.para(rule, box.x + 26, y, box.w - 30, { lineHeight: 1.3 }) + 6;
+      this.font('Fell', tight ? 11 : 12, C.ink);
+      y = this.para(rule, box.x + 26, y, box.w - 30, { lineHeight: tight ? 1.22 : 1.3 }) + (tight ? 4 : 6);
     });
     if (g.puzzles.some((p) => p.reverse)) {
       this.font('Fell', 11.5, C.brown, 'italic');
       y = this.para(REVERSE_NOTE, box.x + 26, y + 2, box.w - 30) + 4;
     }
     this.font('Fell', 12, C.ink, 'italic');
-    y = this.para("Each chapter's letters spell one word. Put the words together, in order, to make the final code.", box.x + 26, y + 2, box.w - 30) + 10;
+    y = this.para(mosaic ? 'Each chapter gives one word. Put the words together, in order, to make the final code.' : "Each chapter's letters spell one word. Put the words together, in order, to make the final code.", box.x + 26, y + 2, box.w - 30) + 10;
 
     // Worked example: the same small puzzle unsolved and solved.
     const ex = g.example;
@@ -426,8 +437,8 @@
     this.text('Code Sheet', cx, box.y + 26, { align: 'center' });
     this.divider(cx, box.y + 42, 160);
     this.font('Fell', 12.5, C.ink, 'italic');
-    let y = this.para('Write each letter in its box as you solve the puzzles. The small number under a box is the puzzle it comes from.', box.x + 30, box.y + 70, box.w - 60, { align: 'center' }) + 16;
-    let n = 1;
+    const allMosaic = s.chapters.every(isMosaic);
+    let y = this.para(allMosaic ? 'Write each word here once you have named the finished picture of its chapter.' : 'Write each letter in its box as you solve the puzzles. The small number under a box is the puzzle it comes from.', box.x + 30, box.y + 70, box.w - 60, { align: 'center' }) + 16;
     // Fit the longest chapter word (codes can reach 20 letters).
     const longest = Math.max(...s.chapters.map((c) => c.word.length));
     const size = Math.min(32, (box.w - 40) / (longest * 1.18));
@@ -435,9 +446,15 @@
       this.font('FellSC', 15, C.red);
       this.text(`Chapter ${NUMBER_WORDS[ci]}: ${c.name}`, cx, y, { align: 'center' });
       this.font('Fell', 12.5, C.ink, 'italic');
+      if (isMosaic(c)) {
+        y = this.para('Assemble the picture, then find its name on the Answer Board.', box.x + 50, y + 20, box.w - 100, { align: 'center' }) + 8;
+        this.letterBoxes(cx, y, [c.word.length], size);
+        y += size + 26;
+        return;
+      }
       y = this.para(`"${c.riddle}"`, box.x + 50, y + 20, box.w - 100, { align: 'center' }) + 8;
-      this.letterBoxes(cx, y, [c.word.length], size, { numbers: true, startNumber: n });
-      n += c.word.length;
+      const first = this.g.slots.findIndex((sl) => sl.chapter === ci);
+      this.letterBoxes(cx, y, [c.word.length], size, { numbers: true, startNumber: first + 1 });
       y += size + 40;
     });
     this.divider(cx, y - 8, 200);
@@ -463,7 +480,12 @@
     y = this.para(c.intro, box.x + 30, y + 40, box.w - 60, { lineHeight: 1.5 }) + 30;
     this.motif(this.g.motif, cx, y + 36, 64, C.brown);
     this.font('FellSC', 13, C.brown);
-    this.text(`${c.word.length} puzzles · ${c.word.length} letters · one word`, cx, y + 100, { align: 'center' });
+    if (isMosaic(c)) {
+      const n = this.g.slots.filter((sl) => sl.chapter === ci).length;
+      this.text(`${n} pieces · one picture · one word`, cx, y + 100, { align: 'center' });
+    } else {
+      this.text(`${c.word.length} puzzles · ${c.word.length} letters · one word`, cx, y + 100, { align: 'center' });
+    }
   };
 
   B.puzzlePage = function (i) {
@@ -473,7 +495,7 @@
     this.font('FellSC', 11, C.brown);
     this.text(`Chapter ${NUMBER_WORDS[slot.chapter]} · Puzzle ${i + 1} of ${g.puzzles.length}`, cx, box.y + 6, { align: 'center' });
     this.font('Fell', 24, C.ink);
-    this.text(g.story.puzzleTitles[i] || `Puzzle ${i + 1}`, cx, box.y + 36, { align: 'center' });
+    this.text(g.story.puzzleTitles[slot.titleIndex] || `Puzzle ${i + 1}`, cx, box.y + 36, { align: 'center' });
     this.divider(cx, box.y + 50, 140);
 
     const bottom = p.reverse ? 132 : 86;
@@ -555,7 +577,11 @@
     const total = g.puzzles.length;
 
     heading('Overview');
-    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Slitherlink puzzles in ${s.chapters.length} chapters. Every solved puzzle reveals one letter; each chapter's letters spell a word, and the words together form the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
+    const anyMosaic = s.chapters.some(isMosaic);
+    const howWords = anyMosaic
+      ? `${s.chapters.some((c) => !isMosaic(c)) ? "In a letter chapter, every solved puzzle reveals one letter of the chapter's word. " : ''}In a picture chapter, the solved puzzles are pieces of one picture; players glue them onto the Assembly Board, find the finished picture on the Answer Board, and its name is the chapter's word. The words together form`
+      : "Every solved puzzle reveals one letter; each chapter's letters spell a word, and the words together form";
+    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Slitherlink puzzles in ${s.chapters.length} chapters. ${howWords} the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
     heading('What to print');
     bullets([
       `For the players: pages ${pages.playerFrom}-${pages.playerTo} (cover, story, How to Play, Code Sheet, chapters and puzzles, Final Lock), plus the certificate on page ${pages.certificate}.`,
@@ -567,8 +593,10 @@
       'Cut out the hint cards along the dashed lines. Put each puzzle\'s two cards in an envelope labelled with the puzzle number, Hint 1 on top.',
       'Keep the questions, envelopes and answer key with you, out of sight.',
       'Give every player a pencil and an eraser. Set a visible timer if you like.',
+      ...(anyMosaic ? ['Picture chapters need scissors and a glue stick.'] : []),
       'Read the Prologue aloud to start the game.'
     ]);
+    if (g.partyKit && root.PdfPro) root.PdfPro.hostSection(g, heading, bullets);
     heading('Ways to play');
     bullets([
       'Together: share one set of pages. Split the puzzles between the players and fill in a single Code Sheet.',
@@ -655,9 +683,10 @@
         const x = box.x + (j % 2) * cw, y = box.y + Math.floor(j / 2) * ch;
         const p = card.p;
         this.font('FellSC', 12, C.red);
-        this.text(`Puzzle ${card.i + 1} · Hint ${card.h + 1}`, x + cw / 2, y + 18, { align: 'center' });
+        const slot = g.slots[card.i];
+        this.text(`${slot.kind === 'piece' ? 'Piece' : 'Puzzle'} ${card.i + 1} · Hint ${card.h + 1}`, x + cw / 2, y + 18, { align: 'center' });
         this.font('Fell', 9.5, C.brown, 'italic');
-        this.text(g.story.puzzleTitles[card.i] || '', x + cw / 2, y + 31, { align: 'center' });
+        this.text(slot.kind === 'piece' ? `Chapter ${NUMBER_WORDS[slot.chapter]}` : g.story.puzzleTitles[slot.titleIndex] || '', x + cw / 2, y + 31, { align: 'center' });
         const cell = Math.min((cw - 40) / p.W, (ch - 62) / p.H);
         const gw = cell * p.W;
         this.grid(p, x + (cw - gw) / 2, y + 42, cell, { hintEdges: p.hints[card.h] });
@@ -691,7 +720,8 @@
     const drawSolution = (i, x, top, ch) => {
       const p = g.puzzles[i];
       this.font('FellSC', 12, C.red);
-      this.text(`Puzzle ${i + 1} · Letter ${p.letter}${p.reverse ? ' (reverse)' : ''}`, x + cw / 2, top + 14, { align: 'center' });
+      const slot = g.slots[i];
+      this.text(slot.kind === 'piece' ? `Piece ${i + 1} · goes at ${slot.label}` : `Puzzle ${i + 1} · Letter ${p.letter}${p.reverse ? ' (reverse)' : ''}`, x + cw / 2, top + 14, { align: 'center' });
       const cell = Math.min((cw - 36) / p.W, (ch - 34) / p.H);
       this.grid(p, x + (cw - cell * p.W) / 2, top + 24, cell, { shade: true, loop: true });
     };
@@ -703,6 +733,7 @@
       box = this.newPage({ host: true });
       top = box.y;
     }
+    if (root.PdfPro && s.chapters.some(isMosaic)) root.PdfPro.answerPictures(this);
   };
 
   B.certificatePage = function () {
@@ -780,6 +811,12 @@
     return result.doc;
   }
 
+  // Letter chapters: intro + one page per puzzle. PRO supplies the Mosaic layout.
+  function chapterPageCount(game, ci) {
+    const c = game.story.chapters[ci];
+    return isMosaic(c) ? root.PdfPro.chapterPages(game, ci) : 1 + c.word.length;
+  }
+
   async function render(game, fonts, textures, paper, jsPDF, guidePages, progress, tick) {
     const doc = new jsPDF({ unit: 'pt', format: [paper.w, paper.h], orientation: 'portrait', compress: true });
     fonts.forEach((f) => { doc.addFileToVFS(f.file, f.data); doc.addFont(f.file, f.name, f.style); });
@@ -789,7 +826,7 @@
 
     // Page numbers for the host guide, computed from the fixed page order.
     const n = game.puzzles.length;
-    const chapterPages = s.chapters.reduce((t, c) => t + 1 + c.word.length, 0);
+    const chapterPages = s.chapters.reduce((t, c, ci) => t + chapterPageCount(game, ci), 0);
     const playerTo = 4 + chapterPages + 1;
     game.guidePages = guidePages;
     const qPages = Math.ceil(s.questions.length / 10);
@@ -798,7 +835,7 @@
     const qFrom = guideFrom + guidePages;
     const cardsFrom = qFrom + qPages;
     const answersFrom = cardsFrom + cardPages;
-    const answerPages = Math.ceil(n / 4);
+    const answerPages = Math.ceil(n / 4) + (s.chapters.some(isMosaic) ? 1 : 0);
     const range = (a, cnt) => (cnt > 1 ? `pages ${a}-${a + cnt - 1}` : `page ${a}`);
     game.pageMap = {
       playerFrom: 1, playerTo, guide: range(guideFrom, guidePages), questions: range(qFrom, qPages),
@@ -815,6 +852,11 @@
     let idx = 0;
     s.chapters.forEach((c, ci) => {
       steps.push([`Chapter ${ci + 1}`, () => b.chapterIntroPage(ci)]);
+      if (isMosaic(c)) {
+        idx += game.slots.filter((sl) => sl.chapter === ci).length;
+        steps.push([`Chapter ${ci + 1} pieces`, () => root.PdfPro.chapter(b, ci)]);
+        return;
+      }
       for (let k = 0; k < c.word.length; k++) { const i = idx++; steps.push([`Puzzle ${i + 1}`, () => b.puzzlePage(i)]); }
     });
     steps.push(['Final Lock', () => b.finalLockPage()]);
@@ -823,6 +865,8 @@
     steps.push(['Hint cards', () => b.hintCardPages()]);
     steps.push(['Answer key', () => b.answerPages()]);
     steps.push(['Certificate', () => b.certificatePage()]);
+    // PRO: the Party Kit is its own PDF, built with the same page styles.
+    if (game.customSteps) { steps.length = 0; game.customSteps(b, steps); }
 
     for (let k = 0; k < steps.length; k++) {
       progress(0.1 + 0.88 * k / steps.length, steps[k][0]);
@@ -832,5 +876,5 @@
     return { doc, guideUsed: b.guideUsed };
   }
 
-  root.PdfBuilder = { build, PAPERS, shuffleAnswers };
+  root.PdfBuilder = { build, PAPERS, shuffleAnswers, Builder, C, NUMBER_WORDS, loadFonts };
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -12,7 +12,7 @@ self.onmessage = (e) => {
   if (msg.type === 'build') {
     for (const job of msg.jobs) {
       try {
-        const puzzle = self.Generator.generate(job);
+        const puzzle = job.mask ? self.Generator.generateMask(job) : self.Generator.generate(job);
         self.postMessage({ type: 'puzzle', id: msg.id, index: job.index, puzzle });
       } catch (err) {
         self.postMessage({ type: 'error', id: msg.id, index: job.index, message: err.message });
