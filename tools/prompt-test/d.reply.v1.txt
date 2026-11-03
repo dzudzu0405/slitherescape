@@ -1,0 +1,60 @@
+{
+  "title": "The Last Tide of Tern Island",
+  "tagline": "One hour, two secret words, and a rising sea.",
+  "prologue": "Captain Odalys Crane hid her treasure in a sea cave on Tern Island, and the cave door is a brass lock shaped like a seashell. Tonight the tide will rise at exactly 7:40 and seal the cave for a hundred years. You are the crew of the Gilded Heron, a green-sailed schooner with a parrot named Biscuit on the mast. The captain's map was torn into three pieces, and the first mate, Fenwick, has already lost two of them. The cave opens only to two spoken words, written in the captain's old logbook on a page marked with a blue ribbon. You have one hour, and the waves are already creeping up the beach. Solve the puzzles, find the words, and speak them before the water wins.",
+  "mission": "Solve the puzzles to uncover the letters of two secret words. Collect both words, then say the code aloud at the cave door before the tide rises at 7:40.",
+  "chapters": [
+    {
+      "name": "The Whispering Cove",
+      "intro": "Your rowing boat, Pebble, bumps onto the sand of Whisper Cove at 6:15. A crooked palm leans over the beach, and three lanterns, one red, one yellow and one white, swing from its branches. Beneath the palm hangs a rusty bell that rings whenever the wind sighs. Fenwick shouts from the ship that the water has already crept up four steps of the old stone stairs. Every puzzle you solve here earns a letter, so work fast and trust your team.",
+      "riddle": "I build rocky gardens beneath the waves, though I am an animal, not a plant. Sailors fear the reefs I make, and divers love my pink and orange colours. What am I?",
+      "word": "CORAL"
+    },
+    {
+      "name": "Race to the Sea Cave",
+      "intro": "With the first word in hand, you hurry along a cliff path to the sea cave. Its iron gate is carved with a snarling fish, and a stone statue of a sleepy walrus guards the entrance. The captain's pocket watch ticks on a rock, and it shows 7:05. Biscuit flaps down, squawking that thirty-five minutes remain. Somewhere inside waits the second word, so do not let the wet floor slow you down.",
+      "riddle": "Ships flee to me when the sea turns angry. I have docks and quays, and my walls keep the big waves out. Sailors call me a safe place to rest. What am I?",
+      "word": "HARBOR"
+    }
+  ],
+  "puzzleTitles": [
+    "The rusty bell on the beach",
+    "Three lanterns under the palm",
+    "Pebble the rowing boat",
+    "Footprints by the stone stairs",
+    "The captain's torn map",
+    "The sleepy walrus statue",
+    "The snarling fish on the gate",
+    "The captain's ticking pocket watch",
+    "Biscuit's secret perch",
+    "The dripping tunnel wall",
+    "The brass seashell lock"
+  ],
+  "finalLock": "The brass seashell lock gleams in the lantern light, and cold water is already swirling around your boots. Biscuit holds the watch in his beak: 7:39. Fenwick whispers that the tide has never once been late. Place your hands on the shell, take a breath together, and say the two words you have fought for. One minute remains, and the sea is listening.",
+  "ending": "'CORAL HARBOR!' you shout, and the shell clicks open just as the first wave slaps the cave floor. Inside, the captain's chests glitter with gold coins, silver cups and one very large pearl. Fenwick laughs so hard he drops his hat into the water, and Biscuit squawks the two words over and over, as if he had known them all along. You drag the treasure to the Gilded Heron and sail out as the tide swallows the cave behind you. Captain Crane's secret is safe, her treasure is yours, and the legend of Tern Island will now have a brand new crew in it. Congratulations, brave sailors. You beat the tide!",
+  "certificate": "Awarded to a crew so clever that the tide itself had to wait.",
+  "teamName": "The Tide Beaters",
+  "questions": [
+    {"q": "What is the name of the captain who hid the treasure?", "options": ["Odalys Crane", "Mabel Finch", "Rosalind Hart"], "answer": 0, "kind": "story"},
+    {"q": "On which island is the treasure hidden?", "options": ["Gull Island", "Tern Island", "Fox Island"], "answer": 1, "kind": "story"},
+    {"q": "What shape is the brass lock on the cave door?", "options": ["A star", "A skull", "A seashell"], "answer": 2, "kind": "story"},
+    {"q": "At what time will the rising tide seal the cave?", "options": ["7:40", "8:10", "6:50"], "answer": 0, "kind": "story"},
+    {"q": "What is the name of the crew's schooner?", "options": ["Silver Gull", "Gilded Heron", "Red Dolphin"], "answer": 1, "kind": "story"},
+    {"q": "What colour are the sails of the schooner?", "options": ["White", "Black", "Green"], "answer": 2, "kind": "story"},
+    {"q": "What is the parrot called?", "options": ["Biscuit", "Pepper", "Captain Squawk"], "answer": 0, "kind": "story"},
+    {"q": "Into how many pieces was the captain's map torn?", "options": ["Two", "Three", "Five"], "answer": 1, "kind": "story"},
+    {"q": "What is the first mate called?", "options": ["Barnaby", "Hobbs", "Fenwick"], "answer": 2, "kind": "story"},
+    {"q": "What colour is the ribbon marking the page in the logbook?", "options": ["Blue", "Red", "Gold"], "answer": 0, "kind": "story"},
+    {"q": "What is the name of the rowing boat that brings you to the cove?", "options": ["Cork", "Pebble", "Dinghy Dan"], "answer": 1, "kind": "story"},
+    {"q": "From what do the three lanterns hang on the beach?", "options": ["The ship's mast", "The cave gate", "A crooked palm"], "answer": 2, "kind": "story"},
+    {"q": "Whose expedition completed the first voyage around the world, between 1519 and 1522?", "options": ["Ferdinand Magellan's", "James Cook's", "Marco Polo's"], "answer": 0, "kind": "trivia"},
+    {"q": "In which year did Christopher Columbus first reach the Americas?", "options": ["1392", "1492", "1592"], "answer": 1, "kind": "trivia"},
+    {"q": "Which instrument has a magnetic needle that points north?", "options": ["A sextant", "A telescope", "A compass"], "answer": 2, "kind": "trivia"},
+    {"q": "What do sailors call the left side of a ship when facing forward?", "options": ["Port", "Starboard", "Stern"], "answer": 0, "kind": "trivia"},
+    {"q": "A ship's speed at sea is usually measured in what unit?", "options": ["Fathoms", "Knots", "Leagues"], "answer": 1, "kind": "trivia"},
+    {"q": "Which is the largest ocean on Earth?", "options": ["Atlantic", "Indian", "Pacific"], "answer": 2, "kind": "trivia"},
+    {"q": "Which coordinate tells you how far north or south you are?", "options": ["Latitude", "Longitude", "Altitude"], "answer": 0, "kind": "trivia"},
+    {"q": "Vasco da Gama sailed around the tip of which continent to reach India?", "options": ["South America", "Africa", "Australia"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "CORAL = C-O-R-A-L (5) | HARBOR = H-A-R-B-O-R (6) | total 11"
+}

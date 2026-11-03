@@ -1,0 +1,75 @@
+{
+  "title": "The Lantern Curse of Thorne Manor",
+  "tagline": "A black cat, a brass key, and one chance to relight the village.",
+  "prologue": "At twenty minutes to midnight, the church bell of Marrowby rang thirteen times, and every orange lantern along Crooked Lane flickered out. Dr. Edda Vance, the village apothecary, stepped outside beneath a full silver moon and found a black cat named Cinder on her doorstep. Tied to the cat's collar with a purple ribbon was a brass key. Cinder led her to Thorne Manor, where a green front door stood open and a curse cast by Lady Agatha Thorne in 1893 was stirring awake after more than a century of sleep. Only a counter-spell spoken before the stroke of twelve can lift it. If the lanterns stay dark, Marrowby will fade from every map.",
+  "mission": "Solve the puzzles to collect the three words of the counter-spell, then speak the complete code aloud before the clock strikes twelve, or Marrowby will fade away forever.",
+  "chapters": [
+    {
+      "name": "The Green Door",
+      "intro": "Inside the green door, the hallway smells of beeswax and old roses. Seven candles burn along the walls, though no hand lit them. Lady Agatha Thorne watches from a portrait in a crimson gown, her painted eyes following every step. A grandfather clock stands frozen at twenty to midnight, and beyond it twelve creaking steps climb to a landing where a brass carousel music box plays one broken note. Cinder pads ahead with her tail held high, as if she knows which secret the house wants told first.",
+      "riddle": "I am the opposite of sad. A carved lantern wears me as a grin, and a child's face shows me when candy drops into the bag. What feeling am I?",
+      "word": "HAPPY"
+    },
+    {
+      "name": "The Witch's Kitchen",
+      "intro": "At the top of the stairs, a low door opens into the witch's kitchen, warm and strange. A copper cauldron simmers with violet smoke beside an iron oven. Nine bundles of dried sage hang from the beams, and a shelf of amber jars rattles softly. A raven watches from the windowsill, a lopsided pumpkin sits in the pantry, and a recipe book with a silver clasp lies open beside a cracked teapot. Behind the door leans a straw broom, still faintly warm. Cinder hisses once: the curse was brewed here, and something in this room is still stirring it.",
+      "riddle": "Costumes, candy and grinning lanterns mark the last evening of October, when ghosts and witches knock at doors. Name this spooky festival, whose old name means a holy eve.",
+      "word": "HALLOWEEN"
+    },
+    {
+      "name": "The Moonlit Attic Tower",
+      "intro": "Behind the straw broom, a hidden ladder climbs into the attic tower, where a round window frames the full moon. A brass telescope points straight at it, bats hang in the rafters, and a silver bell sways on a rope though no wind blows. A chest lined with blue velvet waits beneath a wall of pocket watches, every one stopped but a single watch still ticking toward midnight. Cinder leaps onto the chest, and the brass key begins to hum in Dr. Vance's pocket.",
+      "riddle": "Dusk begins me and dawn ends me. Owls and bats are my citizens, and the moon is my lamp. Name me in the plural, as when sleepless ones count their hours.",
+      "word": "NIGHTS"
+    }
+  ],
+  "puzzleTitles": [
+    "Seven Candles Along the Hallway",
+    "Lady Agatha's Crimson Portrait",
+    "The Frozen Grandfather Clock",
+    "Twelve Creaking Steps to the Landing",
+    "The Brass Carousel Music Box",
+    "Copper Cauldron with Violet Smoke",
+    "Nine Bundles of Dried Sage",
+    "Shelf of Rattling Amber Jars",
+    "The Raven on the Windowsill",
+    "Pantry with the Lopsided Pumpkin",
+    "The Iron Oven",
+    "Recipe Book with a Silver Clasp",
+    "The Cracked Teapot",
+    "Straw Broom Behind the Door",
+    "The Hidden Attic Ladder",
+    "Brass Telescope at the Round Window",
+    "Bats in the Rafters",
+    "The Silver Bell on a Rope",
+    "Chest Lined with Blue Velvet",
+    "Wall of Pocket Watches"
+  ],
+  "finalLock": "Cinder sits motionless on the velvet chest. The one ticking watch shows a single minute to midnight. The full moon drifts to the center of the round window, and every lantern in Marrowby waits in the dark below. Dr. Vance closes her fingers around the brass key, draws a slow breath, and prepares to speak the counter-spell aloud.",
+  "ending": "The words rang through the tower: HAPPY HALLOWEEN NIGHTS. It was the greeting Lady Agatha Thorne never received in 1893, when the village shut its doors on her lantern festival and left her alone beneath the full moon. Her sorrow hardened into a curse, and only the kind words she was denied could undo it. Below, the church bell struck twelve, not thirteen, and every orange lantern on Crooked Lane blazed back to life. The seven candles in the hallway burned steadily, the crimson gown in the portrait seemed to glow, and Cinder purred on the velvet chest. Marrowby is free, and the greeting will be spoken on Crooked Lane every autumn. Congratulations, brave breakers of curses.",
+  "certificate": "Awarded to fearless curse-breakers who relit every lantern in Marrowby before the clock struck twelve.",
+  "teamName": "The Lantern Relighters",
+  "questions": [
+    {"q": "How many times did the church bell of Marrowby ring?", "options": ["Seven", "Twelve", "Thirteen"], "answer": 2, "kind": "story"},
+    {"q": "What color were the lanterns along Crooked Lane?", "options": ["Green", "Orange", "Purple"], "answer": 1, "kind": "story"},
+    {"q": "What is Dr. Edda Vance's profession in the village?", "options": ["Apothecary", "Baker", "Bell ringer"], "answer": 0, "kind": "story"},
+    {"q": "What is the black cat's name?", "options": ["Ember", "Shadow", "Cinder"], "answer": 2, "kind": "story"},
+    {"q": "What color is the front door of Thorne Manor?", "options": ["Black", "Green", "Red"], "answer": 1, "kind": "story"},
+    {"q": "In which year did Lady Agatha Thorne cast the curse?", "options": ["1893", "1839", "1923"], "answer": 0, "kind": "story"},
+    {"q": "What color was the ribbon that tied the brass key to the cat's collar?", "options": ["Crimson", "Blue", "Purple"], "answer": 2, "kind": "story"},
+    {"q": "How many candles burn along the hallway walls?", "options": ["Seven", "Nine", "Twelve"], "answer": 0, "kind": "story"},
+    {"q": "How many creaking steps climb to the landing?", "options": ["Nine", "Twelve", "Thirteen"], "answer": 1, "kind": "story"},
+    {"q": "What color is the gown in Lady Agatha's portrait?", "options": ["Crimson", "Violet", "Emerald"], "answer": 0, "kind": "story"},
+    {"q": "What color are the jars rattling on the kitchen shelf?", "options": ["Silver", "Amber", "Blue"], "answer": 1, "kind": "story"},
+    {"q": "How many bundles of dried sage hang from the kitchen beams?", "options": ["Seven", "Twelve", "Nine"], "answer": 2, "kind": "story"},
+    {"q": "Before pumpkins were used, which vegetable did people in Ireland traditionally carve into lanterns?", "options": ["Turnip", "Cabbage", "Beet"], "answer": 0, "kind": "trivia"},
+    {"q": "Which ancient Celtic festival is considered a root of the October 31 tradition?", "options": ["Beltane", "Samhain", "Yule"], "answer": 1, "kind": "trivia"},
+    {"q": "Which nocturnal mammal is the only one capable of true, sustained flight?", "options": ["Flying squirrel", "Sugar glider", "Bat"], "answer": 2, "kind": "trivia"},
+    {"q": "Which bird is famous for hunting after dark with nearly silent wingbeats?", "options": ["Owl", "Kestrel", "Heron"], "answer": 0, "kind": "trivia"},
+    {"q": "Which astronomical event marks the official start of autumn in the Northern Hemisphere?", "options": ["Summer solstice", "September equinox", "Spring equinox"], "answer": 1, "kind": "trivia"},
+    {"q": "Which pigments give pumpkins their orange color?", "options": ["Chlorophylls", "Anthocyanins", "Carotenoids"], "answer": 2, "kind": "trivia"},
+    {"q": "What phrase do children traditionally call at doors when collecting candy on October 31?", "options": ["Trick or treat", "Sweets or sorrow", "Knock and run"], "answer": 0, "kind": "trivia"},
+    {"q": "Which nocturnal insect is famously drawn to porch lights and lanterns?", "options": ["Honeybee", "Moth", "Dragonfly"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "HAPPY = H-A-P-P-Y (5) | HALLOWEEN = H-A-L-L-O-W-E-E-N (9) | NIGHTS = N-I-G-H-T-S (6) | total 20"
+}

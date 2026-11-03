@@ -1,0 +1,9 @@
+# Local install and test data
+config.php
+data/*.sqlite
+data/sessions/
+tools/local-test-account.txt
+tools/out/
+
+# Built packages
+releases/

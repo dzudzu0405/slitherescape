@@ -1,0 +1,26 @@
+{
+ "a": {
+  "themeId": "school",
+  "plotId": "haunted",
+  "difficulty": "easy"
+ },
+ "b": {
+  "themeId": "halloween",
+  "plotId": "curse",
+  "difficulty": "hard",
+  "code": "HAPPY HALLOWEEN NIGHTS"
+ },
+ "c": {
+  "themeId": "other",
+  "customTheme": "A summer wedding by the sea",
+  "plotId": "mystery",
+  "difficulty": "medium",
+  "puzzleCount": 12,
+  "chapterCount": 3
+ },
+ "d": {
+  "themeId": "pirates",
+  "plotId": "race",
+  "difficulty": "medium"
+ }
+}

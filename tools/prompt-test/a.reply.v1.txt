@@ -1,0 +1,58 @@
+{
+  "title": "The Haunting of Willowmere Primary",
+  "tagline": "Two secret words can calm a restless spirit in the school after dark.",
+  "prologue": "At Willowmere Primary School, most clocks run five minutes fast, except the one in the library, which has been stuck at 4:15 for as long as anyone remembers. Since the Golden Owl trophy vanished from its locked cabinet in the main corridor, strange things have happened after dark. Chairs slide across Room 14. A brass bell in the hall swings with a green ribbon, though no one touches it. Every night at 8:00 p.m., a soft voice hums in the science room. Caretaker Fred Marsh swears he saw a girl in a yellow raincoat float past the library shelves. Everyone whispers that she is Lucy Pike, a student blamed for the theft long ago. Lucy wants her reputation back, and only the right two words, said together, can let her rest.",
+  "mission": "Your mission: solve every puzzle, collect the two secret words and say the code aloud before the spirit fades away for ever.",
+  "chapters": [
+    {
+      "name": "The Silent Library",
+      "intro": "The library is the quietest room in Willowmere, with dusty globes, tall oak shelves and a clock that has not moved since 4:15. Tonight the lamps flicker, and a stack of books slides off the desk, one page at a time. Under the reading lamp lies a pencil case with a torn tag and a note written in purple ink: 'Find the answers in the attic, or I stay here for ever.' Five scene puzzles wait among the shelves. Each solved puzzle reveals one capital letter, so take notes, stay together and watch every corner carefully.",
+      "riddle": "I describe a sky with no clouds, a glass you can see straight through, or a desk with nothing left on it. What single word am I?",
+      "word": "CLEAR"
+    },
+    {
+      "name": "The Attic and the Bell",
+      "intro": "The attic above the main hall is cold, dusty and crowded with old school photographs and wooden trophy boxes. Halfway up the creaking stairs, the brass bell begins to ring by itself, and the green ribbon twists toward the door, as if it wants you to follow. Hidden inside a photograph frame is a torn card, signed with a faded initial from Mrs Harlow, the headmistress who sent Lucy away in 1962. Four final puzzles stand between you and the last lock. Solve them, and the spirit will finally be heard.",
+      "riddle": "People call you by this, and it is written at the top of every test paper. Teachers read it first when they call the register. What word am I?",
+      "word": "NAME"
+    }
+  ],
+  "puzzleTitles": [
+    "The stopped clock in the library",
+    "Purple ink on the torn note",
+    "The pencil case under the lamp",
+    "Books sliding off the desk",
+    "Oak shelves in the dim light",
+    "Photographs in the cold attic",
+    "The ribbon twitching on the bell",
+    "Torn card behind the frame",
+    "Mrs Harlow's faded initial"
+  ],
+  "finalLock": "The brass bell gives one last ring, and the green ribbon pulls tight. Across the school, the library clock lurches and starts ticking again. Lucy's voice drifts down the corridor, soft and hopeful. You have the letters, the words and the courage. Step up to the final lock, take a deep breath, and say the code aloud together before the bell falls silent for ever.",
+  "ending": "Congratulations, players! As you say CLEAR NAME together, the brass bell rings once, bright and happy, and the green ribbon floats gently to the floor. The library clock ticks again, and a soft giggle echoes through the corridor. Lucy Pike appears in her yellow raincoat, smiling at last. The torn card proves that Mrs Harlow hid the Golden Owl herself, too frightened to admit her mistake. Lucy thanks you, drifts out into the morning sunshine, and Willowmere School is peaceful once more. You are now the bravest detectives the school has ever known.",
+  "certificate": "Awarded to the bravest detectives of Willowmere School, who brought peace to the haunted halls after dark.",
+  "teamName": "The Midnight Detective Club",
+  "questions": [
+    {"q": "What time does the library clock show, stopped for years?", "options": ["4:15", "5:30", "9:45"], "answer": 0, "kind": "story"},
+    {"q": "Which school is the haunting taking place in?", "options": ["Oakfield High", "Riverside Academy", "Willowmere Primary School"], "answer": 2, "kind": "story"},
+    {"q": "Which item vanished from the locked cabinet?", "options": ["A silver football", "The Golden Owl trophy", "A bronze medal"], "answer": 1, "kind": "story"},
+    {"q": "What colour is the girl's raincoat?", "options": ["Blue", "Yellow", "Red"], "answer": 1, "kind": "story"},
+    {"q": "What hangs in the hall with a green ribbon?", "options": ["A brass bell", "A paper lantern", "A wooden clock"], "answer": 0, "kind": "story"},
+    {"q": "Which room hums with a voice at 8:00 p.m.?", "options": ["The gym", "The science room", "The canteen"], "answer": 1, "kind": "story"},
+    {"q": "Who is the ghost believed to be?", "options": ["Lucy Pike", "Mrs Harlow", "Fred Marsh"], "answer": 0, "kind": "story"},
+    {"q": "Who claims to have seen the girl float past the library shelves?", "options": ["The headteacher", "Caretaker Fred Marsh", "A visiting parent"], "answer": 1, "kind": "story"},
+    {"q": "What does the ghost want back?", "options": ["Her bicycle", "Her reputation", "Her school bag"], "answer": 1, "kind": "story"},
+    {"q": "What colour ink is the mysterious note written in?", "options": ["Green", "Blue", "Purple"], "answer": 2, "kind": "story"},
+    {"q": "Where is the torn card hidden in the second chapter?", "options": ["Under the stairs", "Inside a photograph frame", "Behind the library desk"], "answer": 1, "kind": "story"},
+    {"q": "Which part of the school is cold and full of old photographs?", "options": ["The attic", "The gym", "The kitchen"], "answer": 0, "kind": "story"},
+    {"q": "What is the chemical symbol for gold?", "options": ["Go", "Gd", "Au"], "answer": 2, "kind": "trivia"},
+    {"q": "How many continents are there on Earth?", "options": ["Five", "Seven", "Nine"], "answer": 1, "kind": "trivia"},
+    {"q": "What is the largest planet in our solar system?", "options": ["Saturn", "Jupiter", "Neptune"], "answer": 1, "kind": "trivia"},
+    {"q": "What is 12 multiplied by 12?", "options": ["124", "144", "122"], "answer": 1, "kind": "trivia"},
+    {"q": "Which gas do plants take in from the air to make their food?", "options": ["Oxygen", "Carbon dioxide", "Nitrogen"], "answer": 1, "kind": "trivia"},
+    {"q": "What is the capital city of France?", "options": ["Lyon", "Marseille", "Paris"], "answer": 2, "kind": "trivia"},
+    {"q": "How many sides does a hexagon have?", "options": ["Six", "Five", "Eight"], "answer": 0, "kind": "trivia"},
+    {"q": "Which organ pumps blood around the body?", "options": ["The heart", "The lungs", "The liver"], "answer": 0, "kind": "trivia"}
+  ],
+  "codeCheck": "CLEAR = C-L-E-A-R (5) | NAME = N-A-M-E (4) | total 9"
+}

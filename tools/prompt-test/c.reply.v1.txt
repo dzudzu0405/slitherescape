@@ -1,0 +1,52 @@
+{
+  "title": "The Compass That Vanished Before the Vows",
+  "tagline": "Someone stole the bride's compass, and three words will lead you to it.",
+  "prologue": "On the sunniest Saturday of July, the wedding of the bride, Lila Porter, and the groom, Sam Ortega, was set to begin at four o'clock sharp on Pebble Bay. White chairs stood in neat rows on the sand, blue paper lanterns swayed above the marquee, and a string quartet tuned up beside a three-tier lemon cake. At half past three, the bride's great-grandmother's silver compass vanished from its velvet box in the cottage hall. The box was still locked. The only clue was a note in its place: 'Three words, one locked chest, no more lies.' Nobody saw anyone leave. Ben, the best man, swears he heard a seagull laughing. A thief would not want a dusty old compass unless it hid something precious. The wedding can only go on if the players find it.",
+  "mission": "Players, solve every puzzle, collect the three hidden words, and say the secret code aloud before the clock strikes five and the wedding is lost forever.",
+  "chapters": [
+    {"name": "Footprints in the Dunes", "intro": "The first clue waits near the cake table, where a crumpled note was tucked under the cake stand. Sandy footprints lead from the cottage toward the cliff stairs, and a torn strip of pale green ribbon snags on the picket fence. Study the guest list too: one name has been crossed out in red ink. Solve the first riddle to reveal the first letter and the first word of the secret code.", "riddle": "I climb into the sky on a string when the wind blows hard. A long tail keeps me steady. Children run along the beach to launch me. What am I?", "word": "KITE"},
+    {"name": "Lanterns and Lost Photographs", "intro": "The second clue hides in the marquee, where lanterns flicker over an empty bar. A photograph has been torn in half, and its missing corner shows a silver heart-shaped clasp. Outside, muddy boots lead across the dunes toward the boathouse, while the string quartet has fallen silent. The wedding clock now reads ten past four, and the guests are growing restless. Answer the riddle to reveal the second letter and the second word.", "riddle": "I glow when you flip my switch, and long ago I burned oil behind a glass chimney. I often sit on tables or desks, though I am never the sun. What am I?", "word": "LAMP"},
+    {"name": "The Walkway over the Bay", "intro": "The final clue lies on the wooden walkway stretching over the bay, where the water grows dark and the waves slap against old posts. A silver key is hidden beneath a loose plank, and a map drawn on a napkin shows the compass tucked away in the old lighthouse. Hurry: the best man was seen running toward the cliffs with a black bag, and the guests are growing restless. Solve the last riddle to reveal the final word of the secret code.", "riddle": "I stretch out over the water on wooden legs so people can walk to the end and watch the boats. Fishers and sweethearts stroll along me at dusk. What am I?", "word": "PIER"}
+  ],
+  "puzzleTitles": [
+    "Sandy footprints leading to the cliff stairs",
+    "The guest list with a crossed-out name",
+    "Scribbled note hidden under the cake stand",
+    "Ribbon caught on the boathouse hinge",
+    "Lanterns flickering over the empty bar",
+    "A photograph with a torn corner",
+    "Muddy boots by the marquee entrance",
+    "A broken music box in the dunes",
+    "A silver key under a loose plank",
+    "A map drawn on a napkin",
+    "The best man's whistle across the bay",
+    "A ring-shaped scratch on the old post"
+  ],
+  "finalLock": "The brass chest sits at the top of the lighthouse steps, its lock glowing faintly in the dark. Lila's hand trembles on the lid, and Sam squeezes her other hand. Ben stands frozen by the door while the guests hold their breath. Somewhere below, the waves crash against the rocks. One wrong word and the chest locks for ever. Breathe in, lean closer, and speak the secret code aloud.",
+  "ending": "The chest springs open with a satisfying click, revealing the silver compass resting on a folded map. Congratulations, brilliant players! The words that broke the spell were KITE, LAMP and PIER, and together they unlocked the truth. Ben, the best man, had hidden the compass after losing a card game and borrowing money he could not repay. Ashamed, he confessed as soon as the lock opened, and he promised to return the compass to Lila. The string quartet strikes up at once, the three-tier lemon cake is finally sliced, and the wedding of Lila and Sam begins under the blue paper lanterns. Well done, detectives, and happy ever after!",
+  "certificate": "This certifies that the team solved every puzzle and saved the Pebble Bay wedding with brilliant detective skill.",
+  "teamName": "The Sandy Sleuths",
+  "questions": [
+    {"q": "Who is the bride in this story?", "options": ["Emma Wilde", "Lila Porter", "Sam Ortega"], "answer": 1, "kind": "story"},
+    {"q": "What time was the wedding due to begin?", "options": ["Half past three", "Four o'clock", "Five o'clock"], "answer": 1, "kind": "story"},
+    {"q": "What object vanished from the cottage hall?", "options": ["A golden ring", "A silver compass", "A lemon cake"], "answer": 1, "kind": "story"},
+    {"q": "What was the compass kept in?", "options": ["A wooden chest", "A velvet box", "A paper envelope"], "answer": 1, "kind": "story"},
+    {"q": "What colour were the paper lanterns above the marquee?", "options": ["Blue", "Red", "Yellow"], "answer": 0, "kind": "story"},
+    {"q": "How many tiers did the lemon cake have?", "options": ["Two", "Three", "Five"], "answer": 1, "kind": "story"},
+    {"q": "Where was the wedding taking place?", "options": ["Gull Cove", "Silver Lake", "Pebble Bay"], "answer": 2, "kind": "story"},
+    {"q": "Who said he heard a seagull laughing?", "options": ["Ben, the best man", "Sam, the groom", "The bride's aunt"], "answer": 0, "kind": "story"},
+    {"q": "What did the note left in the empty box say?", "options": ["Meet me at the cliffs", "Three words, one locked chest, no more lies", "The wedding is cancelled"], "answer": 1, "kind": "story"},
+    {"q": "What was tucked under the cake stand?", "options": ["A crumpled note", "A silver key", "A torn photograph"], "answer": 0, "kind": "story"},
+    {"q": "What colour was the ribbon snagged on the picket fence?", "options": ["Bright red", "Navy blue", "Pale green"], "answer": 2, "kind": "story"},
+    {"q": "What colour ink crossed out a name on the guest list?", "options": ["Black", "Red", "Green"], "answer": 1, "kind": "story"},
+    {"q": "Which gift traditionally marks a 25th wedding anniversary?", "options": ["Silver", "Pearl", "Gold"], "answer": 0, "kind": "trivia"},
+    {"q": "What causes the ocean's tides to rise and fall?", "options": ["Wind alone", "The Moon's gravity", "Earthquakes"], "answer": 1, "kind": "trivia"},
+    {"q": "Which season is usually hottest in the northern hemisphere?", "options": ["Autumn", "Summer", "Spring"], "answer": 1, "kind": "trivia"},
+    {"q": "Which sea is famous for being extremely salty?", "options": ["The Black Sea", "The Irish Sea", "The Dead Sea"], "answer": 2, "kind": "trivia"},
+    {"q": "What is traditionally thrown at newlyweds for good luck?", "options": ["Sand", "Rice", "Shells"], "answer": 1, "kind": "trivia"},
+    {"q": "Which bird is often seen circling over beaches and shorelines?", "options": ["Penguin", "Ostrich", "Seagull"], "answer": 2, "kind": "trivia"},
+    {"q": "What do brides traditionally carry during the ceremony?", "options": ["A snorkel", "A bouquet", "A trumpet"], "answer": 1, "kind": "trivia"},
+    {"q": "Which sea creature has eight arms?", "options": ["Starfish", "Octopus", "Seahorse"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "KITE = K-I-T-E (4) | LAMP = L-A-M-P (4) | PIER = P-I-E-R (4) | total 12"
+}

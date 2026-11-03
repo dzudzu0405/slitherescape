@@ -1,0 +1,75 @@
+{
+  "title": "The Curse of Raven Hill",
+  "tagline": "Forty years of silence end only if you speak the right words.",
+  "prologue": "In the village of Mistlow, the autumn festival was cancelled forty years ago, on the evening Madame Orla Quill, keeper of the crooked manor on Raven Hill, was turned away from every door. She stirred her copper cauldron, whispered a curse, and thirteen black cats vanished from the streets. Since then the clock on the manor tower has stood at 11:47, the pumpkins grow grey, and no child has laughed after sunset. Tonight the moon is full, a green lantern burns in the manor window, and Orla's old spellbook lies open on the kitchen table. The counter-spell is written inside, but its pages are scrambled and locked behind puzzles. Break it before midnight, or Mistlow stays silent forever.",
+  "mission": "Solve the puzzles to uncover one letter each. Collect the three words of the counter-spell, then speak the full code aloud at the manor door before midnight strikes, or Mistlow stays cursed.",
+  "chapters": [
+    {
+      "name": "The Grey Pumpkin Patch",
+      "intro": "You begin among the grey pumpkins behind the manor gate. Twelve of them sit in a crooked ring, and a scarecrow named Tobias Thorn guards a rusty key tied with red ribbon. Here the curse stole laughter first. A silver bell hangs from the fence and rings once every minute, and the frost on the leaves already shows fresh footprints. Read the clues carefully, because the bell is counting, and the first word of the counter-spell is buried in this patch.",
+      "riddle": "I am the opposite of sad. A grin wears me, a birthday song wishes me, and a lucky clover is said to bring me. What am I?",
+      "word": "HAPPY"
+    },
+    {
+      "name": "The Witch's Kitchen",
+      "intro": "Inside the manor, the kitchen smells of cinnamon and smoke. Nine jars line the shelf, each sealed with violet wax, and a one-eyed black cat named Soot watches from the stove. Above the hearth hangs a cracked mirror, and tucked into its frame is a calendar page with the thirty-first of October circled in red. The kettle whistles three times whenever someone errs. Somewhere in this room hides the long word that names the festival Mistlow lost, and it takes nine careful letters to spell.",
+      "riddle": "On the last evening of October, lanterns are carved, costumes are worn, and sweets are begged door to door. Which spooky festival am I?",
+      "word": "HALLOWEEN"
+    },
+    {
+      "name": "The Stopped Clock Tower",
+      "intro": "Climb the sixty-six steps of the tower, where the stopped clock waits. Its brass hands are frozen at 11:47, and an owl named Bramble perches beside a silver key that gleams in the moonlight. Through the open window the full moon hangs low over Raven Hill, and thirteen minutes remain before the stroke of twelve. Solve these last puzzles, and the final word of the counter-spell will complete Orla's long-forgotten greeting.",
+      "riddle": "Sunset opens our door, dawn shuts it. Bats and owls wake for us, and the moon is our lamp. Seven of us, with seven days, make a week. What are we?",
+      "word": "NIGHTS"
+    }
+  ],
+  "puzzleTitles": [
+    "The lantern by the broken gate",
+    "Twelve pumpkins in a ring",
+    "The scarecrow's red ribbon",
+    "Footprints in the frosted leaves",
+    "The silver bell's seventh ring",
+    "The kettle that whistles thrice",
+    "Seven jars sealed in violet wax",
+    "Soot the cat's favourite shelf",
+    "A mirror cracked above the hearth",
+    "The circled date on the calendar",
+    "Recipe cards stained with cinnamon",
+    "The cauldron's copper secret",
+    "Thirteen candles on the windowsill",
+    "The cupboard that hums softly",
+    "Sixty-six steps up the tower",
+    "The frozen brass clock hands",
+    "Bramble the owl's silent warning",
+    "A silver key in the moonlight",
+    "The window facing the full moon",
+    "The spellbook's final scrambled page"
+  ],
+  "finalLock": "The manor door stands before you, its iron lock shaped like a crescent moon. Behind you, the tower clock shudders and begins to tick again: 11:58. Orla's voice drifts from the cauldron, whispering that only the three true words, spoken together and in order, can undo her spell. Gather your letters, take a breath, and say the code aloud.",
+  "ending": "The lock clicks open, and the tower clock chimes twelve at last. As you speak HAPPY HALLOWEEN NIGHTS, the grey pumpkins blaze orange, the green lantern turns gold, and thirteen black cats come tumbling down Raven Hill, purring. Madame Orla Quill steps from the shadows, no longer bitter, and smiles for the first time in forty years. Doors open all along the streets of Mistlow, and laughter spills out into the moonlight. You have broken the curse and given a village its festival back. Well done, brave players: Mistlow will remember you every October.",
+  "certificate": "Awarded to the brave souls who broke Mistlow's curse and brought the laughter home.",
+  "teamName": "The Moonlit Pumpkin Posse",
+  "questions": [
+    {"q": "What is the name of the village in the story?", "options": ["Mistlow", "Mistfield", "Mournwick"], "answer": 0, "kind": "story"},
+    {"q": "Who is the keeper of the crooked manor on Raven Hill?", "options": ["Maren Vane", "Orla Quill", "Ilsa Thorn"], "answer": 1, "kind": "story"},
+    {"q": "How many years ago was the autumn festival cancelled?", "options": ["Twenty", "Thirty", "Forty"], "answer": 2, "kind": "story"},
+    {"q": "On which hill does the crooked manor stand?", "options": ["Raven Hill", "Crow Hill", "Owl Hill"], "answer": 0, "kind": "story"},
+    {"q": "How many black cats vanished from the streets when the curse was cast?", "options": ["Seven", "Thirteen", "Nine"], "answer": 1, "kind": "story"},
+    {"q": "At what time has the manor tower clock stood still since the curse?", "options": ["10:47", "11:57", "11:47"], "answer": 2, "kind": "story"},
+    {"q": "What colour have the village pumpkins turned?", "options": ["Black", "White", "Grey"], "answer": 2, "kind": "story"},
+    {"q": "What colour is the lantern burning in the manor window?", "options": ["Green", "Orange", "Violet"], "answer": 0, "kind": "story"},
+    {"q": "What is the name of the scarecrow guarding the rusty key?", "options": ["Barnaby Reed", "Tobias Thorn", "Silas Crow"], "answer": 1, "kind": "story"},
+    {"q": "What colour is the ribbon tied around the rusty key?", "options": ["Blue", "Red", "Black"], "answer": 1, "kind": "story"},
+    {"q": "What is the name of the one-eyed black cat in the kitchen?", "options": ["Soot", "Ember", "Shadow"], "answer": 0, "kind": "story"},
+    {"q": "What is the name of the owl perched in the tower?", "options": ["Thistle", "Willow", "Bramble"], "answer": 2, "kind": "story"},
+    {"q": "Which ancient Celtic festival is the root of today's October 31st traditions?", "options": ["Samhain", "Beltane", "Imbolc"], "answer": 0, "kind": "trivia"},
+    {"q": "Which vegetable was originally carved into lanterns in Ireland and Scotland?", "options": ["Pumpkin", "Turnip", "Cabbage"], "answer": 1, "kind": "trivia"},
+    {"q": "Which nocturnal animal is the only mammal capable of true flight?", "options": ["Flying squirrel", "Sugar glider", "Bat"], "answer": 2, "kind": "trivia"},
+    {"q": "Which bird can turn its head about 270 degrees to watch its surroundings?", "options": ["Owl", "Raven", "Heron"], "answer": 0, "kind": "trivia"},
+    {"q": "Which pigment fades from leaves in autumn, revealing yellows and oranges?", "options": ["Melanin", "Chlorophyll", "Keratin"], "answer": 1, "kind": "trivia"},
+    {"q": "Which two colours are most associated with October 31st decorations?", "options": ["Red and gold", "Purple and silver", "Orange and black"], "answer": 2, "kind": "trivia"},
+    {"q": "Which nocturnal animal has eyes that glow thanks to a reflective layer behind the retina?", "options": ["Pigeon", "Cat", "Trout"], "answer": 1, "kind": "trivia"},
+    {"q": "Which astronomical event marks the start of autumn in the northern hemisphere?", "options": ["Winter solstice", "Autumnal equinox", "Summer solstice"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "HAPPY = H-A-P-P-Y (5) | HALLOWEEN = H-A-L-L-O-W-E-E-N (9) | NIGHTS = N-I-G-H-T-S (6) | total 20"
+}

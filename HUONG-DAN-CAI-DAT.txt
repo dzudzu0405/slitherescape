@@ -1,0 +1,58 @@
+SLITHERESCAPE STUDIO - HUONG DAN CAI DAT TREN CPANEL
+=====================================================
+
+Yeu cau hosting
+- PHP 8.0 tro len, co bat extension pdo_mysql va mbstring
+  (cPanel -> Select PHP Version -> Extensions).
+- 1 database MySQL.
+- Khong can terminal, Node hay Composer.
+
+Buoc 1 - Tao database
+1. cPanel -> MySQL Databases.
+2. Tao database moi, vi du: cpaneluser_slither
+3. Tao user moi va dat mat khau, vi du: cpaneluser_admin
+4. O muc "Add User To Database", them user vao database, tick ALL PRIVILEGES.
+   Ghi lai: ten database, ten user, mat khau.
+
+Buoc 2 - Upload code
+1. cPanel -> File Manager.
+2. Vao thu muc se chay app:
+   - public_html            neu muon chay o ten mien chinh (vd: tenmien.com)
+   - public_html/studio     neu muon chay o thu muc con (vd: tenmien.com/studio)
+3. Bam Upload, chon file slitherescape-studio-v1.0.zip.
+4. Quay lai File Manager, chuot phai file zip -> Extract.
+5. Xoa file zip sau khi giai nen (khong bat buoc).
+
+Buoc 3 - Chay trinh cai dat
+1. Mo trinh duyet: https://tenmien.com/install.php
+   (hoac https://tenmien.com/studio/install.php neu dung thu muc con)
+2. Muc "Server check" phai co 4 dau tick xanh. Neu co dau do, lam theo huong dan
+   hien ngay ben duoi dong do.
+3. Nhap ten database, user, mat khau o Buoc 1. Host de nguyen "localhost".
+4. Nhap ten shop (in o chan trang PDF), email va mat khau dang nhap.
+5. Bam Install -> Log in.
+
+Sau khi cai dat
+- File config.php duoc tao tu dong, chua thong tin database. Khong chia se file nay.
+- Co the giu install.php de dung chuc nang "quen mat khau":
+  mo https://tenmien.com/install.php?reset, nhap mat khau database de xac minh,
+  roi dat mat khau moi.
+  Neu khong can, xoa install.php trong File Manager cho an toan.
+- Nen bat HTTPS (cPanel -> SSL/TLS Status -> Run AutoSSL).
+
+Cap nhat phien ban moi
+1. Upload va giai nen ban moi de len thu muc cu.
+2. KHONG xoa config.php va thu muc data/.
+   Du an da luu nam trong database nen khong bi mat.
+
+Thu muc va file
+- index.php, login.php, dashboard.php, editor.php, account.php   cac trang
+- api.php                    luu / nhan ban / xoa du an
+- install.php                cai dat va dat lai mat khau
+- inc/                       code PHP dung chung (bi chan truy cap truc tiep)
+- data/                      session dang nhap (tu tao, bi chan truy cap truc tiep)
+- assets/js/engine/          sinh de Slitherlink (chay tren trinh duyet)
+- assets/js/pdf/             dung file PDF (chay tren trinh duyet)
+- assets/fonts/              font IM Fell English (giay phep OFL, dung thuong mai duoc)
+                             va DejaVu Serif (giay phep tu do)
+- assets/vendor/             thu vien jsPDF (giay phep MIT)

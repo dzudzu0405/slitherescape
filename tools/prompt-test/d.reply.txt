@@ -1,0 +1,59 @@
+{
+  "title": "Midnight at Razor Reef",
+  "tagline": "A sleeping crew, a drifting ship, and one spoken order between you and the rocks.",
+  "prologue": "At 11:15 on a foggy night, the Crimson Gull slipped her ropes in Whistler's Cove and began to glide toward Razor Reef. Captain Odessa Reed is fast asleep below, and so is her entire crew of twelve, thanks to a mug of the cook's sleepy tea. Only you are awake. On the captain's desk lie a green leather journal and a silver whistle, along with a note: the wheel is jammed, the reef is waiting at midnight, and the only way to save the ship is a spoken order that the captain locked inside her sea chest long ago. Find it before the Crimson Gull is splintered and your treasure goes down with her.",
+  "mission": "Solve the puzzles to collect the 2 secret words, then say the code aloud at the sea chest before the Crimson Gull strikes Razor Reef at midnight. Every minute counts.",
+  "chapters": [
+    {
+      "name": "The Captain's Cabin",
+      "intro": "You tiptoe into the cabin, where a brass clock above the bunk ticks steadily toward midnight and a red lantern swings from a hook in the ceiling. Maps cover every wall. A parrot named Biscuit watches you from his perch and squawks only the number 7. On the desk lies a torn chart of Whistler's Cove with three islands drawn in blue ink. Somewhere in this room is the first part of the captain's order, and every swing of the lantern reminds you that the reef is getting closer.",
+      "riddle": "I am a single bead of rain, the sudden plunge of a cliff edge, and what you do to a cannonball you cannot carry. What am I?",
+      "word": "DROP"
+    },
+    {
+      "name": "Fog on the Deck",
+      "intro": "Up on deck, the fog is as thick as porridge. Eleven barrels are lashed beside the mast, each stamped with a white star. The wheel is wrapped in rope and jammed tight, and a rusty bell rings by itself whenever a wave slaps the hull. Somewhere in the mist you can hear the surf breaking on Razor Reef. Captain Reed's last note is pinned beneath the bell, and midnight is only minutes away.",
+      "riddle": "I am heavy iron with two curved arms, and I sleep on the seabed. Without me, a ship wanders wherever the tide wishes. Sailors cast me from the bow.",
+      "word": "ANCHOR"
+    }
+  ],
+  "puzzleTitles": [
+    "The Brass Clock Above the Bunk",
+    "Biscuit the Parrot and His Number",
+    "The Swinging Red Lantern",
+    "Blue Ink Chart of Three Islands",
+    "Barrels Stamped With White Stars",
+    "The Rusty Bell Beside the Mast",
+    "Rope Around the Jammed Wheel",
+    "Fog Thick as Porridge",
+    "Surf Breaking on Razor Reef",
+    "Captain Reed's Last Note"
+  ],
+  "finalLock": "The Crimson Gull groans as the first rocks of Razor Reef scrape along her hull. Above the bunk, the brass clock ticks into the final minute before midnight. The sea chest waits in front of you, its silver lock gleaming in the lantern light, listening for a spoken order. Biscuit the parrot holds his breath. Stand together, take a deep breath, and say it clearly.",
+  "ending": "The chest clicks open and the lock falls silent. 'DROP ANCHOR!' you shout, and far below the bow, a great iron anchor plunges into the dark water. The chain rattles, the timbers shudder, and the Crimson Gull swings to a stop a single boat length from the teeth of Razor Reef, just as the clock strikes midnight. That was the one order Captain Reed knew could hold a drifting ship, which is why she hid it where only a careful crew could find it. Captain Odessa Reed wakes, yawns, and stares at the reef in astonishment. Congratulations, sailors: you saved the ship, the crew and the treasure!",
+  "certificate": "Awarded to the brave sailors who saved the Crimson Gull from Razor Reef at the stroke of midnight.",
+  "teamName": "The Midnight Reef Runners",
+  "questions": [
+    {"q": "What is the name of the ship that slips away from its ropes?", "options": ["The Silver Gull", "The Crimson Gull", "The Midnight Wren"], "answer": 1, "kind": "story"},
+    {"q": "In which cove was the ship moored when it began to drift?", "options": ["Raven's Cove", "Smuggler's Cove", "Whistler's Cove"], "answer": 2, "kind": "story"},
+    {"q": "What is the name of the reef the ship is drifting toward?", "options": ["Razor Reef", "Shark Reef", "Dagger Reef"], "answer": 0, "kind": "story"},
+    {"q": "At what time did the ship begin to drift?", "options": ["10:45", "11:15", "11:45"], "answer": 1, "kind": "story"},
+    {"q": "What is the captain's name?", "options": ["Odessa Reed", "Olivia Reid", "Odette Rose"], "answer": 0, "kind": "story"},
+    {"q": "What color is the leather journal on the captain's desk?", "options": ["Brown", "Black", "Green"], "answer": 2, "kind": "story"},
+    {"q": "What made the captain and her crew fall asleep?", "options": ["A heavy storm", "The cook's sleepy tea", "A long night watch"], "answer": 1, "kind": "story"},
+    {"q": "What is the name of the parrot in the captain's cabin?", "options": ["Biscuit", "Pepper", "Captain Crackers"], "answer": 0, "kind": "story"},
+    {"q": "Which number does the parrot squawk?", "options": ["3", "12", "7"], "answer": 2, "kind": "story"},
+    {"q": "What color is the lantern swinging from the cabin ceiling?", "options": ["Yellow", "Red", "Green"], "answer": 1, "kind": "story"},
+    {"q": "What symbol is stamped on the barrels lashed beside the mast?", "options": ["A white star", "A black skull", "A golden crown"], "answer": 0, "kind": "story"},
+    {"q": "What color ink was used to draw the three islands on the chart?", "options": ["Black", "Red", "Blue"], "answer": 2, "kind": "story"},
+    {"q": "Which explorer's 1492 voyage for Spain reached the Americas?", "options": ["Christopher Columbus", "Marco Polo", "Ferdinand Magellan"], "answer": 0, "kind": "trivia"},
+    {"q": "Which instrument shows direction by using Earth's magnetic field?", "options": ["A telescope", "A compass", "A barometer"], "answer": 1, "kind": "trivia"},
+    {"q": "What is the left side of a ship called when you face the front?", "options": ["Starboard", "Stern", "Port"], "answer": 2, "kind": "trivia"},
+    {"q": "Which is the largest ocean on Earth?", "options": ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean"], "answer": 0, "kind": "trivia"},
+    {"q": "Vasco da Gama sailed from Portugal around Africa and reached which land in 1498?", "options": ["Brazil", "India", "Australia"], "answer": 1, "kind": "trivia"},
+    {"q": "Which imaginary lines on a map measure how far east or west a place is?", "options": ["Lines of latitude", "The equator", "Lines of longitude"], "answer": 2, "kind": "trivia"},
+    {"q": "What is the front part of a ship called?", "options": ["Bow", "Stern", "Keel"], "answer": 0, "kind": "trivia"},
+    {"q": "Captain James Cook, who mapped much of the Pacific, sailed for which country?", "options": ["Spain", "Britain", "The Netherlands"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "DROP = D-R-O-P (4) | ANCHOR = A-N-C-H-O-R (6) | total 10"
+}

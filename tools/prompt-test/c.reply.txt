@@ -1,0 +1,52 @@
+{
+  "title": "The Sapphire Brooch of Marlow Cove",
+  "tagline": "A stolen starfish brooch, a foggy lighthouse, and two hundred suspects.",
+  "prologue": "The sun was sinking over Marlow Cove when Ivy Calloway found the empty velvet box. Her late grandmother's silver starfish brooch, with its three sapphire chips, had vanished from the gift room of the Seabreeze Inn at 4:15 p.m. Two hundred guests were already gathering on the terrace, where the string quartet tuned its violins and the caterers balanced trays of lemon tarts. The groom, Theo Hart, was missing his blue bow tie. Someone in the crowd had taken the brooch, and the old family tradition says whoever holds it inherits the lighthouse cottage deed. That deed is locked in a walnut box, and the lock will only open when the right words are spoken aloud. The ceremony begins at seven. Everyone must find the culprit before the vows begin.",
+  "mission": "Solve every puzzle, collect the three hidden words in order, and say the full code aloud before the vows begin and the culprit slips away on the Kittiwake.",
+  "chapters": [
+    {"name": "The Gift Room Trail", "intro": "Ivy's search begins in the gift room, where a torn lace ribbon hangs from the cabinet door and a single wet footprint, size nine, leads toward the harbor. The trail ends at the dock gate, beside a red octagon sign that rattles above the rope line. Beyond it, the sightseeing boat Kittiwake is tied with three blue knots, and its captain, Mr. Dobbs, paces with a clipboard. The sun fades to amber over the water, and the quartet is tuning on the terrace. Find what the trail is hiding before the Kittiwake leaves the harbor at six.", "riddle": "I am the red eight-sided sign at every crossroads, and drivers must obey me. Which command is painted across my face?", "word": "STOP"},
+    {"name": "Secrets of the Lighthouse Cottage", "intro": "The Calloway cottage sits at the foot of the lighthouse, its windows rattling each time the foghorn sounds. Inside, sandy footprints climb the spiral stairs to the attic, where a brass lantern shaped like a sailboat has been moved from the windowsill. Tucked under the hall rug is a pearl earring, and a folded note on blue stationery reads: 'Meet me where the tide meets the rocks.' The lantern's glass is still warm, so the visitor must have fled only minutes ago. Every clue points toward the one guest who arrived at the cottage before everyone else.", "riddle": "I creep through shadows to take what is not mine, then vanish with the treasure. Give me my name.", "word": "THIEF"},
+    {"name": "The Lantern Room Deed Box", "intro": "The lantern room at the top of the lighthouse is quiet except for the slow turning of the great lens. Ivy climbs toward the deed box, a walnut chest bound with brass and locked since the cottage was built in 1912. Its lid bears scratched initials and a dial with three rings of tiny brass symbols. Theo, the groom, paces the rocks below in unmatched shoes, while guests begin lighting paper lanterns along the shore. Somewhere in the harbor the Kittiwake sounds its horn, one last warning before it sails.", "riddle": "I am the single moment you are living in, the opposite of later. What word names me?", "word": "NOW"}
+  ],
+  "puzzleTitles": [
+    "Torn lace ribbon on the cabinet",
+    "Wet footprint, size nine",
+    "Red octagon sign at the dock",
+    "Kittiwake boat with three blue knots",
+    "Sandy footprints on the spiral stairs",
+    "Brass sailboat lantern in the attic",
+    "Pearl earring under the hall rug",
+    "Blue stationery note about the rocks",
+    "Lantern glass still warm",
+    "Great lens turning in the lantern room",
+    "Walnut deed box bound in brass",
+    "Groom's unmatched shoes on the rocks"
+  ],
+  "finalLock": "The three brass rings on the deed box begin to turn, and the lantern room falls silent. Ivy's fingers hover above the keyhole while the foghorn wails across Marlow Cove. Guests hush along the rocks as the Kittiwake sounds its horn once more. Theo grips Ivy's hand, and the sun slips below the horizon. Everyone waits for the right phrase to be spoken aloud, all at once, before the lid can open.",
+  "ending": "Attention, sleuths! The code is cracked, and the deed box lid swings open. The culprit was Marcus Hale, the bride's cousin, who wanted the cottage sold to a developer. He hid the silver starfish in the cottage attic, planning to slip away on the Kittiwake at six. Sandy footprints, a warm lantern and a blue note gave him away. The secret phrase was the answer because it named exactly what the crowd had to do: STOP THIEF NOW! Marcus was caught on the dock, the brooch returned to Ivy, and the vows were spoken at seven under a sky full of paper lanterns. Congratulations, champions of Marlow Cove!",
+  "certificate": "Awarded for solving the Marlow Cove mystery and saving the Calloway wedding with sharp wits and steady teamwork.",
+  "teamName": "The Sapphire Sleuths",
+  "questions": [
+    {"q": "Where did the silver starfish brooch disappear from?", "options": ["The gift room of the Seabreeze Inn", "The terrace near the string quartet", "The caterers' kitchen"], "answer": 0, "kind": "story"},
+    {"q": "At what time did the brooch vanish?", "options": ["3:15 p.m.", "4:15 p.m.", "5:15 p.m."], "answer": 1, "kind": "story"},
+    {"q": "What color is the groom's missing bow tie?", "options": ["Red", "Blue", "Gold"], "answer": 1, "kind": "story"},
+    {"q": "How many sapphire chips decorate the brooch?", "options": ["Two", "Three", "Five"], "answer": 1, "kind": "story"},
+    {"q": "About how many guests gathered on the terrace?", "options": ["Twenty", "Two hundred", "Two thousand"], "answer": 1, "kind": "story"},
+    {"q": "What time does the ceremony begin?", "options": ["6 p.m.", "7 p.m.", "8 p.m."], "answer": 1, "kind": "story"},
+    {"q": "What is the name of the sightseeing boat at the dock?", "options": ["Kittiwake", "Seabird", "Lighthouse Lady"], "answer": 0, "kind": "story"},
+    {"q": "Who is the captain of the Kittiwake?", "options": ["Mr. Hart", "Mr. Calloway", "Mr. Dobbs"], "answer": 2, "kind": "story"},
+    {"q": "What shoe size was the wet footprint in the gift room?", "options": ["Size seven", "Size nine", "Size eleven"], "answer": 1, "kind": "story"},
+    {"q": "What shape is the brass lantern in the attic?", "options": ["A sailboat", "A lighthouse", "A seashell"], "answer": 0, "kind": "story"},
+    {"q": "What did the note on blue stationery say?", "options": ["Meet me at the pier at six", "Meet me in the attic", "Meet me where the tide meets the rocks"], "answer": 2, "kind": "story"},
+    {"q": "What is the deed box made of?", "options": ["Oak bound with iron", "Walnut bound with brass", "Pine bound with copper"], "answer": 1, "kind": "story"},
+    {"q": "What do lighthouses use to guide ships safely at night?", "options": ["Bright rotating light beams", "Church bells only", "Colored flags only"], "answer": 0, "kind": "trivia"},
+    {"q": "Which natural force makes the sea rise and fall twice a day?", "options": ["The winds", "The currents", "The tides"], "answer": 2, "kind": "trivia"},
+    {"q": "Which sea creature is famous for having eight arms?", "options": ["Starfish", "Octopus", "Seahorse"], "answer": 1, "kind": "trivia"},
+    {"q": "Which bird often swoops in to steal fries from beach visitors?", "options": ["Seagull", "Penguin", "Ostrich"], "answer": 0, "kind": "trivia"},
+    {"q": "What is the largest ocean on Earth?", "options": ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean"], "answer": 0, "kind": "trivia"},
+    {"q": "How many days are in a standard week?", "options": ["Five", "Seven", "Nine"], "answer": 1, "kind": "trivia"},
+    {"q": "Which gemstone is the birthstone for September?", "options": ["Emerald", "Sapphire", "Ruby"], "answer": 1, "kind": "trivia"},
+    {"q": "Which planet do we live on?", "options": ["Mars", "Venus", "Earth"], "answer": 2, "kind": "trivia"}
+  ],
+  "codeCheck": "STOP = S-T-O-P (4) | THIEF = T-H-I-E-F (5) | NOW = N-O-W (3) | total 12"
+}

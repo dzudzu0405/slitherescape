@@ -1,0 +1,87 @@
+You are writing the story for a printable escape-room game for children aged 11-13.
+How the game works: players solve logic puzzles, and each solved puzzle reveals ONE capital letter. Read in order, the letters spell a SECRET CODE of 2 words, one word per chapter. Saying the code at the end opens the final lock and wins the game.
+
+== BRIEF ==
+Theme: School
+Setting ideas: A school: classrooms, the library, the science room, the principal's office, a locked trophy cabinet, after-hours corridors.
+Story type: Haunted. The place is haunted. Strange noises, moving objects and a restless spirit; solving the puzzles lets the spirit rest or reveals the truth behind the haunting.
+Audience: children aged 11-13. Simple, lively sentences a 12-year-old reads easily. Fun and gentle: no violence, nothing truly frightening.
+For this age: Keep the ghost friendly or misunderstood; spooky-fun, never frightening.
+Language: English, with American spelling (color, harbor, favorite).
+
+== THE SECRET CODE ==
+- Choose 2 common English words, 9 to 12 letters in total, using only the letters A-Z.
+- Each word has 4 to 7 letters.
+- Pick words children aged 11-13 know and can spell. No names, no abbreviations, no made-up words.
+- Read together, the words form one meaningful phrase (for example adjective + noun, or a short command). Never a list of unrelated words.
+- That phrase is the answer to the story's problem, in a way that fits the story type.
+- For inspiration only (invent your own): SCHOOL SPIRIT, GOLD STAR.
+
+== WHAT TO WRITE ==
+1. title (max 8 words): catchy and original.
+2. tagline (max 15 words): one intriguing line for the cover.
+3. prologue (90-150 words): sets up the problem and why the code matters. Plant at least 6 concrete details players can be asked about later: names, colors, numbers, objects, places, times.
+4. mission (20-50 words): tells the players to solve the puzzles, collect the 2 words and say the code before something bad happens.
+5. chapters: exactly 2, in the order of the code. For each:
+   - name (max 6 words)
+   - intro (50-110 words): narration that leads into this chapter's puzzles and raises the stakes, with at least 3 new concrete details.
+   - riddle (max 35 words): printed on the players' Code Sheet; its answer is exactly this chapter's word. Fair and solvable for children aged 11-13. It must not contain the word or any form of it.
+   - word: this chapter's code word in CAPITALS.
+6. puzzleTitles (one item per letter of the code): one short scene title per letter, max 7 words each, built from places and objects in that chapter's intro. The titles follow the letters in order: the first titles are scenes from chapter 1, then chapter 2, and so on.
+7. finalLock (35-90 words): the tense moment just before the players speak the code.
+8. ending (70-150 words): read aloud by the Game Host once the code is cracked; explains why the code was the answer, resolves the story and congratulates the players.
+9. certificate (max 25 words): one sentence of praise printed on the certificate of completion.
+10. teamName (max 6 words): a fun name for the players' team.
+11. questions: exactly 20 multiple-choice questions. The Game Host reads one aloud whenever players want a hint.
+   - Questions 1-12, kind "story": the answer is stated in the prologue, the mission or a chapter intro. Never ask about the final lock or the ending. Each question asks about a different detail.
+   - Questions 13-20, kind "trivia": about general knowledge suitable for school: geography, history, science, maths facts. Well-known facts that children aged 11-13 can answer or reasonably guess; nothing disputed or likely to change.
+   - Exactly 3 options each, exactly 1 correct. Wrong options are plausible, never jokes. Options max 8 words, questions max 28 words. No "all of the above" or "none of the above".
+   - "answer" is the position of the correct option: 0, 1 or 2.
+
+== STAY IN THE STORY ==
+- Only the mission may mention puzzles. The prologue, chapter intros, final lock and ending stay inside the story world: never mention puzzles, riddles, letters, word lengths, how many puzzles there are, or how the game works.
+- Details stay consistent: every name, number, color and time means the same thing everywhere, and any times mentioned add up. Puzzle titles and the ending must not contradict the intros.
+
+== NO SPOILERS ==
+- Never use a code word (or its plural) in the riddles, puzzle titles, final lock or questions: that would give the answer away.
+- Never hint at what a code word means or how long it is in the story text.
+- Avoid the code words in the title, tagline, prologue, mission and chapter intros too. Only if a code word is the theme's own name may it appear there naturally, never highlighted as a clue.
+- The ending may use the code freely.
+
+== ORIGINALITY ==
+100% original writing. No copyrighted or trademarked characters, brands, places or names (for example Harry Potter, Disney, Marvel, Pokemon). In particular, do not use: Hogwarts, any school from books, films or TV.
+
+== OUTPUT FORMAT ==
+Reply with ONE JSON object and nothing else: no text before or after it, no markdown code fences.
+Inside the text, write dialogue and quotations with single quotes ('like this'), never with double quotes, so the JSON stays valid.
+Use exactly these keys (replace every "..." with your text; "puzzleTitles" needs one item per letter of the code and "questions" needs 20):
+{
+  "title": "...",
+  "tagline": "...",
+  "prologue": "...",
+  "mission": "...",
+  "chapters": [
+    {"name": "...", "intro": "...", "riddle": "...", "word": "WORD1"},
+    {"name": "...", "intro": "...", "riddle": "...", "word": "WORD2"}
+  ],
+  "puzzleTitles": ["...", "...", "..."],
+  "finalLock": "...",
+  "ending": "...",
+  "certificate": "...",
+  "teamName": "...",
+  "questions": [
+    {"q": "...?", "options": ["...", "...", "..."],"answer": 0,"kind": "story"},
+    {"q": "...?", "options": ["...", "...", "..."],"answer": 2,"kind": "trivia"}
+  ],
+  "codeCheck": "..."
+}
+"codeCheck" spells each code word letter by letter with its count, then the total. Format example only: "MOON = M-O-O-N (4) | LIGHT = L-I-G-H-T (5) | total 9".
+
+== CHECK BEFORE YOU ANSWER ==
+- "codeCheck" spells every code word letter by letter, and the letter total is between 9 and 12.
+- "puzzleTitles" has exactly one item per letter of the code.
+- "questions" has exactly 20 items: 12 story questions first, then 8 trivia questions, each with exactly 3 options.
+- Every word count is inside its limits.
+- No code word appears where it is not allowed, and the story text never mentions puzzles, letters or riddles (only the mission may mention puzzles).
+- Puzzle titles repeat the intros' numbers, colors and names exactly.
+- The JSON is valid: double quotes only around keys and values, no trailing commas.

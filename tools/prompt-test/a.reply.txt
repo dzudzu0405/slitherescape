@@ -1,0 +1,59 @@
+{
+  "title": "Room Twelve Rings at 4:17",
+  "tagline": "A friendly ghost wants one thing back before the clock strikes nine.",
+  "prologue": "Hollow Creek Middle School has been quiet since spring 1989, when sixth grader Theo Mills vanished from Room Twelve at 4:17 in the afternoon. His green scarf still hangs on the hook by the door. Every evening, the brass bell above the blue lockers rings at 4:17, and the friendly ghost of Theo drifts through the hallways looking for his sixth-grade group picture. In the picture he smiles in the front row, between his best friends Lucy and Sam. Principal Harlow hid it years ago behind the glass of the main hall display case, and the lock opens only for a secret phrase. Theo cannot rest until his picture hangs back on the main hall wall, and the school's lights will stay flickering until then.",
+  "mission": "Solve every puzzle, collect the two hidden words, and say the code aloud before the clock strikes nine and the doors lock for good. Only then can Theo rest.",
+  "chapters": [
+    {
+      "name": "Room Twelve After Dark",
+      "intro": "Room Twelve is cold and dark, but the chalkboard is already scribbling. Someone has drawn a clock that reads 4:17, and the chalk dust smells like old pencil shavings. Behind you, the brass bell gives one soft ring. Theo drifts past blue locker number nine, where his old lunch box sits open. Mrs. Dunn, the science teacher who loved Theo, hid a note in her desk drawer, but the drawer is stuck. The green scarf on the hook by the door begins to sway, as if it wants you to follow.",
+      "riddle": "I am a group of students who learn the same lessons together, guided by one teacher. What am I?",
+      "word": "CLASS"
+    },
+    {
+      "name": "Principal Harlow's Dark Office",
+      "intro": "Now the halls of the west wing stretch long and quiet, and a lonely hall clock has stopped at 8:05. Principal Harlow's office is next, where a rusty filing cabinet hides a folded map of the school. A cold draft carries a whisper from the library, where shelf number thirty-two wobbles on its brackets. A red ribbon in hallway four twirls in the air as if waving you forward. Theo is close now, and the spirit grows brighter, but the main hall display case waits at the end, guarded by a glowing glass door.",
+      "riddle": "I freeze a smiling moment using light and a lens. Families frame me and hang me on walls. What am I?",
+      "word": "PHOTO"
+    }
+  ],
+  "puzzleTitles": [
+    "The Chalkboard Clock Reads 4:17",
+    "Blue Locker Number Nine",
+    "Mrs. Dunn's Stuck Desk Drawer",
+    "Green Scarf on the Hook",
+    "The Brass Bell in Room Twelve",
+    "Principal Harlow's Filing Cabinet",
+    "Library Shelf Number Thirty-Two",
+    "Hall Clock Stopped at 8:05",
+    "Red Ribbon in Hallway Four",
+    "Main Hall Display Case"
+  ],
+  "finalLock": "The display case glows a pale blue, and the glass door creaks open a crack. Inside, a faded group picture waits in its frame, and Theo's face flickers in the glass. The bell in Room Twelve begins to ring, and the stopped hall clock jolts back to life, ticking toward nine. Everyone in the hall holds their breath. Now is the moment to speak the answer clearly, before the lights go out for good.",
+  "ending": "Theo's voice rang out, and the display case swung open with a soft click. 'CLASS PHOTO!' the whole team shouted together, and the old group picture slid gently into the light. In it, Theo smiled in the front row between Lucy and Sam, just as he did the day before he vanished. A cool breeze swept through the main hall, the green scarf in Room Twelve went still, and the brass bell fell silent at last. That phrase was the answer because Theo only needed his picture to find peace with his friends. Congratulations, brave team, you freed a gentle ghost and saved Hollow Creek from a long, locked night!",
+  "certificate": "This certifies that the team bravely solved the haunting of Hollow Creek Middle School and gave a lost ghost his peace.",
+  "teamName": "The Midnight Hall Monitors",
+  "questions": [
+    {"q": "In what year did Theo Mills vanish from Room Twelve?", "options": ["1979", "1989", "1998"], "answer": 1, "kind": "story"},
+    {"q": "At what time does the brass bell ring each evening?", "options": ["4:17", "5:17", "3:45"], "answer": 0, "kind": "story"},
+    {"q": "What color is the scarf hanging on the hook by the door?", "options": ["Blue", "Green", "Red"], "answer": 1, "kind": "story"},
+    {"q": "Who is one of Theo's best friends in the group picture?", "options": ["Sam", "Mrs. Dunn", "Mr. Brooks"], "answer": 0, "kind": "story"},
+    {"q": "Who hid the group picture behind the glass?", "options": ["Theo Mills", "Principal Harlow", "Mrs. Dunn"], "answer": 1, "kind": "story"},
+    {"q": "Which room is the haunting centered on?", "options": ["Room Twelve", "Room Nine", "Room Four"], "answer": 0, "kind": "story"},
+    {"q": "What color are the lockers that the brass bell hangs above?", "options": ["Blue", "Yellow", "Gray"], "answer": 0, "kind": "story"},
+    {"q": "Where does Theo's ghost want his group picture hung?", "options": ["In the library", "On the main hall wall", "In Room Twelve"], "answer": 1, "kind": "story"},
+    {"q": "What did Mrs. Dunn hide in her stuck desk drawer?", "options": ["A note", "A key", "A map"], "answer": 0, "kind": "story"},
+    {"q": "What time does the hall clock show when it stops?", "options": ["8:05", "4:17", "9:00"], "answer": 0, "kind": "story"},
+    {"q": "What object is twirling in hallway four?", "options": ["A red ribbon", "A blue kite", "A green flag"], "answer": 0, "kind": "story"},
+    {"q": "Which library shelf number is wobbling?", "options": ["Twenty-three", "Thirty-two", "Forty-two"], "answer": 1, "kind": "story"},
+    {"q": "Which ocean is the largest on Earth?", "options": ["Atlantic Ocean", "Pacific Ocean", "Indian Ocean"], "answer": 1, "kind": "trivia"},
+    {"q": "How many continents are there on Earth?", "options": ["Five", "Seven", "Nine"], "answer": 1, "kind": "trivia"},
+    {"q": "Which planet is known as the Red Planet?", "options": ["Mars", "Venus", "Jupiter"], "answer": 0, "kind": "trivia"},
+    {"q": "How many sides does a hexagon have?", "options": ["Five", "Six", "Eight"], "answer": 1, "kind": "trivia"},
+    {"q": "What is the capital city of Japan?", "options": ["Tokyo", "Kyoto", "Osaka"], "answer": 0, "kind": "trivia"},
+    {"q": "What gas do plants take in from the air to make their food?", "options": ["Oxygen", "Carbon dioxide", "Nitrogen"], "answer": 1, "kind": "trivia"},
+    {"q": "What is 12 multiplied by 12?", "options": ["124", "144", "156"], "answer": 1, "kind": "trivia"},
+    {"q": "Which river is the longest in Africa?", "options": ["Congo", "Nile", "Niger"], "answer": 1, "kind": "trivia"}
+  ],
+  "codeCheck": "CLASS = C-L-A-S-S (5) | PHOTO = P-H-O-T-O (5) | total 10"
+}
