@@ -52,9 +52,17 @@
     return null;
   }
 
-  // Pictures offered to the AI: those of the chosen theme when it has enough, otherwise all.
+  // Themes without their own pictures, or that suit a neighbour's too, borrow from these.
+  const RELATED_IMAGES = {
+    pirates: ['ocean'], ocean: ['pirates'], castle: ['wizard'], wizard: ['castle'], jungle: ['dinosaurs', 'easter'],
+    dinosaurs: ['jungle'], museum: ['egypt', 'dinosaurs'], lab: ['space'], space: ['lab'], newyear: ['christmas', 'space'],
+    thanksgiving: ['easter', 'christmas'], school: ['space', 'wizard'], detective: ['pirates', 'halloween']
+  };
+
+  // Pictures offered to the AI: the chosen theme's and its neighbours', or all when too few.
   function imagesForPrompt() {
-    const own = library().filter((m) => m.theme === state.themeId);
+    const themes = [state.themeId].concat(RELATED_IMAGES[state.themeId] || []);
+    const own = library().filter((m) => themes.includes(m.theme));
     return own.length >= 3 ? own : library();
   }
 

@@ -285,5 +285,285 @@
         ])
       }
     }
+    ,{
+      themeId: 'valentine',
+      plotId: 'mystery',
+      story: {
+        title: 'The Lost Note of Larkspur Lane',
+        tagline: 'A sweet shop, a secret admirer, and a promise fifty years old.',
+        prologue: 'Every February, the Sweet Spoon chocolate shop on Larkspur Lane fills its window with pink boxes and paper doves. This year, at noon on the thirteenth, its owner Delphine found something strange behind the old brass till: half of a love note, written in violet ink and dated fifty years ago. It was signed only with the initial T. Delphine has been a widow for nine years, but she knows that handwriting, and she wants to know how the story ended. The other half is hidden somewhere in the building, and the shop will be sold to a stranger on the fifteenth. Her grandson Milo has offered you free truffles for life if you can find it in time.',
+        mission: 'Solve the puzzles, put together what they reveal and find the two words that complete the old note. Say them to Delphine before the shop is sold on the fifteenth.',
+        chapters: [
+          {
+            name: 'The Window Display',
+            intro: 'You begin in the front window, among seven tiers of pink boxes and a paper dove on a silver thread. Milo says his grandmother never let anyone change one thing in this corner, not even the faded red ribbon around the third shelf. Tucked beneath the shelf is a postcard from Paris, showing a bridge at sunset. On the back, someone has drawn a small shape and written that it is the only thing worth giving away and the only thing you cannot buy here.',
+            word: 'HEART',
+            type: 'mosaic'
+          },
+          {
+            name: 'The Garden Behind the Shop',
+            intro: 'A narrow green door leads out to a walled garden, where eleven clay pots stand in the frost. Delphine has not come out here since the winter her husband fell ill. Along the south wall climbs a thorny old bush he planted the week they met, and it still blooms each June. Milo finds a rusty tin buried under the bench, holding a pressed bloom and a photograph of two people laughing. Delphine covers her mouth when she sees it. She knows exactly what he always brought her.',
+            word: 'ROSE',
+            type: 'mosaic'
+          }
+        ],
+        puzzleTitles: [],
+        finalLock: 'Back in the shop, Delphine sits by the till with the torn page in her lap, and Milo holds his breath behind the counter. Outside, the bell above the door gives a tiny ring in the draft. She looks up and waits. Tell her the two words that finish what was written so long ago.',
+        ending: 'Delphine reads the words aloud and begins to cry and laugh at once. Heart and rose: the note ends with a promise to bring both, every year, for as long as they lived. And so he did, for forty-one years, and she had never known where it started. The other half falls from the lining of the till when Milo lifts it, and it matches perfectly. Delphine tears up the offer to sell the shop right there. The Sweet Spoon will stay open, Milo will learn the recipes, and you will never pay for a truffle again. Happy Valentine\'s Day, dear friends.',
+        certificate: 'For finding a fifty-year-old promise and saving the Sweet Spoon on Larkspur Lane.',
+        teamName: 'The Larkspur Lane Sweethearts',
+        party: {
+          letter: 'Dear friends, my name is Delphine, and I have run the Sweet Spoon for most of my life. Today I found half of a love note behind my till, written in violet ink fifty years ago. I believe I know whose hand it is, and I need to know how it ends. My shop is to be sold on the fifteenth, so there is very little time. My grandson Milo says you are clever and kind, and he has promised you truffles for life. Please, take up your Code Sheet and begin. With all my love, Delphine',
+          roles: { leader: 'Keeper of the Promise', scribe: 'Writer of Love Notes', hintKeeper: 'Friend of Milo', timekeeper: 'Watcher of the Till', codebreaker: 'Chocolate Taster', assembler: 'Ribbon Tier' },
+          reward: 'Sweet Spoon Truffles for Life Pass'
+        },
+        questions: qs([
+          ['What is the name of the chocolate shop?', ['The Sweet Spoon', 'The Sugar Bell', 'The Cocoa Door'], 0],
+          ['What color ink was the note written in?', ['Blue', 'Violet', 'Green'], 1],
+          ['Where was the note found?', ['Under a shelf', 'In a box', 'Behind the till'], 2],
+          ['How old is the note?', ['Fifty years', 'Ten years', 'Ninety years'], 0],
+          ['What initial was the note signed with?', ['M', 'T', 'D'], 1],
+          ['Who is Milo?', ['Her neighbor', 'Her son', 'Her grandson'], 2],
+          ['How many tiers of boxes are in the window?', ['Seven', 'Three', 'Twelve'], 0],
+          ['Which city is on the postcard?', ['Rome', 'Paris', 'Vienna'], 1],
+          ['How many clay pots stand in the garden?', ['Six', 'Twenty', 'Eleven'], 2],
+          ['What color is the door to the garden?', ['Green', 'Red', 'White'], 0],
+          ['What was in the rusty tin with the pressed bloom?', ['A ring', 'A photograph', 'A key'], 1],
+          ['On what date will the shop be sold?', ['The thirteenth', 'The twentieth', 'The fifteenth'], 2],
+          ['On what date is Valentine\'s Day?', ['February 14', 'March 14', 'January 14'], 0, 'trivia'],
+          ['Chocolate is made from the seeds of which plant?', ['Coffee', 'Cacao', 'Vanilla'], 1, 'trivia'],
+          ['Which winged figure is linked with love in Roman myth?', ['Mercury', 'Mars', 'Cupid'], 2, 'trivia'],
+          ['Which bird is a traditional symbol of peace and love?', ['Dove', 'Crow', 'Hawk'], 0, 'trivia'],
+          ['What is a long, soft sweet with chocolate on the outside and cream inside often called?', ['A biscuit', 'A truffle', 'A wafer'], 1, 'trivia'],
+          ['Which season is it in February in Canada?', ['Summer', 'Autumn', 'Winter'], 2, 'trivia'],
+          ['What is the French word for "thank you"?', ['Merci', 'Bonjour', 'Salut'], 0, 'trivia'],
+          ['What do people commonly send to loved ones on this day?', ['Tax forms', 'Cards', 'Maps'], 1, 'trivia']
+        ])
+      }
+    },
+    {
+      themeId: 'easter',
+      plotId: 'race',
+      story: {
+        title: 'The Great Meadow Morning Hunt',
+        tagline: 'Twenty hidden treasures, one muddy meadow, and a rival team on the move.',
+        prologue: 'Every spring since 1931, the village of Willowby has held the Great Meadow Morning Hunt. This year the prize is the Golden Basket, a trophy no team from your side of the river has won in twenty-six years. The rules are read at eight by old Mrs. Applegate, who wears a yellow hat and carries a silver whistle. At the sound of the whistle, teams race across the meadow to follow her clues. Your great rivals, the Hillside Hares, have already been spotted with a pair of binoculars and a very suspicious wheelbarrow. The hunt ends at ten sharp, when the church clock strikes. You have two hours, four muddy fields and one chance.',
+        mission: 'Solve the puzzles, put together what they reveal and find the two words that claim the Golden Basket. Shout them to Mrs. Applegate before the clock strikes ten.',
+        chapters: [
+          {
+            name: 'The Lower Field',
+            intro: 'The whistle blows, and you splash through the lower field in your boots. Five straw bales mark the way to a red gate, where a small sign reads Begin With Beginnings. Mrs. Applegate has always said that every spring starts from something small and quiet that holds new life inside. A blue ribbon flutters from the fence post beside a nest of hay. Across the field, the Hillside Hares are pushing their wheelbarrow through the mud, and they are not far behind you.',
+            word: 'EGG',
+            type: 'mosaic'
+          },
+          {
+            name: 'The Old Warren',
+            intro: 'Beyond the stream, the ground rises to a grassy bank full of holes, which the locals call the Old Warren. Nine white stones lead along the top, and the church clock now says half past nine. A carved wooden post stands here, worn smooth by ninety years of curious hands. Long ago, the village chose a little animal as the mascot of the hunt, because it is quick, clever and always one jump ahead. Something with long ears peeks from the grass, then vanishes.',
+            word: 'BUNNY',
+            type: 'mosaic'
+          }
+        ],
+        puzzleTitles: [],
+        finalLock: 'You burst into the village square with mud to your knees. Mrs. Applegate stands by the fountain with her silver whistle, and the Golden Basket glitters on the table beside her. Behind you, a wheelbarrow rattles closer. High above, the great clock begins to whir. Shout the two words now!',
+        ending: 'Mrs. Applegate raises her hand and the whole square falls silent. Egg and bunny: the beginning of spring, and the clever one who is always a jump ahead. It is correct! The clock strikes ten as she places the Golden Basket in your arms, and the crowd roars. The Hillside Hares arrive a moment later, wheelbarrow and all, and they are good enough to clap. For the first time in twenty-six years, the trophy is crossing the river. There will be hot cross buns for everyone. Happy Easter, champions of Willowby.',
+        certificate: 'For winning the Golden Basket at the Great Meadow Morning Hunt in Willowby.',
+        teamName: 'The Riverside Runners',
+        party: {
+          letter: 'Dear hunters, this is Mrs. Applegate writing to welcome you to the Great Meadow Morning Hunt. Our village has held it each spring since 1931, and this year the Golden Basket is yours to win. Your side of the river has not won in twenty-six years, and the Hillside Hares are very confident indeed. I shall blow my silver whistle at eight, and the hunt ends when the church clock strikes ten. Wear your boots, for the fields are muddy. Now pick up your Code Sheet and be ready. Good luck, Mrs. Applegate',
+          roles: { leader: 'Team Captain', scribe: 'Clue Keeper', hintKeeper: 'Friend of Mrs. Applegate', timekeeper: 'Watcher of the Clock', codebreaker: 'Meadow Scout', assembler: 'Basket Weaver' },
+          reward: 'Golden Basket Champion Medal'
+        },
+        questions: qs([
+          ['Since what year has the hunt been held?', ['1931', '1901', '1975'], 0],
+          ['What is the prize called?', ['The Silver Cup', 'The Golden Basket', 'The Spring Crown'], 1],
+          ['How many years since your side last won?', ['Six', 'Ten', 'Twenty-six'], 2],
+          ['What does Mrs. Applegate carry?', ['A silver whistle', 'A brass bell', 'A wooden stick'], 0],
+          ['What color is her hat?', ['Blue', 'Yellow', 'Green'], 1],
+          ['What are the rival team called?', ['The Meadow Foxes', 'The Valley Ducks', 'The Hillside Hares'], 2],
+          ['What are the rivals pushing?', ['A wheelbarrow', 'A cart', 'A sled'], 0],
+          ['What time does the hunt end?', ['Nine', 'Ten', 'Noon'], 1],
+          ['How many straw bales mark the way?', ['Two', 'Eight', 'Five'], 2],
+          ['What color is the gate in the lower field?', ['Red', 'White', 'Black'], 0],
+          ['How many white stones lead along the bank?', ['Three', 'Nine', 'Fifteen'], 1],
+          ['What is the grassy bank called?', ['The Long Hill', 'The Green Mound', 'The Old Warren'], 2],
+          ['In which season is Easter in Europe?', ['Spring', 'Summer', 'Winter'], 0, 'trivia'],
+          ['What spiced treats are traditionally eaten around this holiday?', ['Pumpkin pies', 'Hot cross buns', 'Candy canes'], 1, 'trivia'],
+          ['Which yellow spring flower is often linked with Easter?', ['Sunflower', 'Poppy', 'Daffodil'], 2, 'trivia'],
+          ['What is a baby sheep called?', ['A lamb', 'A kid', 'A calf'], 0, 'trivia'],
+          ['What do chickens hatch from?', ['Seeds', 'Shells', 'Cocoons'], 1, 'trivia'],
+          ['What do you call a group of baby birds in one nest?', ['A herd', 'A pack', 'A clutch'], 2, 'trivia'],
+          ['What do bees collect from flowers?', ['Nectar', 'Water', 'Bark'], 0, 'trivia'],
+          ['What do you wear to walk through deep mud?', ['Sandals', 'Rubber boots', 'Slippers'], 1, 'trivia']
+        ])
+      }
+    },
+    {
+      themeId: 'ocean',
+      plotId: 'rescue',
+      story: {
+        title: 'Rescue at Coral Deep Station',
+        tagline: 'A damaged lab on the seabed, and six hours of battery left.',
+        prologue: 'Coral Deep is a small research station resting on the seabed, ninety meters below the surface of the Azure Gulf. At 05:10 this morning, an underwater landslide cracked its main power line. Dr. Amara Quinn and two students are trapped inside with six hours of battery left. The rescue submarine Nautilia has come to help, but the station\'s heavy doors have locked themselves, and they will open only to two passwords chosen by its founder, a marine biologist named Tobin Reyes. He loved the animals of this gulf more than anything else, and his clues are scattered through the outer pods. You are the crew of the Nautilia, and your orange lights are the first thing Dr. Quinn has seen in hours.',
+        mission: 'Solve the puzzles, put together what they reveal and find the two passwords that open the station. Say them at the main door before the battery runs out.',
+        chapters: [
+          {
+            name: 'The Outer Pod',
+            intro: 'You dock at the outer pod, where twelve glass tanks glow faintly in the dark. Tobin Reyes kept his field notes here, in a green notebook on a steel desk. He wrote about one old friend who returned to this reef every year for three decades, swimming thousands of kilometers to lay its eggs on the same beach. It carries its home on its back, he wrote, and it never hurries. A photograph on the wall shows him diving beside it, smiling through his mask.',
+            word: 'TURTLE',
+            type: 'mosaic'
+          },
+          {
+            name: 'The Listening Room',
+            intro: 'Three hours are gone when you reach the listening room, a round chamber lined with speakers and four blue screens. Reyes recorded the sounds of the gulf here for years. Tock, click, whistle: a pod of clever swimmers once led his lost boat back to harbor through a storm, and he named his station after that night. The last recording on the machine is labeled Friends Who Came Back. As it plays, Dr. Quinn taps three times on the wall beyond you, weakly.',
+            word: 'DOLPHIN',
+            type: 'mosaic'
+          }
+        ],
+        puzzleTitles: [],
+        finalLock: 'The main door is a wheel of cold steel, and water drips steadily from the ceiling above it. The battery gauge has fallen to a thin red line. On the far side, Dr. Quinn presses her palm to the small window. Speak the two passwords into the grille, clearly and calmly.',
+        ending: 'The wheel spins by itself and the great door groans open. Turtle and dolphin: the friend who always returns, and the friends who brought Tobin Reyes home. He made them the passwords so that nobody could ever enter Coral Deep without remembering why it was built. Dr. Quinn and her two students stumble out, pale and shaking and laughing with relief. Minutes later the Nautilia is rising through green water toward the sun. Outside the window, a shape glides past as if to see you off. Well done, crew. Everyone is coming home.',
+        certificate: 'For opening the doors of Coral Deep and bringing its whole crew back to the surface.',
+        teamName: 'The Crew of the Nautilia',
+        party: {
+          letter: 'This is Dr. Amara Quinn of Coral Deep Station, ninety meters down in the Azure Gulf. At 05:10 a landslide cracked our main power line. Two students are with me and we have six hours of battery left. Our doors have locked, and they will open only to two passwords chosen by our founder, Tobin Reyes. His clues are in the outer pods, which we cannot reach. If you can hear this, you are the only ship in range. Please, take up your Code Sheet and begin. We are counting on you. Dr. Quinn',
+          roles: { leader: 'Submarine Captain', scribe: 'Log Keeper', hintKeeper: 'Radio Officer', timekeeper: 'Battery Watcher', codebreaker: 'Marine Biologist', assembler: 'Hull Engineer' },
+          reward: 'Coral Deep Medal of Courage'
+        },
+        questions: qs([
+          ['How deep is the station?', ['Ninety meters', 'Ten meters', 'Nine hundred meters'], 0],
+          ['What time did the landslide happen?', ['03:40', '05:10', '08:30'], 1],
+          ['What is the rescue submarine called?', ['Deepstar', 'Oceana', 'Nautilia'], 2],
+          ['How many hours of battery are left?', ['Six', 'Two', 'Twelve'], 0],
+          ['What is the name of the trapped scientist?', ['Tobin Reyes', 'Amara Quinn', 'Maya Lund'], 1],
+          ['How many students are with her?', ['Five', 'One', 'Two'], 2],
+          ['What color are the submarine\'s lights?', ['Orange', 'White', 'Red'], 0],
+          ['How many glass tanks are in the outer pod?', ['Six', 'Twelve', 'Twenty'], 1],
+          ['What color is the notebook?', ['Red', 'Black', 'Green'], 2],
+          ['What body of water is the station in?', ['The Azure Gulf', 'The Coral Sea', 'The Blue Bay'], 0],
+          ['How many blue screens are in the listening room?', ['Two', 'Four', 'Eight'], 1],
+          ['How many times does Dr. Quinn tap on the wall?', ['Once', 'Seven times', 'Three times'], 2],
+          ['What is the largest animal on Earth?', ['Blue whale', 'Elephant', 'Giant squid'], 0, 'trivia'],
+          ['How many arms does an octopus have?', ['Six', 'Eight', 'Ten'], 1, 'trivia'],
+          ['Which ocean is the largest?', ['Atlantic', 'Arctic', 'Pacific'], 2, 'trivia'],
+          ['What do fish use to breathe underwater?', ['Gills', 'Lungs', 'Fins'], 0, 'trivia'],
+          ['Which reef off Australia is the largest in the world?', ['Red Reef', 'Great Barrier Reef', 'Long Reef'], 1, 'trivia'],
+          ['What makes seawater taste the way it does?', ['Sugar', 'Sand', 'Salt'], 2, 'trivia'],
+          ['Which animal has a star shape and lives on the seabed?', ['Starfish', 'Seal', 'Eel'], 0, 'trivia'],
+          ['What device do submarines use to look above the water?', ['Telescope', 'Periscope', 'Compass'], 1, 'trivia']
+        ])
+      }
+    },
+    {
+      themeId: 'dinosaurs',
+      plotId: 'exploration',
+      story: {
+        title: 'The Valley That Time Forgot',
+        tagline: 'One lost expedition, one hidden valley, and footprints far too large.',
+        prologue: 'In 1924, the explorer Beatrix Holloway walked into the Mossgate Valley with five porters and a mule named Biscuit. She never walked out. A century later, your team has found her trunk at the mouth of the valley, along with a leather journal and a brass compass that still points north. The journal describes warm springs, giant ferns and footprints as long as a canoe. Its last page says she sealed her greatest discovery in a stone vault, and that only two words can open it. A storm is due in two days, and the river will flood the only way out. Your guide, a cheerful climber called Sefu, has already started up the trail.',
+        mission: 'Solve the puzzles, put together what they reveal and find the two words that open Beatrix Holloway\'s vault. Say them at the stone door before the flood seals the valley.',
+        chapters: [
+          {
+            name: 'The Plated Giant',
+            intro: 'The trail climbs through ferns taller than a house. At the first camp, you find three rusted tent pegs and a page pinned to a tree with a thorn. Holloway has sketched a huge plant-eater with a tiny head and a double row of plates along its back. She watched a whole herd of them cross the warm springs at dawn, she wrote, moving as slowly as ships. Sefu points to a line of hollows in the mud, each one wide enough to stand in.',
+            word: 'STEGOSAURUS',
+            type: 'mosaic'
+          },
+          {
+            name: 'The Digging Ground',
+            intro: 'By the second day, black clouds fill the sky and the river has begun to rise. The path ends at a cliff of red rock, where Holloway spent four summers with a small hammer and a soft brush. Her notebook lists forty-one finds. Rows of long, pale shapes still stick out of the stone, far too large to be from anything alive today. Everything an animal leaves behind, she wrote, can tell its whole story. In the cliff beyond them stands a door of cut stone.',
+            word: 'BONE',
+            type: 'mosaic'
+          }
+        ],
+        puzzleTitles: [],
+        finalLock: 'Rain hammers on the red cliff, and the roar of the river grows louder behind you. Sefu holds up the lantern, and the carved door gleams wet in its light. There is no handle and no keyhole, only a brass grille at the height of your mouth. Speak the two words.',
+        ending: 'Stone grinds on stone and the door swings inward. Stegosaurus and bone: the living giant she saw, and what it left behind. Inside the vault lies an egg the size of a pumpkin, turned to rock, and a final note from Beatrix Holloway. She had stayed because she was happy here, she wrote, and she asks only that you take her story home. Sefu leads you along the high ledge just as the river bursts over the trail. A week later, every newspaper in the world carries her name. Well done, explorers.',
+        certificate: 'For finding the vault of Beatrix Holloway and bringing her discovery back to the world.',
+        teamName: 'The Mossgate Valley Expedition',
+        party: {
+          letter: 'To whoever finds this trunk: my name is Beatrix Holloway, and I came to the Mossgate Valley in 1924 with five porters and a mule named Biscuit. What I found here changed my life. I have sealed my greatest discovery in a stone vault, and only two words will open it. My clues are scattered along the trail, among the giant ferns and warm springs. Beware the river, for it floods without warning. If you are brave enough to follow me, take up your Code Sheet and begin. Yours in discovery, Beatrix Holloway',
+          roles: { leader: 'Expedition Leader', scribe: 'Journal Keeper', hintKeeper: 'Friend of Sefu', timekeeper: 'River Watcher', codebreaker: 'Fossil Hunter', assembler: 'Bone Fitter' },
+          reward: 'Holloway Medal of Exploration'
+        },
+        questions: qs([
+          ['In what year did Beatrix Holloway enter the valley?', ['1924', '1899', '1950'], 0],
+          ['What was the mule called?', ['Pepper', 'Biscuit', 'Tobin'], 1],
+          ['How many porters went with her?', ['Two', 'Ten', 'Five'], 2],
+          ['What is the name of the valley?', ['Mossgate', 'Greenfield', 'Stonewater'], 0],
+          ['What metal is her compass made of?', ['Silver', 'Brass', 'Iron'], 1],
+          ['What is your guide called?', ['Marta', 'Finch', 'Sefu'], 2],
+          ['How soon is the storm due?', ['In two days', 'In a week', 'Tonight'], 0],
+          ['How long were the footprints said to be?', ['As long as a spoon', 'As long as a canoe', 'As long as a house'], 1],
+          ['How many tent pegs are at the first camp?', ['One', 'Nine', 'Three'], 2],
+          ['What color is the cliff?', ['Red', 'White', 'Black'], 0],
+          ['How many summers did she spend at the cliff?', ['Two', 'Four', 'Twelve'], 1],
+          ['How many finds does her notebook list?', ['Seven', 'Ninety', 'Forty-one'], 2],
+          ['What is a scientist who studies ancient life called?', ['A paleontologist', 'A geologist', 'An astronomer'], 0, 'trivia'],
+          ['What do we call the preserved remains of ancient animals?', ['Crystals', 'Fossils', 'Minerals'], 1, 'trivia'],
+          ['Which dinosaur was famous for its short arms and huge teeth?', ['Triceratops', 'Diplodocus', 'Tyrannosaurus'], 2, 'trivia'],
+          ['How many horns did Triceratops have?', ['Three', 'One', 'Five'], 0, 'trivia'],
+          ['What did plant-eating dinosaurs mainly eat?', ['Fish', 'Plants', 'Insects'], 1, 'trivia'],
+          ['Modern birds are believed to be related to which ancient animals?', ['Mammoths', 'Sharks', 'Dinosaurs'], 2, 'trivia'],
+          ['What melted rock flows out of a volcano?', ['Lava', 'Quartz', 'Tar'], 0, 'trivia'],
+          ['What tool points to magnetic north?', ['Sundial', 'Compass', 'Barometer'], 1, 'trivia']
+        ])
+      }
+    },
+    {
+      themeId: 'egypt',
+      plotId: 'curse',
+      story: {
+        title: 'The Tomb of the Sleeping Queen',
+        tagline: 'A sealed tomb, a broken promise, and a desert wind that will not stop.',
+        prologue: 'Three thousand years ago, Queen Nefrura ruled the river city of Akhet, and she was laid to rest in the sands west of the Nile. Last Tuesday, the archaeologist Dr. Layla Hassan opened the outer door of her tomb. By nightfall, a hot wind had risen across the valley, and it has not stopped since. Wells are filling with sand, the camels refuse to walk, and the seven workers have all gone home. An inscription on the door warns that the queen must be greeted with two sacred words, or the wind will bury the valley. Dr. Hassan is out of water and out of time. She has only her old assistant Karim, a lantern, and you.',
+        mission: 'Solve the puzzles, put together what they reveal and find the two sacred words of Queen Nefrura. Speak them in the burial chamber before the wind buries the valley.',
+        chapters: [
+          {
+            name: 'The Road to the Tomb',
+            intro: 'You walk the last two kilometers with scarves across your faces. Karim leads the way, carrying a jar of water and a coil of blue rope. Far across the sand rises the shape the workers call the Mountain of Kings, its four smooth sides pointing to the sky. Nefrura ordered a small copy of it built above her own tomb, so that she would not be forgotten. Its stones are carved with stars, and on the east face you find the first line of her message.',
+            word: 'PYRAMID',
+            type: 'mosaic'
+          },
+          {
+            name: 'The Hall of Offerings',
+            intro: 'Inside, the air is suddenly cold. Forty-two steps lead down to a hall painted gold and green, where clay jars still stand in rows. In every painting, the queen holds the same small object to the lips of her people, a looped cross that the old priests believed could give the breath of life. Dr. Hassan traces one with her finger, in a hand that shakes. The wind moans in the stairwell behind you, and sand begins to pour down the steps like water.',
+            word: 'ANKH',
+            type: 'mosaic'
+          }
+        ],
+        puzzleTitles: [],
+        finalLock: 'The burial chamber is small and very still. The painted face of Queen Nefrura looks up from her golden coffin, calm and patient. Behind you, the sand hisses down the steps, and Karim\'s lantern gutters. Dr. Hassan nods to you. Say the two words to the queen, and say them with respect.',
+        ending: 'For a moment there is no sound at all. Then, high above, the wind drops. Pyramid and ankh: the monument that remembers, and the sign of life. Nefrura asked only that those who woke her should remember her name and honor life, and today you have done both. When you climb back into the sun, the air is clear and the sand lies still. Karim laughs and pours out the last of the water, and far away a camel bellows. Dr. Hassan closes the door gently behind her. The valley is safe, and the queen sleeps on.',
+        certificate: 'For greeting Queen Nefrura with the sacred words and saving the valley of Akhet.',
+        teamName: 'The Friends of Queen Nefrura',
+        party: {
+          letter: 'To anyone who can still reach the valley: my name is Dr. Layla Hassan. Last Tuesday we opened the outer door of the tomb of Queen Nefrura, and by nightfall a hot wind had risen that will not stop. The wells are filling with sand and my seven workers have gone home. The inscription says the queen must be greeted with two sacred words, or the wind will bury us all. Only Karim remains with me. I beg you to come quickly. Take up your Code Sheet and begin. Dr. Hassan',
+          roles: { leader: 'High Priest', scribe: 'Royal Scribe', hintKeeper: 'Friend of Karim', timekeeper: 'Watcher of the Sand', codebreaker: 'Tomb Scholar', assembler: 'Stone Mason' },
+          reward: 'Golden Seal of Queen Nefrura'
+        },
+        questions: qs([
+          ['What is the name of the queen?', ['Nefrura', 'Isolde', 'Marta'], 0],
+          ['What was the name of her river city?', ['Thebes', 'Akhet', 'Luxor'], 1],
+          ['On what day was the outer door opened?', ['Friday', 'Sunday', 'Tuesday'], 2],
+          ['What is the archaeologist\'s name?', ['Dr. Layla Hassan', 'Dr. Amara Quinn', 'Dr. Priya Rao'], 0],
+          ['What is the assistant called?', ['Sefu', 'Karim', 'Tobin'], 1],
+          ['How many workers went home?', ['Three', 'Twelve', 'Seven'], 2],
+          ['How long ago did the queen rule?', ['Three thousand years', 'Five hundred years', 'Ten thousand years'], 0],
+          ['What color is Karim\'s rope?', ['Red', 'Blue', 'White'], 1],
+          ['What are carved on the stones?', ['Birds', 'Snakes', 'Stars'], 2],
+          ['How many steps lead down to the hall?', ['Forty-two', 'Twelve', 'Ninety'], 0],
+          ['What colors is the hall painted?', ['Red and black', 'Gold and green', 'Blue and white'], 1],
+          ['What stands in rows in the hall?', ['Statues', 'Chairs', 'Clay jars'], 2],
+          ['Which great river flows through Egypt?', ['The Nile', 'The Amazon', 'The Rhine'], 0, 'trivia'],
+          ['What was a ruler of ancient Egypt usually called?', ['An emperor', 'A pharaoh', 'A sultan'], 1, 'trivia'],
+          ['What did ancient Egyptians write on, made from a river plant?', ['Silk', 'Slate', 'Papyrus'], 2, 'trivia'],
+          ['What is the picture writing of ancient Egypt called?', ['Hieroglyphs', 'Runes', 'Cursive'], 0, 'trivia'],
+          ['Which animal has a lion\'s body and a human head?', ['A griffin', 'The Sphinx', 'A unicorn'], 1, 'trivia'],
+          ['In which desert is most of Egypt?', ['Gobi', 'Kalahari', 'Sahara'], 2, 'trivia'],
+          ['What were Egyptian bodies preserved as?', ['Mummies', 'Statues', 'Fossils'], 0, 'trivia'],
+          ['Which animal did ancient Egyptians famously honor at home?', ['Wolves', 'Cats', 'Parrots'], 1, 'trivia']
+        ])
+      }
+    }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);
