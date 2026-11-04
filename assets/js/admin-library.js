@@ -1,7 +1,7 @@
-// Image library review: draws grids and turns an uploaded SVG into an 18x18 grid.
+// Image library review: draws grids and turns an uploaded SVG into a 20x20 grid.
 (function () {
   'use strict';
-  const SIZE = 18, SAMPLE = 8;
+  const SIZE = 20, SAMPLE = 8;
 
   function drawGrid(canvas, rows) {
     const cell = 9, w = rows[0].length, h = rows.length, n = 20;

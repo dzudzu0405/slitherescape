@@ -7,6 +7,8 @@
 
   const BOARD = 20, PIECE = 10, SLOTS = 4;
   const MAX_REPAIR = 4; // cells a single piece may be changed by
+  // A wrong arrangement this close to the true one could fool players.
+  const SEAM_TOLERANCE = 2, EDGE_TOLERANCE = 2;
   const SLOT_LABELS = ['A1', 'B1', 'A2', 'B2'];
 
   // Library images are stored as rows of '#' and '.'.
@@ -106,33 +108,23 @@
     return out;
   }
 
-  // Two sides join when every shaded run on one meets a shaded run on the other.
-  function runsMeet(a, b) {
-    const oneWay = (p, q) => {
-      for (let i = 0; i < PIECE;) {
-        if (!p[i]) { i++; continue; }
-        let hit = false, j = i;
-        while (j < PIECE && p[j]) { if (q[j]) hit = true; j++; }
-        if (!hit) return false;
-        i = j;
-      }
-      return true;
-    };
-    return oneWay(a, b) && oneWay(b, a);
+  // Cells along the four inner lines where the shading breaks off: 0 means perfectly joined.
+  function seamBreaks(bySlot) {
+    const [a1, b1, a2, b2] = bySlot;
+    const differ = (p, q) => p.reduce((n, v, i) => n + (v !== q[i] ? 1 : 0), 0);
+    return differ(side(a1, 'right'), side(b1, 'left'))
+      + differ(side(a2, 'right'), side(b2, 'left'))
+      + differ(side(a1, 'bottom'), side(a2, 'top'))
+      + differ(side(b1, 'bottom'), side(b2, 'top'));
   }
 
-  const isEmpty = (s) => s.every((v) => !v);
-
-  function arrangementFits(bySlot) {
+  // Shaded cells lying along the board's edge. A piece turned the wrong way round pushes its
+  // straight cut edge out here, so this gives away most wrong arrangements.
+  function edgeCells(bySlot) {
     const [a1, b1, a2, b2] = bySlot;
-    return runsMeet(side(a1, 'right'), side(b1, 'left'))
-      && runsMeet(side(a2, 'right'), side(b2, 'left'))
-      && runsMeet(side(a1, 'bottom'), side(a2, 'top'))
-      && runsMeet(side(b1, 'bottom'), side(b2, 'top'))
-      && isEmpty(side(a1, 'top')) && isEmpty(side(b1, 'top'))
-      && isEmpty(side(a2, 'bottom')) && isEmpty(side(b2, 'bottom'))
-      && isEmpty(side(a1, 'left')) && isEmpty(side(a2, 'left'))
-      && isEmpty(side(b1, 'right')) && isEmpty(side(b2, 'right'));
+    const sum = (c, which) => side(c, which).reduce((n, v) => n + v, 0);
+    return sum(a1, 'top') + sum(b1, 'top') + sum(a2, 'bottom') + sum(b2, 'bottom')
+      + sum(a1, 'left') + sum(a2, 'left') + sum(b1, 'right') + sum(b2, 'right');
   }
 
   function permutations(list) {
@@ -144,15 +136,19 @@
     return out;
   }
 
-  // Counts the different finished pictures the loose pieces can make (spec: must be 1).
-  // `anchored` slots stay in place, as if their coordinates were printed.
+  // Counts the finished pictures players could believe in (spec: must be 1): the true one, plus
+  // any other arrangement whose lines join about as cleanly and that touches the board's edge
+  // about as little. `anchored` slots stay in place, as if their coordinates were printed.
   function countPictures(slotCells, looseSlots, anchored) {
     const moving = looseSlots.filter((s) => !(anchored || []).includes(s));
-    const seen = new Set();
+    const key = (cells) => cells.map((c) => Array.prototype.join.call(c, '')).join('|');
+    const limit = seamBreaks(slotCells) + SEAM_TOLERANCE;
+    const edgeLimit = edgeCells(slotCells) + EDGE_TOLERANCE;
+    const seen = new Set([key(slotCells)]);
     permutations(moving).forEach((order) => {
       const bySlot = slotCells.slice();
       moving.forEach((slot, k) => { bySlot[slot] = slotCells[order[k]]; });
-      if (arrangementFits(bySlot)) seen.add(bySlot.map((c) => Array.prototype.join.call(c, '')).join('|'));
+      if (seamBreaks(bySlot) <= limit && edgeCells(bySlot) <= edgeLimit) seen.add(key(bySlot));
     });
     return seen.size;
   }
@@ -177,9 +173,9 @@
   // and no piece that is nearly solid (its loop would just run around the border).
   function placements(rows) {
     const img = parseRows(rows);
-    if (img.w > BOARD - 2 || img.h > BOARD - 2) throw new Error('Image must fit inside 18x18');
+    if (img.w > BOARD || img.h > BOARD) throw new Error('Image must fit inside 20x20');
     const out = [];
-    for (let oy = 1; oy + img.h <= BOARD - 1; oy++) for (let ox = 1; ox + img.w <= BOARD - 1; ox++) {
+    for (let oy = 0; oy + img.h <= BOARD; oy++) for (let ox = 0; ox + img.w <= BOARD; ox++) {
       const raw = cutAt(img, ox, oy);
       let repaired = 0, ok = true, dull = 0;
       const slots = [];
@@ -240,6 +236,24 @@
     };
   }
 
+  // The picture as players end up with it, after repairs, cropped to its shape.
+  function assembledRows(p) {
+    const rows = [];
+    for (let y = 0; y < BOARD; y++) {
+      let row = '';
+      for (let x = 0; x < BOARD; x++) {
+        const slot = p.slots[(y >= PIECE ? 2 : 0) + (x >= PIECE ? 1 : 0)];
+        row += slot.cells[(y % PIECE) * PIECE + (x % PIECE)] ? '#' : '.';
+      }
+      rows.push(row);
+    }
+    const body = rows.filter((r) => r.includes('#'));
+    let left = 0, right = BOARD - 1;
+    while (body.every((r) => r[left] === '.')) left++;
+    while (body.every((r) => r[right] === '.')) right--;
+    return body.map((r) => r.slice(left, right + 1));
+  }
+
   // Quality numbers for the admin review screen.
   function review(rows) {
     const list = placements(rows);
@@ -252,5 +266,5 @@
     };
   }
 
-  root.Mosaic = { BOARD, PIECE, SLOT_LABELS, parseRows, repair, placements, countPictures, plan, review };
+  root.Mosaic = { BOARD, PIECE, SLOT_LABELS, parseRows, repair, placements, countPictures, plan, assembledRows, review };
 })(typeof self !== 'undefined' ? self : globalThis);

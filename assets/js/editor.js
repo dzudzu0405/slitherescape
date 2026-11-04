@@ -588,6 +588,8 @@
       boards[ci] = r.shuffle([img].concat(near, theme, rest).slice(0, size));
       // The true picture must survive the cut even when many decoys look alike.
       if (!boards[ci].includes(img)) boards[ci][0] = img;
+      // Repairs can change a few cells, so the board shows exactly what players assemble.
+      boards[ci] = boards[ci].map((m) => (m === img ? Object.assign({}, m, { rows: window.Mosaic.assembledRows(state.mosaics[ci]) }) : m));
     });
     return boards;
   }

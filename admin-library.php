@@ -1,6 +1,6 @@
 <?php
 // Owner page: every Mosaic image is approved by eye before customers can use it (spec section 11).
-// New icons are drawn in the browser: SVG -> alpha channel -> 18x18 grid, threshold 0.45.
+// New icons are drawn in the browser: SVG -> alpha channel -> 20x20 grid, threshold 0.45.
 declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 
@@ -10,9 +10,9 @@ $errors = [];
 
 function valid_rows($rows): bool
 {
-    if (!is_array($rows) || !$rows || count($rows) > 18) return false;
+    if (!is_array($rows) || !$rows || count($rows) > 20) return false;
     $w = strlen((string)$rows[0]);
-    if ($w < 4 || $w > 18) return false;
+    if ($w < 4 || $w > 20) return false;
     foreach ($rows as $r) if (!is_string($r) || strlen($r) !== $w || !preg_match('/^[#.]+$/', $r)) return false;
     return true;
 }
@@ -94,7 +94,7 @@ page_head('Image library', '', ['user' => $user, 'nav' => 'admin']);
     <?php foreach (['pending' => 'To review', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $k => $label): ?>
       <a class="btn sm <?= $show === $k ? 'dark' : 'ghost' ?>" href="?show=<?= h($k) ?>"><?= h($label) ?> (<?= (int)($counts[$k] ?? 0) ?>)</a>
     <?php endforeach; ?>
-    <form method="post" style="display:inline"><?= csrf_field() ?><input type="hidden" name="action" value="seed"><button class="btn sm ghost" type="submit">Import placeholder images</button></form>
+    <form method="post" style="display:inline"><?= csrf_field() ?><input type="hidden" name="action" value="seed"><button class="btn sm ghost" type="submit">Import library images</button></form>
   </div>
 
   <?php if (!$images): ?><div class="card card-pad section muted">Nothing here.</div><?php endif; ?>
