@@ -119,9 +119,6 @@
       codeIdeas: 'SPELL BOOK, MOON POTION' }
   ];
 
-  const OTHER_THEME = { id: 'other', group: 'Other', label: 'Other', motif: null,
-    icon: I('<path d="M5 27l3-9L21 5l6 6L14 24z"/><path d="M18 8l6 6"/>') };
-
   // Story types. `kids` softens the scarier ones for ages 11-13.
   const PLOTS = [
     { id: 'haunted', label: 'Haunted', hint: 'Ghosts and strange happenings',
@@ -153,5 +150,5 @@
   function theme(id) { return THEMES.find((t) => t.id === id) || null; }
   function plot(id) { return PLOTS.find((p) => p.id === id) || null; }
 
-  root.Themes = { THEMES, OTHER_THEME, PLOTS, theme, plot };
+  root.Themes = { THEMES, PLOTS, theme, plot };
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -24,13 +24,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'seed') {
         $seed = json_decode((string)file_get_contents(__DIR__ . '/pro/library/seed.json'), true) ?: [];
         $added = 0;
+        $redrawn = 0;
         foreach ($seed as $m) {
-            if (db_one('SELECT name FROM library_images WHERE name = ?', [$m['name']])) continue;
-            db_exec('INSERT INTO library_images (name, theme, similar, grid_rows, source, svg, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [$m['name'], $m['theme'], json_encode($m['similar']), json_encode($m['rows']), $m['source'], '', 'pending', now(), now()]);
-            $added++;
+            $old = db_one('SELECT theme, similar, grid_rows, source FROM library_images WHERE name = ?', [$m['name']]);
+            if (!$old) {
+                db_exec('INSERT INTO library_images (name, theme, similar, grid_rows, source, svg, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [$m['name'], $m['theme'], json_encode($m['similar']), json_encode($m['rows']), $m['source'], '', 'pending', now(), now()]);
+                $added++;
+                continue;
+            }
+            // Pictures added by hand keep their own drawing, even when the library has the same name.
+            if ($old['source'] !== $m['source']) continue;
+            if (json_decode((string)$old['grid_rows'], true) !== $m['rows']) {
+                // A new drawing has not been seen yet, so it goes back for review.
+                db_exec('UPDATE library_images SET theme = ?, similar = ?, grid_rows = ?, status = ?, updated_at = ? WHERE name = ?',
+                    [$m['theme'], json_encode($m['similar']), json_encode($m['rows']), 'pending', now(), $m['name']]);
+                $redrawn++;
+            } elseif ($old['theme'] !== $m['theme'] || json_decode((string)$old['similar'], true) !== $m['similar']) {
+                db_exec('UPDATE library_images SET theme = ?, similar = ?, updated_at = ? WHERE name = ?',
+                    [$m['theme'], json_encode($m['similar']), now(), $m['name']]);
+            }
         }
-        flash("$added images added for review.");
+        flash("$added images added and $redrawn redrawn images sent for review.");
         redirect('admin-library.php');
     } elseif ($action === 'status') {
         $status = in_array($_POST['status'] ?? '', ['approved', 'rejected', 'pending'], true) ? $_POST['status'] : 'pending';

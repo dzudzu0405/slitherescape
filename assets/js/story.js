@@ -70,10 +70,10 @@
   // puzzleCount / chapterCount may be null ("Auto"): the AI then picks a code of
   // AUTO_LETTERS length in 2 words, and the app takes the count from the code.
   // `code` (optional, already validated) fixes the exact words instead.
-  // themeId / plotId come from Themes; themeId 'other' uses the seller's customTheme text.
+  // themeId / plotId come from Themes.
   // PRO: chapterTypes ('letter' | 'mosaic' per chapter) with `images` (the pictures available),
   // and partyKit, which asks for the Party Props Kit texts.
-  function buildPrompt({ themeId, customTheme, plotId, difficulty, puzzleCount, chapterCount, code, chapterTypes, images, partyKit }) {
+  function buildPrompt({ themeId, plotId,difficulty, puzzleCount, chapterCount, code, chapterTypes, images, partyKit }) {
     const T = root.Themes;
     const theme = T && T.theme(themeId);
     const plot = T && T.plot(plotId);
@@ -98,7 +98,7 @@
       brief.push(`Theme: ${theme.label}`);
       brief.push(`Setting ideas: ${theme.setting}`);
     } else {
-      brief.push(`Theme: ${(customTheme || '').trim() || 'an original theme of your choice'}`);
+      brief.push('Theme: an original theme of your choice');
     }
     if (plot) brief.push(`Story type: ${plot.label}. ${plot.brief}`);
     brief.push(`Audience: ${audience[0]}. ${audience[1]}`);
@@ -386,7 +386,7 @@ ${skeletonText}${checkExample}
       const used = story.chapters.filter(isMosaic).map((c) => c.word);
       used.forEach((w) => {
         const m = images && images.find((x) => x.name === w);
-        if (images && !m) err(`"${w}" is not a picture in the library.`, `"${w}" is not one of the available pictures. Choose only from: ${images.map((x) => x.name).join(', ')}.`);
+        if (images && !m) err(`"${w}" is not one of the pictures offered for this game.`,`"${w}" is not one of the available pictures. Choose only from: ${images.map((x) => x.name).join(', ')}.`);
         if (m && used.some((o) => (m.similar || []).includes(o))) err(`The pictures ${w} and ${used.find((o) => m.similar.includes(o))} look too alike for one game.`, `Do not use pictures that look alike: replace ${w}.`);
       });
       if (new Set(used).size !== used.length) err('The same picture is used twice.', 'Use each picture at most once.');

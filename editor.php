@@ -88,10 +88,6 @@ window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config
     <div class="card card-pad section">
       <h3 class="q-title"><span class="n">3</span>Pick a theme</h3>
       <div id="theme-grid"></div>
-      <div class="other-theme hidden" id="other-theme">
-        <input type="text" id="theme-input" class="big-input" placeholder="Describe your theme, e.g. A summer wedding by the sea">
-        <div class="hint">Custom themes work, but the built-in ones give the AI a more detailed brief.</div>
-      </div>
     </div>
 
     <div class="card card-pad section">

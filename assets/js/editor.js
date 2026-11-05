@@ -14,13 +14,13 @@
   };
 
   const MOTIFS = {
-    snowflake: { label: 'Snowflake', words: /snow|christmas|xmas|winter|santa|frost|ice|elf|north pole/, svg: '<path d="M16 3v26M4.7 9.5l22.6 13M4.7 22.5l22.6-13M12 5l4 3 4-3M12 27l4-3 4 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' },
-    moon: { label: 'Moon', words: /hallowe|ghost|haunt|vampire|witch|zombie|night|spook|monster|curse/, svg: '<path d="M21 4a12 12 0 1 0 7 19A10 10 0 0 1 21 4z" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
-    star: { label: 'Star', words: /space|star|galax|planet|astronaut|alien|rocket|wizard|magic/, svg: '<path d="M16 3l3.6 8.4 9 .8-6.8 6 2 8.8L16 22.4 8.2 27l2-8.8-6.8-6 9-.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' },
-    heart: { label: 'Heart', words: /valentin|love|heart|wedding|friend/, svg: '<path d="M16 27S4 19.5 4 11.5A6 6 0 0 1 16 9a6 6 0 0 1 12 2.5C28 19.5 16 27 16 27z" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
-    compass: { label: 'Compass', words: /pirate|treasure|map|explor|egypt|pharaoh|jungle|adventure|island|ship|temple|time travel/, svg: '<circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 6l3 10-3 10-3-10z" fill="currentColor" opacity=".8"/><path d="M6 16l10-3 10 3-10 3z" fill="none" stroke="currentColor" stroke-width="1.2"/>' },
-    leaf: { label: 'Leaf', words: /forest|garden|nature|spring|easter|autumn|fall|farm|science|plant/, svg: '<path d="M6 26C6 12 14 5 27 5c0 13-7 21-21 21zM6 26L18 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' },
-    key: { label: 'Key', words: /./, svg: '<circle cx="10" cy="16" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 16H28M24 16v4M28 16v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' }
+    snowflake: { label: 'Snowflake', svg: '<path d="M16 3v26M4.7 9.5l22.6 13M4.7 22.5l22.6-13M12 5l4 3 4-3M12 27l4-3 4 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' },
+    moon: { label: 'Moon', svg: '<path d="M21 4a12 12 0 1 0 7 19A10 10 0 0 1 21 4z" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
+    star: { label: 'Star', svg: '<path d="M16 3l3.6 8.4 9 .8-6.8 6 2 8.8L16 22.4 8.2 27l2-8.8-6.8-6 9-.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' },
+    heart: { label: 'Heart', svg: '<path d="M16 27S4 19.5 4 11.5A6 6 0 0 1 16 9a6 6 0 0 1 12 2.5C28 19.5 16 27 16 27z" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
+    compass: { label: 'Compass', svg: '<circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 6l3 10-3 10-3-10z" fill="currentColor" opacity=".8"/><path d="M6 16l10-3 10 3-10 3z" fill="none" stroke="currentColor" stroke-width="1.2"/>' },
+    leaf: { label: 'Leaf', svg: '<path d="M6 26C6 12 14 5 27 5c0 13-7 21-21 21zM6 26L18 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' },
+    key: { label: 'Key', svg: '<circle cx="10" cy="16" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 16H28M24 16v4M28 16v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' }
   };
 
   const Themes = window.Themes;
@@ -54,15 +54,28 @@
 
   // Themes without their own pictures, or that suit a neighbour's too, borrow from these.
   const RELATED_IMAGES = {
-    pirates: ['ocean'], ocean: ['pirates'], castle: ['wizard'], wizard: ['castle'], jungle: ['dinosaurs', 'easter'],
-    dinosaurs: ['jungle'], museum: ['egypt', 'dinosaurs'], lab: ['space'], space: ['lab'], newyear: ['christmas', 'space'],
-    thanksgiving: ['easter', 'christmas'], school: ['space', 'wizard'], detective: ['pirates', 'halloween']
+    pirates: ['ocean'], ocean: ['pirates'], castle: ['wizard'], wizard: ['castle'], jungle: ['dinosaurs'],
+    museum: ['egypt', 'dinosaurs']
+  };
+  // These themes suit only some of another theme's pictures, so they are borrowed one by one.
+  const RELATED_PICTURES = {
+    thanksgiving: ['PUMPKIN', 'CORN', 'ACORN', 'LEAF', 'APPLE', 'PEAR', 'SCARECROW', 'BARN', 'ROOSTER', 'TRACTOR', 'RAKE', 'BASKET', 'WHEELBARROW', 'FENCE', 'PIG', 'CANDLE', 'MUG', 'PITCHFORK'],
+    detective: ['KEY', 'KEYHOLE', 'PADLOCK', 'BINOCULARS', 'ENVELOPE', 'SPYGLASS', 'CROW', 'OWL', 'CAT', 'LIGHTBULB', 'COMPUTER', 'RADIO', 'MANOR', 'DIAMOND', 'TELEPHONE', 'CAMERA', 'UMBRELLA', 'SUNGLASSES', 'PISTOL', 'NECKTIE', 'DAGGER', 'SKULL', 'BONE'],
+    school: ['APPLE', 'BELL', 'LIGHTBULB', 'COMPUTER', 'TELESCOPE', 'FLASK', 'TESTTUBE', 'PLANET', 'HOURGLASS', 'GEAR', 'ROBOT', 'MUG', 'GUITAR', 'TRUMPET', 'DRUM', 'FLAG', 'MICROSCOPE', 'BRAIN'],
+    jungle: ['FROG', 'SNAKE', 'PARROT', 'BUTTERFLY', 'PALM', 'CROCODILE', 'LIZARD', 'SPIDER', 'CATERPILLAR', 'MUSHROOM', 'TENT', 'BINOCULARS', 'COMPASS', 'PINEAPPLE', 'FLOWER', 'HIPPO'],
+    newyear: ['STAR', 'MOON', 'BELL', 'CANDLE', 'GLASS', 'HOURGLASS', 'COMET', 'ROCKET', 'GIFT', 'CAKE', 'CUPCAKE', 'BALLOON', 'TRUMPET', 'DRUM', 'CANDY', 'SUN', 'HIGHHEEL', 'DRESS', 'NECKTIE', 'HORSESHOE', 'DIAMOND', 'CROWN', 'SUNGLASSES', 'GUITAR', 'SNOWMAN', 'MITTEN', 'CAMERA', 'SNOWFLAKE', 'AIRPLANE', 'HEADPHONES', 'TROPHY'],
+    lab: ['FLASK', 'TESTTUBE', 'LIGHTBULB', 'BATTERY', 'MAGNET', 'GEAR', 'ROBOT', 'COMPUTER', 'PLUG', 'RAT', 'SCREW', 'LIGHTNING', 'TELESCOPE', 'PLANET', 'RADIO', 'MAGNIFIER', 'GLOBE', 'HAMMER'],
+    museum: ['CANNON', 'KNIGHT', 'CROWN', 'TELESCOPE'],
+    egypt: ['CAT', 'SNAKE', 'PALM', 'BASKET', 'FEATHER'],
+    dinosaurs: ['PALM', 'MUSHROOM', 'EGG'],
+    wizard: ['BROOM', 'CROW', 'CAT']
   };
 
   // Pictures offered to the AI: the chosen theme's and its neighbours', or all when too few.
   function imagesForPrompt() {
     const themes = [state.themeId].concat(RELATED_IMAGES[state.themeId] || []);
-    const own = library().filter((m) => themes.includes(m.theme));
+    const extra = RELATED_PICTURES[state.themeId] || [];
+    const own = library().filter((m) => themes.includes(m.theme) || extra.includes(m.name));
     return own.length >= 3 ? own : library();
   }
 
@@ -78,13 +91,7 @@
     let motif = st.motif;
     if (motif === 'auto') {
       const theme = Themes.theme(state.themeId);
-      if (theme) {
-        motif = theme.motif;
-      } else {
-        // Custom theme: guess from its words.
-        const text = ($('#theme-input').value + ' ' + (state.story ? state.story.title : '')).toLowerCase();
-        motif = Object.keys(MOTIFS).find((k) => MOTIFS[k].words.test(text));
-      }
+      motif = theme ? theme.motif : 'key';
     }
     return {
       w: st.w || p.w,
@@ -113,7 +120,6 @@
       version: 1,
       themeId: state.themeId,
       plotId: state.plotId,
-      customTheme: $('#theme-input').value,
       code: $('#code-input').value,
       settings: state.settings,
       mosaics: state.mosaics,
@@ -267,21 +273,17 @@
       if (!g) groups.push(g = { name: t.group, items: [] });
       g.items.push(t);
     });
-    groups.push({ name: 'Other', items: [Themes.OTHER_THEME] });
     const tile = (t) => `<button type="button" class="theme-tile ${state.themeId === t.id ? 'on' : ''}" data-theme="${t.id}">${t.icon}<span>${esc(t.label)}</span></button>`;
     $('#theme-grid').innerHTML = groups.map((g) =>
       `<div class="theme-group"><div class="theme-group-name">${esc(g.name)}</div><div class="theme-tiles">${g.items.map(tile).join('')}</div></div>`
     ).join('');
-    $('#other-theme').classList.toggle('hidden', state.themeId !== 'other');
   }
   $('#theme-grid').addEventListener('click', (e) => {
     const b = e.target.closest('[data-theme]');
     if (!b) return;
     state.themeId = b.dataset.theme;
     renderThemes(); renderPrompt(); renderMotifs(); markDirty();
-    if (state.themeId === 'other') $('#theme-input').focus();
   });
-  $('#theme-input').addEventListener('input', () => { renderPrompt(); renderMotifs(); markDirty(); });
 
   function renderPlots() {
     $('#plot-grid').innerHTML = Themes.PLOTS.map((p) =>
@@ -328,7 +330,7 @@
   function renderPrompt() {
     const st = state.settings;
     $('#prompt-box').value = Story.buildPrompt({
-      themeId: state.themeId, customTheme: $('#theme-input').value, plotId: state.plotId,
+      themeId: state.themeId, plotId: state.plotId,
       difficulty: st.difficulty, puzzleCount: st.count, chapterCount: st.chapters, code: sellerCode(),
       chapterTypes: chapterTypes(), images: imagesForPrompt(), partyKit: !!st.kit
     });
@@ -336,12 +338,11 @@
 
   $('#copy-prompt').addEventListener('click', async () => {
     const missing = !state.themeId ? ['#theme-grid', 'Pick a theme first']
-      : state.themeId === 'other' && !$('#theme-input').value.trim() ? ['#theme-input', 'Describe your custom theme first']
       : !state.plotId ? ['#plot-grid', 'Pick a story type first']
       : !chapterTypes() && $('#code-input').value.trim() && Story.codeError($('#code-input').value) ? ['#code-input', 'Fix your secret code first, or leave it empty'] : null;
     if (missing) {
       $(missing[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (missing[0] === '#theme-input' || missing[0] === '#code-input') $(missing[0]).focus();
+      if (missing[0] === '#code-input') $(missing[0]).focus();
       toast(missing[1]);
       return;
     }
@@ -382,7 +383,8 @@
       chapterCount: opts.fixedCount ? null : types ? types.length : state.settings.chapters,
       code: opts.fixedCount ? null : sellerCode(),
       hasGlyph: () => true,
-      images: library(),
+      // An AI reply may only use the pictures its prompt offered; a template keeps its own.
+      images: opts.fixedCount ? library() : imagesForPrompt(),
       partyKit: !opts.fixedCount && !!state.settings.kit
     });
     showCheck(errors, warnings);
@@ -1056,11 +1058,11 @@
   // (or rebuild the puzzles if the saved set is missing or stale, e.g. after Duplicate).
   function restore(data) {
     if (!data) return;
-    state.themeId = data.themeId || null;
+    // Games saved with the old "Other" theme keep their story and just have no theme selected.
+    state.themeId = Themes.theme(data.themeId) ? data.themeId : null;
     state.plotId = data.plotId || null;
     Object.assign(state.settings, data.settings || {});
     state.titleTouched = !!data.titleTouched;
-    $('#theme-input').value = data.customTheme || '';
     $('#code-input').value = data.code || '';
     const st = state.settings;
     $$('#aud-grid .diff').forEach((b) => b.classList.toggle('on', b.dataset.diff === st.difficulty));
