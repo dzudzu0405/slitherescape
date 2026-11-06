@@ -1,15 +1,20 @@
 // SlitherEscape PRO: turns one library image into a Mosaic plan (spec section 11).
-// One image sits on a 20x20 board cut 2x2 into 10x10 pieces. Blank and solid pieces are
-// pre-printed on the Assembly Board; every other piece becomes a Slitherlink puzzle.
+// An image up to 20x20 sits on a 20x20 board cut 2x2 into 10x10 pieces; a larger image, up to
+// 30x30, sits on a 30x30 board cut 3x3. Blank and solid pieces are pre-printed on the Assembly
+// Board; every other piece becomes a Slitherlink puzzle.
 (function (root) {
   'use strict';
   const Glyphs = root.Glyphs;
 
-  const BOARD = 20, PIECE = 10, SLOTS = 4;
+  const PIECE = 10, BOARD = 20, MAX_BOARD = 30;
   const MAX_REPAIR = 4; // cells a single piece may be changed by
   // A wrong arrangement this close to the true one could fool players.
   const SEAM_TOLERANCE = 2, EDGE_TOLERANCE = 2;
   const SLOT_LABELS = ['A1', 'B1', 'A2', 'B2'];
+
+  // Pieces per side: 2 for images that fit 20x20, 3 for bigger ones.
+  const gridFor = (w, h) => (w > BOARD || h > BOARD ? 3 : 2);
+  const labelOf = (slot, n) => 'ABC'[slot % n] + (Math.floor(slot / n) + 1);
 
   // Library images are stored as rows of '#' and '.'.
   function parseRows(rows) {
@@ -108,60 +113,103 @@
     return out;
   }
 
-  // Cells along the four inner lines where the shading breaks off: 0 means perfectly joined.
-  function seamBreaks(bySlot) {
-    const [a1, b1, a2, b2] = bySlot;
-    const differ = (p, q) => p.reduce((n, v, i) => n + (v !== q[i] ? 1 : 0), 0);
-    return differ(side(a1, 'right'), side(b1, 'left'))
-      + differ(side(a2, 'right'), side(b2, 'left'))
-      + differ(side(a1, 'bottom'), side(a2, 'top'))
-      + differ(side(b1, 'bottom'), side(b2, 'top'));
+  const differ = (p, q) => p.reduce((n, v, i) => n + (v !== q[i] ? 1 : 0), 0);
+  const sideSum = (c, which) => side(c, which).reduce((n, v) => n + v, 0);
+
+  // Cells along the inner lines where the shading breaks off: 0 means perfectly joined.
+  function seamBreaks(bySlot, n) {
+    n = n || 2;
+    let total = 0;
+    for (let s = 0; s < n * n; s++) {
+      if (s % n < n - 1) total += differ(side(bySlot[s], 'right'), side(bySlot[s + 1], 'left'));
+      if (s < n * (n - 1)) total += differ(side(bySlot[s], 'bottom'), side(bySlot[s + n], 'top'));
+    }
+    return total;
   }
 
   // Shaded cells lying along the board's edge. A piece turned the wrong way round pushes its
   // straight cut edge out here, so this gives away most wrong arrangements.
-  function edgeCells(bySlot) {
-    const [a1, b1, a2, b2] = bySlot;
-    const sum = (c, which) => side(c, which).reduce((n, v) => n + v, 0);
-    return sum(a1, 'top') + sum(b1, 'top') + sum(a2, 'bottom') + sum(b2, 'bottom')
-      + sum(a1, 'left') + sum(a2, 'left') + sum(b1, 'right') + sum(b2, 'right');
+  function edgeCells(bySlot, n) {
+    n = n || 2;
+    let total = 0;
+    for (let s = 0; s < n * n; s++) total += edgeOf(bySlot[s], s, n);
+    return total;
   }
 
-  function permutations(list) {
-    if (list.length < 2) return [list.slice()];
-    const out = [];
-    list.forEach((x, i) => {
-      permutations(list.slice(0, i).concat(list.slice(i + 1))).forEach((rest) => out.push([x].concat(rest)));
-    });
-    return out;
+  function edgeOf(cells, s, n) {
+    let e = 0;
+    if (s < n) e += sideSum(cells, 'top');
+    if (s >= n * (n - 1)) e += sideSum(cells, 'bottom');
+    if (s % n === 0) e += sideSum(cells, 'left');
+    if (s % n === n - 1) e += sideSum(cells, 'right');
+    return e;
   }
 
   // Counts the finished pictures players could believe in (spec: must be 1): the true one, plus
   // any other arrangement whose lines join about as cleanly and that touches the board's edge
   // about as little. `anchored` slots stay in place, as if their coordinates were printed.
-  function countPictures(slotCells, looseSlots, anchored) {
-    const moving = looseSlots.filter((s) => !(anchored || []).includes(s));
+  // With up to 9 loose pieces every arrangement can't be tried, so pieces are placed slot by slot
+  // and a branch stops as soon as it breaks too many lines. Counting stops at `cap` pictures.
+  function countPictures(slotCells, looseSlots, anchored, n, cap) {
+    n = n || 2;
+    cap = cap || Infinity;
+    const moving = looseSlots.filter((s) => !(anchored || []).includes(s)).sort((a, b) => a - b);
+    const isMoving = new Set(moving);
     const key = (cells) => cells.map((c) => Array.prototype.join.call(c, '')).join('|');
-    const limit = seamBreaks(slotCells) + SEAM_TOLERANCE;
-    const edgeLimit = edgeCells(slotCells) + EDGE_TOLERANCE;
+    const limit = seamBreaks(slotCells, n) + SEAM_TOLERANCE;
+    const edgeLimit = edgeCells(slotCells, n) + EDGE_TOLERANCE;
     const seen = new Set([key(slotCells)]);
-    permutations(moving).forEach((order) => {
-      const bySlot = slotCells.slice();
-      moving.forEach((slot, k) => { bySlot[slot] = slotCells[order[k]]; });
-      if (seamBreaks(bySlot) <= limit && edgeCells(bySlot) <= edgeLimit) seen.add(key(bySlot));
-    });
+    // Seams and edges that involve fixed slots only never change.
+    let fixedSeam = 0, fixedEdge = 0;
+    for (let s = 0; s < n * n; s++) {
+      if (isMoving.has(s)) continue;
+      fixedEdge += edgeOf(slotCells[s], s, n);
+      if (s % n < n - 1 && !isMoving.has(s + 1)) fixedSeam += differ(side(slotCells[s], 'right'), side(slotCells[s + 1], 'left'));
+      if (s < n * (n - 1) && !isMoving.has(s + n)) fixedSeam += differ(side(slotCells[s], 'bottom'), side(slotCells[s + n], 'top'));
+    }
+    const bySlot = slotCells.slice();
+    const used = new Array(moving.length).fill(false);
+    // Lines a newly placed slot closes: with every fixed neighbour, and with moving ones placed before it.
+    const cost = (s, placed) => {
+      const c = bySlot[s];
+      let seam = 0;
+      const near = (t) => !isMoving.has(t) || placed.has(t);
+      if (s % n > 0 && near(s - 1)) seam += differ(side(bySlot[s - 1], 'right'), side(c, 'left'));
+      if (s % n < n - 1 && near(s + 1)) seam += differ(side(c, 'right'), side(bySlot[s + 1], 'left'));
+      if (s >= n && near(s - n)) seam += differ(side(bySlot[s - n], 'bottom'), side(c, 'top'));
+      if (s < n * (n - 1) && near(s + n)) seam += differ(side(c, 'bottom'), side(bySlot[s + n], 'top'));
+      return { seam, edge: edgeOf(c, s, n) };
+    };
+    const placed = new Set();
+    (function walk(k, seam, edge) {
+      if (seen.size >= cap) return;
+      if (k === moving.length) { seen.add(key(bySlot)); return; }
+      const s = moving[k];
+      for (let i = 0; i < moving.length; i++) {
+        if (used[i]) continue;
+        bySlot[s] = slotCells[moving[i]];
+        const c = cost(s, placed);
+        if (seam + c.seam > limit || edge + c.edge > edgeLimit) continue;
+        used[i] = true; placed.add(s);
+        walk(k + 1, seam + c.seam, edge + c.edge);
+        used[i] = false; placed.delete(s);
+        if (seen.size >= cap) return;
+      }
+      bySlot[s] = slotCells[s];
+    })(0, fixedSeam, fixedEdge);
     return seen.size;
   }
 
   // ------------------------------------------------------------------ placement
-  function cutAt(img, ox, oy) {
-    const board = new Uint8Array(BOARD * BOARD);
-    for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (img.cells[y * img.w + x]) board[(oy + y) * BOARD + ox + x] = 1;
+  function cutAt(img, ox, oy, n) {
+    const size = n * PIECE;
+    const board = new Uint8Array(size * size);
+    for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (img.cells[y * img.w + x]) board[(oy + y) * size + ox + x] = 1;
     const slots = [];
-    for (let s = 0; s < SLOTS; s++) {
-      const sx = (s % 2) * PIECE, sy = (s >> 1) * PIECE;
+    for (let s = 0; s < n * n; s++) {
+      const sx = (s % n) * PIECE, sy = Math.floor(s / n) * PIECE;
       const cells = new Uint8Array(PIECE * PIECE);
-      for (let y = 0; y < PIECE; y++) for (let x = 0; x < PIECE; x++) cells[y * PIECE + x] = board[(sy + y) * BOARD + sx + x];
+      for (let y = 0; y < PIECE; y++) for (let x = 0; x < PIECE; x++) cells[y * PIECE + x] = board[(sy + y) * size + sx + x];
       slots.push(cells);
     }
     return slots;
@@ -173,13 +221,14 @@
   // and no piece that is nearly solid (its loop would just run around the border).
   function placements(rows) {
     const img = parseRows(rows);
-    if (img.w > BOARD || img.h > BOARD) throw new Error('Image must fit inside 20x20');
+    if (img.w > MAX_BOARD || img.h > MAX_BOARD) throw new Error('Image must fit inside 30x30');
+    const n = gridFor(img.w, img.h), size = n * PIECE;
     const out = [];
-    for (let oy = 0; oy + img.h <= BOARD; oy++) for (let ox = 0; ox + img.w <= BOARD; ox++) {
-      const raw = cutAt(img, ox, oy);
+    for (let oy = 0; oy + img.h <= size; oy++) for (let ox = 0; ox + img.w <= size; ox++) {
+      const raw = cutAt(img, ox, oy, n);
       let repaired = 0, ok = true, dull = 0;
       const slots = [];
-      for (let s = 0; s < SLOTS && ok; s++) {
+      for (let s = 0; s < n * n && ok; s++) {
         const n = countCells(raw[s]);
         if (n === 0 || n === PIECE * PIECE) { slots.push({ cells: raw[s], type: n ? 'solid' : 'blank' }); continue; }
         const fix = repair(raw[s], PIECE, PIECE);
@@ -192,7 +241,7 @@
       if (!ok) continue;
       const puzzles = slots.filter((p) => p.type === 'puzzle').length;
       if (puzzles < 2) continue;
-      out.push({ ox, oy, slots, repaired, puzzles, dull });
+      out.push({ ox, oy, n, slots, repaired, puzzles, dull });
     }
     out.sort((a, b) => (b.puzzles - a.puzzles) || (a.dull - b.dull) || (a.repaired - b.repaired));
     return out;
@@ -200,55 +249,72 @@
 
   // The plan for one chapter. opts: { rows, difficulty, seed }
   // Hard needs a single possible picture without coordinates: try other placements, then
-  // print the coordinates of one anchor piece (spec section 11).
+  // print the coordinates of one anchor piece, or of two on a 3x3 board (spec section 11).
   function plan(opts) {
     const r = root.Generator.rng(opts.seed);
     const list = placements(opts.rows);
     if (!list.length) throw new Error('This image has no usable placement');
+    const n = list[0].n;
     // Several equally good placements exist, so a new seed gives a different cut.
     const top = list.filter((p) => p.puzzles === list[0].puzzles && p.dull === list[0].dull && p.repaired <= list[0].repaired + 1);
     const ordered = r.shuffle(top.slice()).concat(list.filter((p) => !top.includes(p)));
     const hard = opts.difficulty === 'hard';
-    let chosen = null, anchor = null;
-    for (const p of ordered.slice(0, 200)) {
+    const tries = ordered.slice(0, n === 2 ? 200 : 40);
+    const unique = (p, anchors) => {
       const cells = p.slots.map((s) => s.cells);
       const loose = p.slots.map((s, i) => (s.type === 'puzzle' ? i : -1)).filter((i) => i >= 0);
-      if (!hard || countPictures(cells, loose) === 1) { chosen = p; break; }
+      return countPictures(cells, loose, anchors, n, 2) === 1;
+    };
+    const looseOf = (p) => p.slots.map((s, i) => (s.type === 'puzzle' ? i : -1)).filter((i) => i >= 0);
+    let chosen = null, anchors = [];
+    for (const p of tries) {
+      if (!hard || unique(p, [])) { chosen = p; break; }
     }
     if (!chosen) {
-      for (const p of ordered.slice(0, 200)) {
-        const cells = p.slots.map((s) => s.cells);
-        const loose = p.slots.map((s, i) => (s.type === 'puzzle' ? i : -1)).filter((i) => i >= 0);
-        const a = loose.find((s) => countPictures(cells, loose, [s]) === 1);
-        if (a !== undefined) { chosen = p; anchor = a; break; }
+      for (const p of tries) {
+        const a = looseOf(p).find((s) => unique(p, [s]));
+        if (a !== undefined) { chosen = p; anchors = [a]; break; }
+      }
+    }
+    if (!chosen && n > 2) {
+      for (const p of tries) {
+        const loose = looseOf(p);
+        for (let i = 0; i < loose.length && !chosen; i++) for (let j = i + 1; j < loose.length && !chosen; j++) {
+          if (unique(p, [loose[i], loose[j]])) { chosen = p; anchors = [loose[i], loose[j]]; }
+        }
+        if (chosen) break;
       }
     }
     if (!chosen) throw new Error('This image cannot be assembled in only one way');
 
     // Pieces are handed out in shuffled order, so the numbering gives nothing away.
-    const loose = chosen.slots.map((s, i) => (s.type === 'puzzle' ? i : -1)).filter((i) => i >= 0);
+    const loose = looseOf(chosen);
     const order = r.shuffle(loose.slice());
     return {
-      ox: chosen.ox, oy: chosen.oy,
+      ox: chosen.ox, oy: chosen.oy, grid: n,
       repaired: chosen.repaired,
-      slots: chosen.slots.map((s, i) => ({ slot: i, label: SLOT_LABELS[i], type: s.type, cells: Array.from(s.cells) })),
-      pieces: order.map((slot, k) => ({ number: k + 1, slot, label: SLOT_LABELS[slot], showLabel: !hard || slot === anchor, mask: Array.from(chosen.slots[slot].cells) }))
+      slots: chosen.slots.map((s, i) => ({ slot: i, label: labelOf(i, n), type: s.type, cells: Array.from(s.cells) })),
+      pieces: order.map((slot, k) => ({ number: k + 1, slot, label: labelOf(slot, n), showLabel: !hard || anchors.includes(slot), mask: Array.from(chosen.slots[slot].cells) }))
     };
   }
 
+  // Pieces per side of a saved plan; plans made before 3x3 boards existed have no `grid`.
+  const gridOf = (p) => p.grid || Math.round(Math.sqrt(p.slots.length));
+
   // The picture as players end up with it, after repairs, cropped to its shape.
   function assembledRows(p) {
+    const n = gridOf(p), size = n * PIECE;
     const rows = [];
-    for (let y = 0; y < BOARD; y++) {
+    for (let y = 0; y < size; y++) {
       let row = '';
-      for (let x = 0; x < BOARD; x++) {
-        const slot = p.slots[(y >= PIECE ? 2 : 0) + (x >= PIECE ? 1 : 0)];
+      for (let x = 0; x < size; x++) {
+        const slot = p.slots[Math.floor(y / PIECE) * n + Math.floor(x / PIECE)];
         row += slot.cells[(y % PIECE) * PIECE + (x % PIECE)] ? '#' : '.';
       }
       rows.push(row);
     }
     const body = rows.filter((r) => r.includes('#'));
-    let left = 0, right = BOARD - 1;
+    let left = 0, right = size - 1;
     while (body.every((r) => r[left] === '.')) left++;
     while (body.every((r) => r[right] === '.')) right--;
     return body.map((r) => r.slice(left, right + 1));
@@ -266,5 +332,5 @@
     };
   }
 
-  root.Mosaic = { BOARD, PIECE, SLOT_LABELS, parseRows, repair, placements, countPictures, plan, assembledRows, review };
+  root.Mosaic = { BOARD, MAX_BOARD, PIECE, SLOT_LABELS, gridFor, gridOf, labelOf, parseRows, repair, placements, countPictures, plan, assembledRows, review };
 })(typeof self !== 'undefined' ? self : globalThis);

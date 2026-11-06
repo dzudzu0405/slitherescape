@@ -1,6 +1,7 @@
 // Checks our own Mosaic drawings: node tools/test-drawings.js christmas
-// Each drawing in pro/library/drawn/<theme>.txt must be one solid shape that fits the board,
-// cut cleanly and build puzzles at every level. Pairs that look alike are listed too.
+// Each drawing in pro/library/drawn/<theme>.txt must be one solid shape that fits the board
+// (20x20, or up to 30x30 for a 3x3 Mosaic), cut cleanly and build puzzles at every level.
+// Pairs that look alike are listed too.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -22,9 +23,9 @@ function parse(file) {
 
 function overlap(a, b) {
   const place = (m) => {
-    const ox = 10 - (m.rows[0].length >> 1), oy = 10 - (m.rows.length >> 1);
+    const ox = 15 - (m.rows[0].length >> 1), oy = 15 - (m.rows.length >> 1);
     const set = new Set();
-    m.rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === '#') set.add((oy + y) * 20 + ox + x); }));
+    m.rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === '#') set.add((oy + y) * 30 + ox + x); }));
     return set;
   };
   const A = place(a), B = place(b);
@@ -43,8 +44,10 @@ for (const m of list) {
   const w = m.rows[0].length, h = m.rows.length;
   if (!/^[A-Z]{3,12}$/.test(m.name)) fail(m, 'name must be one word of 3 to 12 letters');
   if (m.rows.some((r) => r.length !== w || !/^[#.]+$/.test(r))) { fail(m, 'rows differ in width'); continue; }
-  if (w > 20 || h > 20) { fail(m, `size ${w}x${h} is over 20x20`); continue; }
-  if (Math.max(w, h) < 19) console.log(`${m.name.padEnd(12)} note: longest side is only ${Math.max(w, h)}`);
+  if (w > 30 || h > 30) { fail(m, `size ${w}x${h} is over 30x30`); continue; }
+  const big = w > 20 || h > 20;
+  // Small drawings should fill most of a 20x20 board, big ones most of a 30x30 board.
+  if (Math.max(w, h) < (big ? 27 : 19)) console.log(`${m.name.padEnd(12)} note: longest side is only ${Math.max(w, h)}`);
   m.similar.filter((s) => !names.includes(s)).forEach((s) => fail(m, `look-alike ${s} is not in this theme`));
   const cells = Uint8Array.from(m.rows.join('').split('').map((c) => (c === '#' ? 1 : 0)));
   const shape = Glyphs.checkMask(cells, w, h);

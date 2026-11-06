@@ -604,20 +604,25 @@
     return boards;
   }
 
+  // The finished picture with its cut lines: 2x2 pieces, or 3x3 for a big picture.
   function drawPicture(canvas, plan) {
-    const cell = 5;
-    canvas.width = canvas.height = cell * 20;
+    const n = window.Mosaic.gridOf(plan);
+    const cell = n === 3 ? 4 : 5, size = 10 * n * cell;
+    canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#FFFCF6';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, size, size);
     ctx.fillStyle = '#3B2412';
     plan.slots.forEach((slot, s) => {
-      const ox = (s % 2) * 10, oy = (s >> 1) * 10;
+      const ox = (s % n) * 10, oy = Math.floor(s / n) * 10;
       slot.cells.forEach((v, i) => { if (v) ctx.fillRect((ox + i % 10) * cell, (oy + Math.floor(i / 10)) * cell, cell, cell); });
     });
     ctx.strokeStyle = '#C9A877';
     ctx.beginPath();
-    ctx.moveTo(50, 0); ctx.lineTo(50, 100); ctx.moveTo(0, 50); ctx.lineTo(100, 50);
+    for (let k = 1; k < n; k++) {
+      const at = k * 10 * cell;
+      ctx.moveTo(at, 0); ctx.lineTo(at, size); ctx.moveTo(0, at); ctx.lineTo(size, at);
+    }
     ctx.stroke();
   }
 

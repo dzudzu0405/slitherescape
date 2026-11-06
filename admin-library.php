@@ -10,9 +10,10 @@ $errors = [];
 
 function valid_rows($rows): bool
 {
-    if (!is_array($rows) || !$rows || count($rows) > 20) return false;
+    // Up to 20x20 for a 2x2 Mosaic, up to 30x30 for a 3x3 one.
+    if (!is_array($rows) || !$rows || count($rows) > 30) return false;
     $w = strlen((string)$rows[0]);
-    if ($w < 4 || $w > 20) return false;
+    if ($w < 4 || $w > 30) return false;
     foreach ($rows as $r) if (!is_string($r) || strlen($r) !== $w || !preg_match('/^[#.]+$/', $r)) return false;
     return true;
 }

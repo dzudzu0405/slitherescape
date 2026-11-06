@@ -1,5 +1,6 @@
 // SlitherEscape PRO: printed pages of a Mosaic chapter (spec section 11): the piece sheets,
-// the Assembly Board, the Answer Board and the finished pictures in the answer key.
+// the Assembly Board (2x2 or 3x3 squares), the Answer Board and the finished pictures in the
+// answer key.
 (function (root) {
   'use strict';
   const { C, NUMBER_WORDS } = root.PdfBuilder;
@@ -8,10 +9,12 @@
   const PER_PAGE = 4;
 
   const slotsOf = (g, ci) => g.slots.map((s, i) => ({ s, i })).filter((x) => x.s.chapter === ci);
+  // Pieces per side of a chapter's board: 2 (20x20) or 3 (30x30).
+  const gridOf = (g, ci) => root.Mosaic.gridOf(g.mosaics[ci]);
 
   // Pieces must print at the size of the board cells on every paper, so glueing them works.
-  function cellFor(b) {
-    return Math.min(CELL, (b.geometry(false).box.w - 8) / 20);
+  function cellFor(b, n) {
+    return Math.min(CELL, (b.geometry(false).box.w - 8) / (10 * (n || 2)));
   }
 
   function chapterPages(g, ci) {
@@ -32,7 +35,7 @@
   function piecePages(b, ci) {
     const g = b.g, doc = b.doc;
     const list = slotsOf(g, ci);
-    const cell = cellFor(b);
+    const cell = cellFor(b, gridOf(g, ci));
     const size = cell * 10;
     for (let k = 0; k < list.length; k += PER_PAGE) {
       const box = b.newPage();
@@ -80,21 +83,22 @@
   function assemblyBoard(b, ci) {
     const g = b.g, doc = b.doc;
     const plan = g.mosaics[ci];
+    const n = gridOf(g, ci);
     const box = b.newPage();
     const cx = b.geo.W / 2;
-    const cell = cellFor(b);
+    const cell = cellFor(b, n);
     const size = cell * 10;
     b.font('FellSC', 12, C.red);
     b.text(`Chapter ${NUMBER_WORDS[ci]}`, cx, box.y + 8, { align: 'center' });
     b.font('Fell', 28, C.ink);
     b.text('Assembly Board', cx, box.y + 38, { align: 'center' });
     b.divider(cx, box.y + 52, 150);
-    const x0 = cx - size, y0 = box.y + 92;
+    const x0 = cx - size * n / 2, y0 = box.y + 92;
     b.font('FellSC', 14, C.brown);
-    ['A', 'B'].forEach((l, k) => b.text(l, x0 + size * k + size / 2, y0 - 8, { align: 'center' }));
-    ['1', '2'].forEach((l, k) => b.text(l, x0 - 12, y0 + size * k + size / 2 + 4, { align: 'center' }));
+    'ABC'.slice(0, n).split('').forEach((l, k) => b.text(l, x0 + size * k + size / 2, y0 - 8, { align: 'center' }));
+    for (let k = 0; k < n; k++) b.text(String(k + 1), x0 - 12, y0 + size * k + size / 2 + 4, { align: 'center' });
     plan.slots.forEach((slot, s) => {
-      const x = x0 + (s % 2) * size, y = y0 + (s >> 1) * size;
+      const x = x0 + (s % n) * size, y = y0 + Math.floor(s / n) * size;
       if (slot.type === 'solid') drawCells(b, slot.cells, 10, x, y, cell, C.shade);
       doc.setDrawColor(...C.brown);
       doc.setLineWidth(slot.type === 'puzzle' ? 0.8 : 1.2);
@@ -105,7 +109,7 @@
       }
     });
     b.font('Fell', 12, C.ink, 'italic');
-    b.para('Glue each piece into its square with the arrow pointing up. The shaded parts join up across the lines. Squares already filled in are printed for you.', box.x + 34, y0 + size * 2 + 26, box.w - 68, { align: 'center' });
+    b.para('Glue each piece into its square with the arrow pointing up. The shaded parts join up across the lines. Squares already filled in are printed for you.', box.x + 34, y0 + size * n + 26, box.w - 68, { align: 'center' });
   }
 
   function answerBoard(b, ci) {
@@ -125,7 +129,9 @@
     const areaH = box.y + box.h - y - 90;
     const rowH = areaH / rows;
     const colW = box.w / cols;
-    const cell = Math.min(6.6, (rowH - 26) / 20);
+    // Every picture on the board shares one cell size, sized for the biggest of them.
+    const longest = Math.max(20, ...options.map((m) => Math.max(m.rows.length, m.rows[0].length)));
+    const cell = Math.min(6.6 * 20 / longest, (rowH - 26) / longest, (colW - 16) / longest);
     options.forEach((m, k) => {
       const x = box.x + (k % cols) * colW, top = y + Math.floor(k / cols) * rowH;
       const grid = root.Mosaic.parseRows(m.rows);
@@ -157,16 +163,17 @@
     b.divider(cx, box.y + 36, 160);
     const list = g.story.chapters.map((c, ci) => ({ c, ci })).filter((x) => x.c.type === 'mosaic');
     const rowH = (box.h - 56) / Math.max(2, list.length);
-    const cell = Math.min(10, (rowH - 40) / 20);
     list.forEach(({ c, ci }, k) => {
       const top = box.y + 56 + k * rowH;
       const plan = g.mosaics[ci];
+      const n = gridOf(g, ci);
+      const cell = Math.min(10 * 2 / n, (rowH - 40) / (10 * n));
       const size = cell * 10;
-      const x0 = cx - size;
+      const x0 = cx - size * n / 2;
       b.font('FellSC', 13, C.red);
       b.text(`Chapter ${NUMBER_WORDS[ci]}: ${c.word}`, cx, top + 10, { align: 'center' });
       plan.slots.forEach((slot, s) => {
-        const x = x0 + (s % 2) * size, y = top + 20 + (s >> 1) * size;
+        const x = x0 + (s % n) * size, y = top + 20 + Math.floor(s / n) * size;
         drawCells(b, slot.cells, 10, x, y, cell, C.shade);
         b.doc.setDrawColor(...C.brown);
         b.doc.setLineWidth(0.5);

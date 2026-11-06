@@ -29,11 +29,13 @@ sheet = Image.new('RGB', (COLS * BOX, rows * BOX), (255, 252, 246))
 d = ImageDraw.Draw(sheet)
 for k, (name, grid) in enumerate(items):
     x0, y0 = (k % COLS) * BOX, (k // COLS) * BOX
-    ox, oy = x0 + (BOX - len(grid[0]) * CELL) // 2, y0 + 4 + (166 - len(grid) * CELL) // 2
+    # Drawings up to 20x20 use 8 px cells; bigger ones (up to 30x30) shrink to fit the box.
+    cell = min(CELL, 166 // max(len(grid), len(grid[0])))
+    ox, oy = x0 + (BOX - len(grid[0]) * cell) // 2, y0 + 4 + (166 - len(grid) * cell) // 2
     for y, row in enumerate(grid):
         for x, ch in enumerate(row):
             if ch == '#':
-                d.rectangle([ox + x * CELL, oy + y * CELL, ox + (x + 1) * CELL - 1, oy + (y + 1) * CELL - 1], fill=(59, 36, 18))
+                d.rectangle([ox + x * cell, oy + y * cell, ox + (x + 1) * cell - 1, oy + (y + 1) * cell - 1], fill=(59, 36, 18))
     d.text((x0 + 8, y0 + BOX - 16), str(k + 1) if key else name, fill=(122, 46, 30))
 sheet.save(out)
 print(out, sheet.size)

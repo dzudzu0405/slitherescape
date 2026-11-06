@@ -4,7 +4,9 @@
   const SIZE = 20, SAMPLE = 8;
 
   function drawGrid(canvas, rows) {
-    const cell = 9, w = rows[0].length, h = rows.length, n = 20;
+    const w = rows[0].length, h = rows.length;
+    // Pictures bigger than 20x20 sit on a 30x30 board, drawn at the same overall size.
+    const n = w > 20 || h > 20 ? 30 : 20, cell = n === 30 ? 6 : 9;
     canvas.width = canvas.height = n * cell;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#FFFCF6';
