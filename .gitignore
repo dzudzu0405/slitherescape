@@ -8,3 +8,6 @@ tools/out/
 # Built packages
 releases/
 data/schema-version
+
+# Listing Kit test output
+tools/listing-kit/out/

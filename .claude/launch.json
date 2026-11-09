@@ -6,6 +6,12 @@
       "runtimeExecutable": "php",
       "runtimeArgs": ["-S", "127.0.0.1:8765", "-t", "."],
       "port": 8765
+    },
+    {
+      "name": "listing-kit",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/listing-kit/serve.py"],
+      "port": 8770
     }
   ]
 }

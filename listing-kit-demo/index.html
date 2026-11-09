@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listing Kit Demo</title>
+<style>
+  @font-face { font-family: "Playfair Display"; src: url(vendor/playfair-900.woff2) format("woff2"); font-weight: 900; }
+  @font-face { font-family: "Playfair Display"; src: url(vendor/playfair-800.woff2) format("woff2"); font-weight: 800; }
+  @font-face { font-family: "DejaVu Serif"; src: url(fonts/DejaVuSerif-Bold.ttf); font-weight: 700; }
+  @font-face { font-family: "IM Fell SC"; src: url(fonts/IMFellEnglishSC-Regular.ttf); }
+  @font-face { font-family: "IM Fell Italic"; src: url(fonts/IMFellEnglish-Italic.ttf); }
+  :root { --bg: #f6f3ec; --ink: #2b2118; --muted: #6f6355; --line: #ddd4c4; --accent: #8d2d1f; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #17140f; --ink: #efe7d8; --muted: #a79a87; --line: #3a3228; --accent: #d9705d; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 64px; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 1100px; margin: auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p { margin: 0 0 16px; color: var(--muted); }
+  form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
+  input, select, button { font: inherit; padding: 8px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 6px; max-width: 100%; }
+  select option { color: #2b2118; }
+  button { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; cursor: pointer; }
+  #status { font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+  figure { margin: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  figure canvas, figure video { display: block; width: 100%; height: auto; }
+  figcaption { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; font-size: 14px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Listing Kit</h1>
+  <p>Nhận file PDF đã xuất từ SlitherEscape và tạo ảnh, video listing ngay trên trình duyệt.</p>
+  <form onsubmit="return false">
+    <label>File PDF <input type="file" id="pdf" accept="application/pdf"></label>
+    <label>Chủ đề
+      <select id="theme"><option value="other">Khác (tự dò từ khoá)</option></select>
+    </label>
+    <label>Chủ đề tự gõ <input type="text" id="custom" placeholder="ví dụ: haunted carnival"></label>
+    <label>Chất liệu nền
+      <select id="material"><option value="">Tự động</option></select>
+    </label>
+    <button type="button" id="run">Tạo bộ listing</button>
+  </form>
+  <div id="status">Đang tải…</div>
+  <div class="grid" id="out"></div>
+</main>
+<script src="vendor/mp4-muxer.min.js"></script>
+<script src="vendor/themes.js"></script>
+<script src="demo-puzzle.js"></script>
+<script src="listing-kit.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>
