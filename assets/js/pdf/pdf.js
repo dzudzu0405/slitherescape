@@ -438,6 +438,15 @@
     this.divider(cx, box.y + 42, 160);
     this.font('Fell', 12.5, C.ink, 'italic');
     const allMosaic = s.chapters.every(isMosaic);
+    // One picture: its name is the whole code, so one row of boxes is enough.
+    if (allMosaic && s.chapters.length === 1) {
+      const y1 = this.para('Assemble the picture, then find its name on the Answer Board. That name is the final code.', box.x + 40, box.y + 70, box.w - 80, { align: 'center' }) + 30;
+      this.font('FellSC', 18, C.ink);
+      this.text('The Final Code', cx, y1, { align: 'center' });
+      const n = s.chapters[0].word.length;
+      this.letterBoxes(cx, y1 + 16, [n], Math.min(32, (box.w - 40) / (n * 1.18)));
+      return;
+    }
     let y = this.para(allMosaic ? 'Write each word here once you have named the finished picture of its chapter.' : 'Write each letter in its box as you solve the puzzles. The small number under a box is the puzzle it comes from.', box.x + 30, box.y + 70, box.w - 60, { align: 'center' }) + 16;
     // Fit the longest chapter word (codes can reach 20 letters).
     const longest = Math.max(...s.chapters.map((c) => c.word.length));

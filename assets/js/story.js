@@ -117,7 +117,9 @@
           : `Chapter ${i + 1} is a LETTER chapter: its word is a common English word of 4 to 7 letters, using only A-Z, that ${audience[0]} can spell.`)),
         `Pictures you may choose from (use these names exactly, each at most once, and do not invent others): ${names.join(', ')}.`,
         alike.length ? `Never use two pictures that look alike: ${alike.join(', ')}.` : '',
-        'Together the words are the secret code. They need not form a phrase, but each one must be a natural key to the story\'s problem, and the ending explains why.'
+        chapters === 1
+          ? 'The picture\'s name is the whole secret code: it must be the natural key to the story\'s problem, and the ending explains why.'
+          : 'Together the words are the secret code. They need not form a phrase, but each one must be a natural key to the story\'s problem, and the ending explains why.'
       ].filter(Boolean);
     } else if (given) {
       codeRules = [
@@ -195,7 +197,9 @@
     const checkExample = given ? '' : '\n"codeCheck" spells each code word letter by letter with its count, then the total. Format example only: "MOON = M-O-O-N (4) | LIGHT = L-I-G-H-T (5) | total 9".';
 
     const howItWorks = types
-      ? `players solve logic puzzles to get a SECRET CODE of ${chapters} words, one word per chapter. In a LETTER chapter, each solved puzzle reveals one capital letter and the letters spell the word. In a PICTURE chapter, the solved puzzles are pieces of one big picture: the players assemble it, and the name of what it shows is the word. Saying the code at the end opens the final lock and wins the game.`
+      ? chapters === 1
+        ? 'players solve logic puzzles that are the pieces of one big picture. They assemble it, and the name of what it shows is the SECRET CODE: a single word. Saying the code at the end opens the final lock and wins the game.'
+        : `players solve logic puzzles to get a SECRET CODE of ${chapters} words, one word per chapter. In a LETTER chapter, each solved puzzle reveals one capital letter and the letters spell the word. In a PICTURE chapter, the solved puzzles are pieces of one big picture: the players assemble it, and the name of what it shows is the word. Saying the code at the end opens the final lock and wins the game.`
       : `players solve logic puzzles, and each solved puzzle reveals ONE capital letter. Read in order, the letters spell a SECRET CODE of ${chapters} words, one word per chapter. Saying the code at the end opens the final lock and wins the game.`;
     const partyItem = partyKit
       ? `\n12. party: texts for the printed party props.\n   - letter (${L.partyLetter.min}-${L.partyLetter.words} words): a letter from a character in the story that opens the game and ends by telling the players to pick up their Code Sheet.\n   - roles: a themed title (max ${L.roleName.words} words) for each player role. Keep the keys; only the titles change.\n   - reward (max ${L.reward.words} words): the name of a prize that fits the story, such as a VIP pass.`
@@ -213,7 +217,7 @@ ${codeRules.map((r) => '- ' + r).join('\n')}
 1. title (max ${L.title.words} words): catchy and original.
 2. tagline (max ${L.tagline.words} words): one intriguing line for the cover.
 3. prologue (${L.prologue.min}-${L.prologue.words} words): sets up the problem and why the code matters. Plant at least 6 concrete details players can be asked about later: names, colors, numbers, objects, places, times.
-4. mission (${L.mission.min}-${L.mission.words} words): tells the players to solve the puzzles, collect the ${chapters} words and say the code before something bad happens.
+4. mission (${L.mission.min}-${L.mission.words} words): tells the players to solve the puzzles, ${chapters === 1 ? 'find the name of the picture and say it' : `collect the ${chapters} words and say the code`} before something bad happens.
 5. chapters: exactly ${chapters}, in the order of the code. For each:
    - name (max ${L.chapterName.words} words)
    - intro (${L.chapterIntro.min}-${L.chapterIntro.words} words): narration that leads into this chapter's puzzles and raises the stakes, with at least 3 new concrete details.
@@ -373,9 +377,11 @@ ${skeletonText}${checkExample}
 
     // Code rules.
     const words = story.chapters.map((c) => c.word);
-    if (chapterCount ? story.chapters.length !== chapterCount : (story.chapters.length < 2 || story.chapters.length > 3)) {
-      const need = chapterCount || '2';
-      err(`There are ${story.chapters.length} chapters; ${chapterCount ? 'exactly ' + need : '2 or 3'} are needed.`, `Return exactly ${need} chapters (one code word each).`);
+    // A Mosaic game is one picture; older saved Mosaic games with 2-3 pictures still load.
+    const fewest = story.chapters.length && story.chapters.every(isMosaic) ? 1 : 2;
+    if (chapterCount ? story.chapters.length !== chapterCount : (story.chapters.length < fewest || story.chapters.length > 3)) {
+      const need = chapterCount || String(fewest);
+      err(`There are ${story.chapters.length} chapters; ${chapterCount ? 'exactly ' + need : fewest + ' to 3'} are needed.`, `Return exactly ${need} chapter${need === '1' || need === 1 ? '' : 's'} (one code word each).`);
     }
     words.forEach((w, i) => {
       if (!/^[A-Z]+$/.test(w)) err(`Chapter ${i + 1} word "${w}" may only contain letters A–Z.`, `Chapter ${i + 1} word "${w}" must contain only letters A-Z.`);

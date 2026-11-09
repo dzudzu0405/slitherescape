@@ -65,7 +65,7 @@ window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config
       <h3 class="q-title"><span class="n">2</span>Choose the game type</h3>
       <div class="diff-grid" id="mode-grid">
         <button class="diff on" data-mode="letter"><span class="check"></span><h4>Classic letters</h4><div class="age">Each puzzle reveals one letter</div></button>
-        <button class="diff" data-mode="mosaic"><span class="check"></span><h4>Mosaic <span class="badge warn pro-tag">PRO</span></h4><div class="age">Puzzles are pieces of a big picture</div></button>
+        <button class="diff" data-mode="mosaic"><span class="check"></span><h4>Mosaic <span class="badge warn pro-tag">PRO</span></h4><div class="age">Nine puzzles are the pieces of one big picture</div></button>
         <button class="diff" data-mode="mixed"><span class="check"></span><h4>Mixed <span class="badge warn pro-tag">PRO</span></h4><div class="age">Each chapter picks its own type</div></button>
       </div>
       <div class="mode-options hidden" id="mode-options">

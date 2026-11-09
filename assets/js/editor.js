@@ -47,7 +47,8 @@
   // Chapter types chosen on the start screen, or null for a classic letters game.
   function chapterTypes() {
     const st = state.settings;
-    if (st.mode === 'mosaic') return Array(st.modeChapters).fill('mosaic');
+    // A Mosaic game is one big picture: one chapter, one code word.
+    if (st.mode === 'mosaic') return ['mosaic'];
     if (st.mode === 'mixed') return st.chapterTypes.slice(0, st.modeChapters);
     return null;
   }
@@ -217,7 +218,7 @@
       b.classList.toggle('locked', !PRO.enabled && b.dataset.mode !== 'letter');
     });
     const types = chapterTypes();
-    $('#mode-options').classList.toggle('hidden', !types);
+    $('#mode-options').classList.toggle('hidden', st.mode !== 'mixed');
     $('#mode-chapters').value = String(st.modeChapters);
     $('#mode-chapter-types').innerHTML = st.mode !== 'mixed' ? '' : Array.from({ length: st.modeChapters }, (_, i) =>
       `<label class="field"><span>Chapter ${i + 1}</span><select data-chapter-type="${i}">
@@ -438,12 +439,17 @@
       </div>`;
     $('#template-grid').innerHTML = templates().map((t, i) => {
       const s = t.story;
-      const total = s.chapters.reduce((n, c) => n + (c.type === 'mosaic' ? 4 : c.word.length), 0);
+      const pieces = (c) => {
+        const img = library().find((m) => m.name === c.word);
+        const n = img ? window.Mosaic.gridFor(img.rows[0].length, img.rows.length) : 3;
+        return n * n;
+      };
+      const total = s.chapters.reduce((n, c) => n + (c.type === 'mosaic' ? pieces(c) : c.word.length), 0);
       return `<div class="card template-card" data-template="${i}">
         <h3>${esc(s.title)}</h3>
         <div class="code">${esc(s.chapters.map((c) => c.word).join(' '))}</div>
         <p class="small muted">${esc(s.tagline)}</p>
-        <div class="project-meta"><span class="badge">${total} puzzles</span><span class="badge">${s.chapters.length} chapters</span></div>
+        <div class="project-meta"><span class="badge">${total} puzzles</span><span class="badge">${s.chapters.length === 1 ? 'One picture' : `${s.chapters.length} chapters`}</span></div>
         <button class="btn primary sm" style="margin-top:6px">Use this story</button>
       </div>`;
     }).join('') + locked;
@@ -736,7 +742,7 @@
     $('#r-code').textContent = codeSpaced();
     $('#r-meta').innerHTML = [
       `<span class="badge dark">${p.audience}</span>`, `<span class="badge">${n} puzzles</span>`,
-      `<span class="badge">${s.chapters.length} chapters</span>`, `<span class="badge">${lo}–${hi} min</span>`,
+      `<span class="badge">${s.chapters.length === 1 ? 'One picture' : `${s.chapters.length} chapters`}</span>`, `<span class="badge">${lo}–${hi} min</span>`,
       `<span class="badge">${total} pages · ${paper}</span>`, `<span class="badge">${eff.inkSaver ? 'Ink saver' : 'Aged paper'}</span>`
     ].join('');
 

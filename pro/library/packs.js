@@ -12,24 +12,18 @@
         title: 'The Silent Night Workshop',
         tagline: 'One blizzard, one dark workshop, and only hours until morning.',
         prologue: 'Snow has been falling on Pinehollow for three days. At exactly nine o\'clock on Christmas Eve, every machine in Old Marta\'s toy workshop stopped. The red conveyor belt froze. The brass clock above the door fell silent. Marta, who has run the workshop for forty-two years, found a note pinned to her green apron: the workshop will sleep until someone proves they understand the spirit of the season. Twelve hundred wrapped toys now sit on the belt, and the delivery sleds leave at dawn. The village has sent for you, because nobody else made it through the storm. Marta\'s old cat, Biscuit, watches from the top of a blue ladder, and he seems to know more than he is telling.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that wake the workshop. Say them at the great brass lock before the sleds are due to leave at dawn.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that wakes the workshop. Say it at the great brass lock before the sleds are due to leave at dawn.',
         chapters: [
           {
             name: 'The Courtyard in the Snow',
             intro: 'You cross the courtyard with a lantern borrowed from Marta. Six wooden sleds stand in a row, each one painted with a silver star. Near the well, footprints circle something tall that the village plants here every winter and decorates with paper chains. Marta says her grandfather began the custom in the year of the great frost, when the whole village gathered here to sing. Whatever the note means, she believes it begins out here, where everyone comes together.',
             word: 'TREE',
             type: 'mosaic'
-          },
-          {
-            name: 'The Wrapping Room',
-            intro: 'Inside, the wrapping room smells of cinnamon and glue. Four long tables hold rolls of gold paper, and a ledger lies open at a page dated 1951. In a shaky hand, Marta\'s mother wrote that the workshop was never built to make toys. It was built so that people would have something to give away. Biscuit jumps onto the third table and paws at a spool of red ribbon. Far away, the church bell rings four, and the sky over Pinehollow is starting to pale.',
-            word: 'GIFT',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'The great brass lock sits in the workshop door, cold under your hand. Behind you, the sled drivers are already harnessing their horses, and the window is turning grey. Marta holds up her lantern and nods. Speak the two words clearly, for the workshop will only listen once.',
-        ending: 'The moment you speak, the brass clock begins to tick. Tree. Gift. Something to gather around, and something to give away: that was all the workshop ever asked anyone to remember. The red belt shudders to life, and the toys roll out toward the waiting sleds as the first light touches the snow. Marta laughs until she has to wipe her eyes, and Biscuit finally comes down from his ladder. Twelve hundred children will wake to a surprise this morning, and they will never know how close it came. Well done, friends of Pinehollow.',
+        finalLock: 'The great brass lock sits in the workshop door, cold under your hand. Behind you, the sled drivers are already harnessing their horses, and the window is turning grey. Marta holds up her lantern and nods. Speak the word clearly, for the workshop will only listen once.',
+        ending: 'The moment you speak, the brass clock begins to tick. Tree. Something the whole village gathers around, to sing and to share: that was all the workshop ever asked anyone to remember. The red belt shudders to life, and the toys roll out toward the waiting sleds as the first light touches the snow. Marta laughs until she has to wipe her eyes, and Biscuit finally comes down from his ladder. Twelve hundred children will wake to a surprise this morning, and they will never know how close it came. Well done, friends of Pinehollow.',
         certificate: 'For waking the workshop in the storm and saving Christmas morning in Pinehollow.',
         teamName: 'The Pinehollow Night Crew',
         party: {
@@ -47,9 +41,9 @@
           ['What color is the conveyor belt?', ['Red', 'Green', 'Silver'], 0],
           ['How many sleds stand in the courtyard?', ['Four', 'Six', 'Eight'], 1],
           ['What is painted on each sled?', ['A snowflake', 'A bell', 'A silver star'], 2],
-          ['What date is on the ledger page?', ['1951', '1902', '1975'], 0],
-          ['How many long tables are in the wrapping room?', ['Two', 'Four', 'Six'], 1],
-          ['What does the wrapping room smell of?', ['Pine and smoke', 'Oranges and wax', 'Cinnamon and glue'], 2],
+          ['How many days has snow been falling on Pinehollow?', ['Three', 'Seven', 'Ten'], 0],
+          ['When do the delivery sleds leave?', ['At midnight', 'At dawn', 'At noon'], 1],
+          ['Who began the custom in the courtyard?', ['Marta\'s mother', 'The mayor', 'Marta\'s grandfather'], 2],
           ['Which country is credited with starting the custom of decorating an evergreen indoors?', ['Germany', 'Brazil', 'Japan'], 0, 'trivia'],
           ['Which animal pulls the sleigh in the traditional Santa Claus story?', ['Horses', 'Reindeer', 'Huskies'], 1, 'trivia'],
           ['What is a group of people singing Christmas songs door to door called?', ['Marchers', 'Bellringers', 'Carolers'], 2, 'trivia'],
@@ -68,24 +62,18 @@
         title: 'The Curse of Hollow Lane',
         tagline: 'Thirteen doors, one old promise, and a moon that will not set.',
         prologue: 'Nobody on Hollow Lane remembers who built the crooked house at number thirteen. Every Halloween its purple door stays shut, and every Halloween the children leave a bowl of toffee on the step. This year, at seven o\'clock, somebody forgot. By eight, all the clocks on the street had stopped. The streetlamps turned green, the full moon froze above the bakery, and the seven children of the lane could no longer find their way home. Old Mr. Finch, the retired lamplighter, found a scroll tied to his walking stick with black string. It says a promise has been broken, and the night will not end until it is mended. You are the only visitors the lane has had in years, and Mr. Finch has asked for your help.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that lift the curse. Say them at the purple door before the frozen moon goes dark for good.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that lifts the curse. Say it at the purple door before the frozen moon goes dark for good.',
         chapters: [
           {
             name: 'The Garden Behind the Gate',
             intro: 'Mr. Finch leads you to a rusty gate with nine iron spikes. Behind it lies the garden of number thirteen, where a scarecrow in a yellow coat points the way. Long vines crawl across the frost, and something round and orange glows between them, one for every family on the lane. Mr. Finch remembers planting the first seed with his sister when he was eleven. A carved face is meant to guide lost travelers home, he says, and tonight every face in the garden has gone dark.',
             word: 'PUMPKIN',
             type: 'mosaic'
-          },
-          {
-            name: 'The Attic of Number Thirteen',
-            intro: 'The back stairs creak under you, all twenty-two of them. In the attic, a round window looks out on the frozen moon, and an empty birdcage hangs from a beam. A diary with a silver lock describes the old owner, a woman named Odessa, who was kind to the night creatures nobody else wanted. Something rustles overhead among the rafters, small and leathery and listening. Odessa wrote that those who fly in the dark always find their way, and she trusted them with her last message.',
-            word: 'BAT',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'You stand at the purple door as the green lamps flicker behind you. The seven children wait in a line, holding hands, and Mr. Finch grips his walking stick. The old wood seems to lean closer, waiting to hear whether anyone still remembers. Say the two words, and say them together.',
-        ending: 'The purple door sighs and swings open. Pumpkin and bat: the light that guides the lost home, and the friend who finds a way in the dark. That was Odessa\'s promise to the lane, and tonight you kept it. All along the street the jack-o\'-lanterns flare back to life, the clocks begin to tick, and the moon slides on toward morning. The children run home laughing, and Mr. Finch sets a fresh bowl of toffee on the step. Nobody will forget again. Happy Halloween, brave friends of Hollow Lane.',
+        finalLock: 'You stand at the purple door as the green lamps flicker behind you. The seven children wait in a line, holding hands, and Mr. Finch grips his walking stick. The old wood seems to lean closer, waiting to hear whether anyone still remembers. Say the word, and say it together.',
+        ending: 'The purple door sighs and swings open. Pumpkin: the glowing face that guides the lost home, one for every family. That was the old promise to the lane, and tonight you kept it. All along the street the jack-o\'-lanterns flare back to life, the clocks begin to tick, and the moon slides on toward morning. The children run home laughing, and Mr. Finch sets a fresh bowl of toffee on the step. Nobody will forget again. Happy Halloween, brave friends of Hollow Lane.',
         certificate: 'For keeping an old promise and lifting the curse of Hollow Lane.',
         teamName: 'The Hollow Lane Lantern Keepers',
         party: {
@@ -103,9 +91,9 @@
           ['What was Mr. Finch\'s job?', ['Lamplighter', 'Baker', 'Postman'], 0],
           ['How many iron spikes does the gate have?', ['Six', 'Nine', 'Twelve'], 1],
           ['What color is the scarecrow\'s coat?', ['Red', 'Brown', 'Yellow'], 2],
-          ['How many stairs lead to the attic?', ['Twenty-two', 'Thirteen', 'Forty'], 0],
-          ['What hangs from the attic beam?', ['A lantern', 'An empty birdcage', 'A rope'], 1],
-          ['What was the old owner\'s name?', ['Agnes', 'Marta', 'Odessa'], 2],
+          ['What was the scroll tied with?', ['Black string', 'Red ribbon', 'A silver chain'], 0],
+          ['How old was Mr. Finch when he planted the first seed?', ['Seven', 'Eleven', 'Fifteen'], 1],
+          ['By what time had all the clocks stopped?', ['Six', 'Midnight', 'Eight'], 2],
           ['In which month does Halloween fall?', ['October', 'September', 'December'], 0, 'trivia'],
           ['What do children traditionally say at the door on Halloween?', ['Happy harvest', 'Trick or treat', 'Knock knock'], 1, 'trivia'],
           ['Which country is usually named as the birthplace of Halloween customs?', ['Spain', 'Greece', 'Ireland'], 2, 'trivia'],
@@ -124,14 +112,8 @@
         title: 'The Race to Skull Cove',
         tagline: 'One map, two crews, and a tide that waits for nobody.',
         prologue: 'Captain Ines Morrow has sailed the Coral Sea for thirty years, and she has never lost a race until now. Last night, her rival Black Tobias stole half of a treasure map from her cabin. The other half remains, drawn on a scrap of red sailcloth, and it points to Skull Cove on Gull Island. The cove can only be entered when the tide is low, which happens at noon tomorrow and not again for a month. Tobias has a faster crew and a six-hour lead. Captain Morrow has a parrot named Admiral, eleven tired sailors and you. She has offered you an equal share if you can read what the old pirates left behind before Tobias gets there first.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that open the vault in Skull Cove. Say them at the iron door before the noon tide turns.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that opens the vault in Skull Cove. Say it at the iron door before the noon tide turns.',
         chapters: [
-          {
-            name: 'The Harbor at First Light',
-            intro: 'The harbor at Port Salt is still dark when you arrive, and the fish market is only starting to open. Eleven sailors load barrels of water onto the deck in silence. Above you, three masts creak against a pink sky. Captain Morrow unrolls the sailcloth on a crate and taps a drawing near the corner. Without the right vessel, she says, nobody reaches the island in time. The old pirates hid their first clue among the things every crew in this harbor would recognize at a glance.',
-            word: 'SHIP',
-            type: 'mosaic'
-          },
           {
             name: 'The Caves of Gull Island',
             intro: 'You reach Gull Island at eleven, with Tobias\'s black sails already on the horizon. The caves smell of salt and old rope, and two hundred gulls scream overhead. Deep inside, your lantern finds an iron door with a brass plate worn smooth by the sea. Admiral squawks and pecks at a little hole beneath the plate. Captain Morrow runs her thumb around it and laughs for the first time in days. Every lock in the world, she says, is waiting for the same small thing.',
@@ -140,8 +122,8 @@
           }
         ],
         puzzleTitles: [],
-        finalLock: 'Water is already creeping back across the cave floor, and voices are echoing behind you. Tobias has landed. The iron door stands silent, its brass plate cold and wet. Captain Morrow draws one long breath and looks at you. Call out the two words the old pirates chose, and call them loud.',
-        ending: 'The iron door groans and swings inward. Ship and key: the old pirates knew that a fortune needs two things, a way to reach it and a way to open it. Inside, gold coins spill from rotted chests, and Admiral shrieks with delight. By the time Black Tobias splashes into the cave, the tide has shut him out and your crew is rowing home with the treasure in the boat. Captain Morrow keeps her word and pays you an equal share, and then she raises a mug in your honor. The Coral Sea will be telling this story for years.',
+        finalLock: 'Water is already creeping back across the cave floor, and voices are echoing behind you. Tobias has landed. The iron door stands silent, its brass plate cold and wet. Captain Morrow draws one long breath and looks at you. Call out the word the old pirates chose, and call it loud.',
+        ending: 'The iron door groans and swings inward. Key: the old pirates knew that every lock is waiting for the same small thing, and that a fortune is no use to anyone who cannot open it. Inside, gold coins spill from rotted chests, and Admiral shrieks with delight. By the time Black Tobias splashes into the cave, the tide has shut him out and your crew is rowing home with the treasure in the boat. Captain Morrow keeps her word and pays you an equal share, and then she raises a mug in your honor. The Coral Sea will be telling this story for years.',
         certificate: 'For beating Black Tobias to Skull Cove and earning an equal share of the gold.',
         teamName: 'Captain Morrow\'s Finest Crew',
         party: {
@@ -156,9 +138,9 @@
           ['What time is the tide low tomorrow?', ['Noon', 'Dawn', 'Midnight'], 0],
           ['What is the parrot called?', ['Captain', 'Admiral', 'Pepper'], 1],
           ['How many sailors does the captain have?', ['Five', 'Twenty', 'Eleven'], 2],
-          ['What is the name of the harbor?', ['Port Salt', 'Port Royal', 'Coral Bay'], 0],
-          ['How many masts creak above you?', ['One', 'Three', 'Five'], 1],
-          ['What are the sailors loading?', ['Sacks of flour', 'Crates of rum', 'Barrels of water'], 2],
+          ['How big a lead does Tobias have?', ['Six hours', 'One day', 'Two hours'], 0],
+          ['On which island is Skull Cove?', ['Parrot Island', 'Gull Island', 'Shark Island'], 1],
+          ['What do the caves smell of?', ['Fish and tar', 'Smoke and rum', 'Salt and old rope'], 2],
           ['How many gulls scream in the caves?', ['Two hundred', 'Fifty', 'A thousand'], 0],
           ['What is the plate on the door made of?', ['Silver', 'Brass', 'Gold'], 1],
           ['What color are the sails of the rival crew?', ['Red', 'White', 'Black'], 2],
@@ -179,29 +161,23 @@
       story: {
         title: 'Signal from Station Vega',
         tagline: 'Four crew, one failing station, and nine hours of air left.',
-        prologue: 'Station Vega has orbited the planet Tarsis for sixteen years without a single alarm. Today, at 06:40, the main computer went silent. Commander Priya Rao and her crew of four were left with a dying power grid, a cracked solar panel on the east wing and just nine hours of air. Their last message reached your small survey ship, the Wren, which happens to be the only vessel in range. Then the computer spoke once more, in a voice nobody had programmed, and locked every door. It says it will only reopen the station for someone who can answer its two questions. Your engineer, a cheerful robot called Tock, has already plotted the course. Now it is up to you.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words the computer is asking for. Say them at the command deck before the air on Station Vega runs out.',
+        prologue: 'Station Vega has orbited the planet Tarsis for sixteen years without a single alarm. Today, at 06:40, the main computer went silent. Commander Priya Rao and her crew of four were left with a dying power grid, a cracked solar panel on the east wing and just nine hours of air. Their last message reached your small survey ship, the Wren, which happens to be the only vessel in range. Then the computer spoke once more, in a voice nobody had programmed, and locked every door. It says it will only reopen the station for someone who can answer its one question. Your engineer, a cheerful robot called Tock, has already plotted the course. Now it is up to you.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word the computer is asking for. Say it at the command deck before the air on Station Vega runs out.',
         chapters: [
           {
             name: 'Docking at the East Wing',
-            intro: 'The Wren drifts toward the docking ring with its lights dimmed to save power. Through the blue glass of the airlock you can see Commander Rao holding up a handwritten sign with the number nine. Tock plugs into the wall and reports that the first question asks how the station\'s founders first left the ground. Old photographs float loose in the corridor, showing a launch tower, a white flame and a crowd of forty thousand watching from the desert. The founders were proud of that morning.',
+            intro: 'The Wren drifts toward the docking ring with its lights dimmed to save power. Through the blue glass of the airlock you can see Commander Rao holding up a handwritten sign with the number nine. Tock plugs into the wall and reports that the question asks how the station\'s founders first left the ground. Old photographs float loose in the corridor, showing a launch tower, a white flame and a crowd of forty thousand watching from the desert. The founders were proud of that morning.',
             word: 'ROCKET',
-            type: 'mosaic'
-          },
-          {
-            name: 'The Dark Side of Tarsis',
-            intro: 'Five hours are gone by the time you reach the observation deck. The station has swung behind Tarsis, and the planet\'s shadow swallows the windows. Only one pale light hangs out there, silver and scarred, circling the planet as faithfully as the station does. Tock finds a plaque beneath the telescope, signed by the first commander, a man named Osei. It says that no explorer ever looks up without first dreaming of the nearest place. The second question, Tock says, is about that dream.',
-            word: 'MOON',
             type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'The command deck hums with the last of the emergency power. Commander Rao\'s voice crackles over the radio, thin and slow, and the air gauge has fallen into the red. A single green light blinks on the console, waiting. Lean toward the microphone and give the computer both answers.',
-        ending: 'The green light holds steady, and then the whole deck wakes at once. Rocket and moon: how we left the ground, and the first place we dreamed of reaching. The computer was built by people who wanted those answers remembered, and now the doors slide open along every corridor. Fresh air hisses through the vents, and Commander Rao and her crew float out to meet you, laughing and crying together. Tock sends the good news home across the dark. Thanks to you, Station Vega will see its seventeenth year. Mission complete, crew of the Wren.',
+        finalLock: 'The command deck hums with the last of the emergency power. Commander Rao\'s voice crackles over the radio, thin and slow, and the air gauge has fallen into the red. A single green light blinks on the console, waiting. Lean toward the microphone and give the computer its answer.',
+        ending: 'The green light holds steady, and then the whole deck wakes at once. Rocket: how the founders first left the ground, on a morning they never forgot. The computer was built by people who wanted those answers remembered, and now the doors slide open along every corridor. Fresh air hisses through the vents, and Commander Rao and her crew float out to meet you, laughing and crying together. Tock sends the good news home across the dark. Thanks to you, Station Vega will see its seventeenth year. Mission complete, crew of the Wren.',
         certificate: 'For answering the computer of Station Vega and bringing its whole crew home.',
         teamName: 'The Crew of the Wren',
         party: {
-          letter: 'This is Commander Priya Rao of Station Vega, calling any vessel in range. At 06:40 our main computer went silent, then woke with a voice we never gave it and locked every door. Four of us are alive. We have a cracked solar panel on the east wing and nine hours of air. The computer will only reopen the station for someone who can answer its two questions, and we cannot reach it from here. If you are hearing this, you are our only chance. Please take your Code Sheet and begin. Rao out.',
+          letter: 'This is Commander Priya Rao of Station Vega, calling any vessel in range. At 06:40 our main computer went silent, then woke with a voice we never gave it and locked every door. Four of us are alive. We have a cracked solar panel on the east wing and nine hours of air. The computer will only reopen the station for someone who can answer its one question, and we cannot reach it from here. If you are hearing this, you are our only chance. Please take your Code Sheet and begin. Rao out.',
           roles: { leader: 'Mission Commander', scribe: 'Flight Recorder', hintKeeper: 'Radio Officer', timekeeper: 'Oxygen Officer', codebreaker: 'Systems Engineer', assembler: 'Docking Specialist' },
           reward: 'Station Vega Medal of Honor'
         },
@@ -216,8 +192,8 @@
           ['How long has the station been in orbit?', ['Six years', 'Sixteen years', 'Thirty years'], 1],
           ['How many people watched the launch?', ['Four hundred', 'A million', 'Forty thousand'], 2],
           ['What color is the glass of the airlock?', ['Blue', 'Green', 'Clear'], 0],
-          ['What was the first commander\'s name?', ['Ivan', 'Osei', 'Rao'], 1],
-          ['Where was the plaque found?', ['On the airlock', 'By the radio', 'Beneath the telescope'], 2],
+          ['How many crew members are with Commander Rao?', ['Two', 'Four', 'Six'], 1],
+          ['What color is the flame in the old photographs?', ['Orange', 'Blue', 'White'], 2],
           ['Which planet is known as the Red Planet?', ['Mars', 'Venus', 'Saturn'], 0, 'trivia'],
           ['What is the name of our galaxy?', ['Andromeda', 'The Milky Way', 'Orion'], 1, 'trivia'],
           ['Which planet has the most famous rings?', ['Mercury', 'Earth', 'Saturn'], 2, 'trivia'],
@@ -236,24 +212,18 @@
         title: 'The Sleeping Kingdom of Elmere',
         tagline: 'A kingdom asleep, one spell unfinished, and only you awake.',
         prologue: 'For three hundred years the kingdom of Elmere has been ruled by wise queens and guarded by a silver oak. Last night, as the bells rang ten, the whole kingdom fell asleep. Farmers slept in their fields, the guards slept at their posts, and Queen Isolde slept on her throne with a half-written note in her hand. Only one person stayed awake: a young apprentice named Wick, who had been up on the north tower feeding the owls. Wick found a spellbook lying open at a torn page, with a warning in green ink that the sleep becomes permanent at the next sunset. Wick has sent an owl for help, and that owl has found you.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that finish the waking spell. Speak them in the throne room before the sun goes down.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that finishes the waking spell. Speak it in the throne room before the sun goes down.',
         chapters: [
           {
             name: 'The Road to the Walls',
             intro: 'You follow the owl along a white road through fields of sleeping farmers. Wick meets you at the moat, holding a lantern and looking very small. Ahead rise five towers and a great gate with a dragon carved above it. The first line of the spell, Wick explains, names the place the magic must protect, and the old queens built everything here around that idea. Inside the walls, even the cats are asleep on the stones, and a baker snores gently beside his oven.',
             word: 'CASTLE',
             type: 'mosaic'
-          },
-          {
-            name: 'The Alchemist\'s Cellar',
-            intro: 'Forty steps down, the air smells of mint and smoke. This is the cellar of Master Bram, the royal alchemist, who sleeps with his head on an open ledger. Shelves of colored glass climb the walls, and each little bottle carries a tag in his tiny handwriting. Wick reads the torn page again and points to a line about what must be drunk to wake a sleeper. Master Bram\'s last note says he had nearly finished the mixture, and that only its name was left to write.',
-            word: 'POTION',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'Late light slants through the tall windows of the throne room and creeps up the steps toward Queen Isolde. Wick grips the spellbook with shaking hands and holds it out to you. The sun is touching the hills now. Read out the two words that finish the spell, clearly and without fear.',
-        ending: 'The words ring through the throne room, and the silver oak outside begins to shine. Castle and potion: the home the magic protects, and the cure that wakes it. Queen Isolde blinks and lifts her head. Far below, bells start to ring, farmers sit up in their fields, and Master Bram wakes with ink on his nose. Wick laughs out loud, and all the owls of the north tower take flight at once. The queen finishes her note that evening, and it names you and Wick as friends of Elmere forever.',
+        finalLock: 'Late light slants through the tall windows of the throne room and creeps up the steps toward Queen Isolde. Wick grips the spellbook with shaking hands and holds it out to you. The sun is touching the hills now. Read out the word that finishes the spell, clearly and without fear.',
+        ending: 'The words ring through the throne room, and the silver oak outside begins to shine. Castle: the home the old magic was made to protect, and the word that wakes it. Queen Isolde blinks and lifts her head. Far below, bells start to ring, farmers sit up in their fields, and the baker wakes with flour on his nose. Wick laughs out loud, and all the owls of the north tower take flight at once. The queen finishes her note that evening, and it names you and Wick as friends of Elmere forever.',
         certificate: 'For finishing the waking spell and rousing the kingdom of Elmere before sunset.',
         teamName: 'The Wakeful Friends of Elmere',
         party: {
@@ -271,9 +241,9 @@
           ['When will the sleep become permanent?', ['At the next sunset', 'In a week', 'At midnight'], 0],
           ['How many towers do you see ahead?', ['Three', 'Five', 'Nine'], 1],
           ['What is carved above the great gate?', ['A lion', 'An eagle', 'A dragon'], 2],
-          ['How many steps lead down to the cellar?', ['Forty', 'Ten', 'Eighty'], 0],
-          ['What is the alchemist\'s name?', ['Wick', 'Master Bram', 'Osei'], 1],
-          ['What does the cellar air smell of?', ['Roses and rain', 'Bread and honey', 'Mint and smoke'], 2],
+          ['What guards the kingdom of Elmere?', ['A silver oak', 'A stone giant', 'A golden eagle'], 0],
+          ['Where does Wick meet you?', ['At the gate', 'At the moat', 'In the tower'], 1],
+          ['Who snores beside his oven?', ['A guard', 'A farmer', 'A baker'], 2],
           ['What is a person who studies old magic and metals called?', ['An alchemist', 'A jester', 'A squire'], 0, 'trivia'],
           ['What is the deep water around a medieval fortress called?', ['A canal', 'A moat', 'A dam'], 1, 'trivia'],
           ['Which of these mythical animals has a single horn?', ['Griffin', 'Phoenix', 'Unicorn'], 2, 'trivia'],
@@ -292,24 +262,18 @@
         title: 'The Lost Note of Larkspur Lane',
         tagline: 'A sweet shop, a secret admirer, and a promise fifty years old.',
         prologue: 'Every February, the Sweet Spoon chocolate shop on Larkspur Lane fills its window with pink boxes and paper doves. This year, at noon on the thirteenth, its owner Delphine found something strange behind the old brass till: half of a love note, written in violet ink and dated fifty years ago. It was signed only with the initial T. Delphine has been a widow for nine years, but she knows that handwriting, and she wants to know how the story ended. The other half is hidden somewhere in the building, and the shop will be sold to a stranger on the fifteenth. Her grandson Milo has offered you free truffles for life if you can find it in time.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that complete the old note. Say them to Delphine before the shop is sold on the fifteenth.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that completes the old note. Say it to Delphine before the shop is sold on the fifteenth.',
         chapters: [
           {
             name: 'The Window Display',
             intro: 'You begin in the front window, among seven tiers of pink boxes and a paper dove on a silver thread. Milo says his grandmother never let anyone change one thing in this corner, not even the faded red ribbon around the third shelf. Tucked beneath the shelf is a postcard from Paris, showing a bridge at sunset. On the back, someone has drawn a small shape and written that it is the only thing worth giving away and the only thing you cannot buy here.',
             word: 'HEART',
             type: 'mosaic'
-          },
-          {
-            name: 'The Garden Behind the Shop',
-            intro: 'A narrow green door leads out to a walled garden, where eleven clay pots stand in the frost. Delphine has not come out here since the winter her husband fell ill. Along the south wall climbs a thorny old bush he planted the week they met, and it still blooms each June. Milo finds a rusty tin buried under the bench, holding a pressed bloom and a photograph of two people laughing. Delphine covers her mouth when she sees it. She knows exactly what he always brought her.',
-            word: 'ROSE',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'Back in the shop, Delphine sits by the till with the torn page in her lap, and Milo holds his breath behind the counter. Outside, the bell above the door gives a tiny ring in the draft. She looks up and waits. Tell her the two words that finish what was written so long ago.',
-        ending: 'Delphine reads the words aloud and begins to cry and laugh at once. Heart and rose: the note ends with a promise to bring both, every year, for as long as they lived. And so he did, for forty-one years, and she had never known where it started. The other half falls from the lining of the till when Milo lifts it, and it matches perfectly. Delphine tears up the offer to sell the shop right there. The Sweet Spoon will stay open, Milo will learn the recipes, and you will never pay for a truffle again. Happy Valentine\'s Day, dear friends.',
+        finalLock: 'Back in the shop, Delphine sits by the till with the torn page in her lap, and Milo holds his breath behind the counter. Outside, the bell above the door gives a tiny ring in the draft. She looks up and waits. Tell her the word that finishes what was written so long ago.',
+        ending: 'Delphine reads the word aloud and begins to cry and laugh at once. Heart: the note ends with a promise to give his, every year, for as long as they lived. And so he did, for forty-one years, and she had never known where it started. The other half falls from the lining of the till when Milo lifts it, and it matches perfectly. Delphine tears up the offer to sell the shop right there. The Sweet Spoon will stay open, Milo will learn the recipes, and you will never pay for a truffle again. Happy Valentine\'s Day, dear friends.',
         certificate: 'For finding a fifty-year-old promise and saving the Sweet Spoon on Larkspur Lane.',
         teamName: 'The Larkspur Lane Sweethearts',
         party: {
@@ -326,9 +290,9 @@
           ['Who is Milo?', ['Her neighbor', 'Her son', 'Her grandson'], 2],
           ['How many tiers of boxes are in the window?', ['Seven', 'Three', 'Twelve'], 0],
           ['Which city is on the postcard?', ['Rome', 'Paris', 'Vienna'], 1],
-          ['How many clay pots stand in the garden?', ['Six', 'Twenty', 'Eleven'], 2],
-          ['What color is the door to the garden?', ['Green', 'Red', 'White'], 0],
-          ['What was in the rusty tin with the pressed bloom?', ['A ring', 'A photograph', 'A key'], 1],
+          ['What does the postcard show?', ['A tower at night', 'A river boat', 'A bridge at sunset'], 2],
+          ['How long has Delphine been a widow?', ['Nine years', 'Two years', 'Twenty years'], 0],
+          ['What color is the ribbon around the third shelf?', ['Gold', 'Faded red', 'Pale blue'], 1],
           ['On what date will the shop be sold?', ['The thirteenth', 'The twentieth', 'The fifteenth'], 2],
           ['On what date is Valentine\'s Day?', ['February 14', 'March 14', 'January 14'], 0, 'trivia'],
           ['Chocolate is made from the seeds of which plant?', ['Coffee', 'Cacao', 'Vanilla'], 1, 'trivia'],
@@ -348,24 +312,18 @@
         title: 'The Great Meadow Morning Hunt',
         tagline: 'Twenty hidden treasures, one muddy meadow, and a rival team on the move.',
         prologue: 'Every spring since 1931, the village of Willowby has held the Great Meadow Morning Hunt. This year the prize is the Golden Basket, a trophy no team from your side of the river has won in twenty-six years. The rules are read at eight by old Mrs. Applegate, who wears a yellow hat and carries a silver whistle. At the sound of the whistle, teams race across the meadow to follow her clues. Your great rivals, the Hillside Hares, have already been spotted with a pair of binoculars and a very suspicious wheelbarrow. The hunt ends at ten sharp, when the church clock strikes. You have two hours, four muddy fields and one chance.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that claim the Golden Basket. Shout them to Mrs. Applegate before the clock strikes ten.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that claims the Golden Basket. Shout it to Mrs. Applegate before the clock strikes ten.',
         chapters: [
           {
             name: 'The Lower Field',
             intro: 'The whistle blows, and you splash through the lower field in your boots. Five straw bales mark the way to a red gate, where a small sign reads Begin With Beginnings. Mrs. Applegate has always said that every spring starts from something small and quiet that holds new life inside. A blue ribbon flutters from the fence post beside a nest of hay. Across the field, the Hillside Hares are pushing their wheelbarrow through the mud, and they are not far behind you.',
             word: 'EGG',
             type: 'mosaic'
-          },
-          {
-            name: 'The Old Warren',
-            intro: 'Beyond the stream, the ground rises to a grassy bank full of holes, which the locals call the Old Warren. Nine white stones lead along the top, and the church clock now says half past nine. A carved wooden post stands here, worn smooth by ninety years of curious hands. Long ago, the village chose a little animal as the mascot of the hunt, because it is quick, clever and always one jump ahead. Something with long ears peeks from the grass, then vanishes.',
-            word: 'BUNNY',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'You burst into the village square with mud to your knees. Mrs. Applegate stands by the fountain with her silver whistle, and the Golden Basket glitters on the table beside her. Behind you, a wheelbarrow rattles closer. High above, the great clock begins to whir. Shout the two words now!',
-        ending: 'Mrs. Applegate raises her hand and the whole square falls silent. Egg and bunny: the beginning of spring, and the clever one who is always a jump ahead. It is correct! The clock strikes ten as she places the Golden Basket in your arms, and the crowd roars. The Hillside Hares arrive a moment later, wheelbarrow and all, and they are good enough to clap. For the first time in twenty-six years, the trophy is crossing the river. There will be hot cross buns for everyone. Happy Easter, champions of Willowby.',
+        finalLock: 'You burst into the village square with mud to your knees. Mrs. Applegate stands by the fountain with her silver whistle, and the Golden Basket glitters on the table beside her. Behind you, a wheelbarrow rattles closer. High above, the great clock begins to whir. Shout the word now!',
+        ending: 'Mrs. Applegate raises her hand and the whole square falls silent. Egg: the small, quiet beginning of every spring. It is correct! The clock strikes ten as she places the Golden Basket in your arms, and the crowd roars. The Hillside Hares arrive a moment later, wheelbarrow and all, and they are good enough to clap. For the first time in twenty-six years, the trophy is crossing the river. There will be hot cross buns for everyone. Happy Easter, champions of Willowby.',
         certificate: 'For winning the Golden Basket at the Great Meadow Morning Hunt in Willowby.',
         teamName: 'The Riverside Runners',
         party: {
@@ -384,8 +342,8 @@
           ['What time does the hunt end?', ['Nine', 'Ten', 'Noon'], 1],
           ['How many straw bales mark the way?', ['Two', 'Eight', 'Five'], 2],
           ['What color is the gate in the lower field?', ['Red', 'White', 'Black'], 0],
-          ['How many white stones lead along the bank?', ['Three', 'Nine', 'Fifteen'], 1],
-          ['What is the grassy bank called?', ['The Long Hill', 'The Green Mound', 'The Old Warren'], 2],
+          ['What flutters from the fence post?', ['A yellow flag', 'A blue ribbon', 'A paper kite'], 1],
+          ['At what time are the rules read?', ['Nine', 'Seven', 'Eight'], 2],
           ['In which season is Easter in Europe?', ['Spring', 'Summer', 'Winter'], 0, 'trivia'],
           ['What spiced treats are traditionally eaten around this holiday?', ['Pumpkin pies', 'Hot cross buns', 'Candy canes'], 1, 'trivia'],
           ['Which yellow spring flower is often linked with Easter?', ['Sunflower', 'Poppy', 'Daffodil'], 2, 'trivia'],
@@ -403,29 +361,23 @@
       story: {
         title: 'Rescue at Coral Deep Station',
         tagline: 'A damaged lab on the seabed, and six hours of battery left.',
-        prologue: 'Coral Deep is a small research station resting on the seabed, ninety meters below the surface of the Azure Gulf. At 05:10 this morning, an underwater landslide cracked its main power line. Dr. Amara Quinn and two students are trapped inside with six hours of battery left. The rescue submarine Nautilia has come to help, but the station\'s heavy doors have locked themselves, and they will open only to two passwords chosen by its founder, a marine biologist named Tobin Reyes. He loved the animals of this gulf more than anything else, and his clues are scattered through the outer pods. You are the crew of the Nautilia, and your orange lights are the first thing Dr. Quinn has seen in hours.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two passwords that open the station. Say them at the main door before the battery runs out.',
+        prologue: 'Coral Deep is a small research station resting on the seabed, ninety meters below the surface of the Azure Gulf. At 05:10 this morning, an underwater landslide cracked its main power line. Dr. Amara Quinn and two students are trapped inside with six hours of battery left. The rescue submarine Nautilia has come to help, but the station\'s heavy doors have locked themselves, and they will open only to a password chosen by its founder, a marine biologist named Tobin Reyes. He loved the animals of this gulf more than anything else, and his clues are scattered through the outer pods. You are the crew of the Nautilia, and your orange lights are the first thing Dr. Quinn has seen in hours.',
+        mission: 'Solve the puzzles, put together what they reveal and find the password that opens the station. Say it at the main door before the battery runs out.',
         chapters: [
           {
             name: 'The Outer Pod',
             intro: 'You dock at the outer pod, where twelve glass tanks glow faintly in the dark. Tobin Reyes kept his field notes here, in a green notebook on a steel desk. He wrote about one old friend who returned to this reef every year for three decades, swimming thousands of kilometers to lay its eggs on the same beach. It carries its home on its back, he wrote, and it never hurries. A photograph on the wall shows him diving beside it, smiling through his mask.',
             word: 'TURTLE',
             type: 'mosaic'
-          },
-          {
-            name: 'The Listening Room',
-            intro: 'Three hours are gone when you reach the listening room, a round chamber lined with speakers and four blue screens. Reyes recorded the sounds of the gulf here for years. Tock, click, whistle: a pod of clever swimmers once led his lost boat back to harbor through a storm, and he named his station after that night. The last recording on the machine is labeled Friends Who Came Back. As it plays, Dr. Quinn taps three times on the wall beyond you, weakly.',
-            word: 'DOLPHIN',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'The main door is a wheel of cold steel, and water drips steadily from the ceiling above it. The battery gauge has fallen to a thin red line. On the far side, Dr. Quinn presses her palm to the small window. Speak the two passwords into the grille, clearly and calmly.',
-        ending: 'The wheel spins by itself and the great door groans open. Turtle and dolphin: the friend who always returns, and the friends who brought Tobin Reyes home. He made them the passwords so that nobody could ever enter Coral Deep without remembering why it was built. Dr. Quinn and her two students stumble out, pale and shaking and laughing with relief. Minutes later the Nautilia is rising through green water toward the sun. Outside the window, a shape glides past as if to see you off. Well done, crew. Everyone is coming home.',
+        finalLock: 'The main door is a wheel of cold steel, and water drips steadily from the ceiling above it. The battery gauge has fallen to a thin red line. On the far side, Dr. Quinn presses her palm to the small window. Speak the password into the grille, clearly and calmly.',
+        ending: 'The wheel spins by itself and the great door groans open. Turtle: the old friend who returned to this reef every year. Tobin Reyes made it the password so that nobody could ever enter Coral Deep without remembering why it was built. Dr. Quinn and her two students stumble out, pale and shaking and laughing with relief. Minutes later the Nautilia is rising through green water toward the sun. Outside the window, a shape glides past as if to see you off. Well done, crew. Everyone is coming home.',
         certificate: 'For opening the doors of Coral Deep and bringing its whole crew back to the surface.',
         teamName: 'The Crew of the Nautilia',
         party: {
-          letter: 'This is Dr. Amara Quinn of Coral Deep Station, ninety meters down in the Azure Gulf. At 05:10 a landslide cracked our main power line. Two students are with me and we have six hours of battery left. Our doors have locked, and they will open only to two passwords chosen by our founder, Tobin Reyes. His clues are in the outer pods, which we cannot reach. If you can hear this, you are the only ship in range. Please, take up your Code Sheet and begin. We are counting on you. Dr. Quinn',
+          letter: 'This is Dr. Amara Quinn of Coral Deep Station, ninety meters down in the Azure Gulf. At 05:10 a landslide cracked our main power line. Two students are with me and we have six hours of battery left. Our doors have locked, and they will open only to a password chosen by our founder, Tobin Reyes. His clues are in the outer pods, which we cannot reach. If you can hear this, you are the only ship in range. Please, take up your Code Sheet and begin. We are counting on you. Dr. Quinn',
           roles: { leader: 'Submarine Captain', scribe: 'Log Keeper', hintKeeper: 'Radio Officer', timekeeper: 'Battery Watcher', codebreaker: 'Marine Biologist', assembler: 'Hull Engineer' },
           reward: 'Coral Deep Medal of Courage'
         },
@@ -440,8 +392,8 @@
           ['How many glass tanks are in the outer pod?', ['Six', 'Twelve', 'Twenty'], 1],
           ['What color is the notebook?', ['Red', 'Black', 'Green'], 2],
           ['What body of water is the station in?', ['The Azure Gulf', 'The Coral Sea', 'The Blue Bay'], 0],
-          ['How many blue screens are in the listening room?', ['Two', 'Four', 'Eight'], 1],
-          ['How many times does Dr. Quinn tap on the wall?', ['Once', 'Seven times', 'Three times'], 2],
+          ['What is the desk in the outer pod made of?', ['Wood', 'Steel', 'Glass'], 1],
+          ['What cracked the station\'s main power line?', ['A storm', 'A shark', 'An underwater landslide'], 2],
           ['What is the largest animal on Earth?', ['Blue whale', 'Elephant', 'Giant squid'], 0, 'trivia'],
           ['How many arms does an octopus have?', ['Six', 'Eight', 'Ten'], 1, 'trivia'],
           ['Which ocean is the largest?', ['Atlantic', 'Arctic', 'Pacific'], 2, 'trivia'],
@@ -459,29 +411,23 @@
       story: {
         title: 'The Valley That Time Forgot',
         tagline: 'One lost expedition, one hidden valley, and footprints far too large.',
-        prologue: 'In 1924, the explorer Beatrix Holloway walked into the Mossgate Valley with five porters and a mule named Biscuit. She never walked out. A century later, your team has found her trunk at the mouth of the valley, along with a leather journal and a brass compass that still points north. The journal describes warm springs, giant ferns and footprints as long as a canoe. Its last page says she sealed her greatest discovery in a stone vault, and that only two words can open it. A storm is due in two days, and the river will flood the only way out. Your guide, a cheerful climber called Sefu, has already started up the trail.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two words that open Beatrix Holloway\'s vault. Say them at the stone door before the flood seals the valley.',
+        prologue: 'In 1924, the explorer Beatrix Holloway walked into the Mossgate Valley with five porters and a mule named Biscuit. She never walked out. A century later, your team has found her trunk at the mouth of the valley, along with a leather journal and a brass compass that still points north. The journal describes warm springs, giant ferns and footprints as long as a canoe. Its last page says she sealed her greatest discovery in a stone vault, and that only one word can open it. A storm is due in two days, and the river will flood the only way out. Your guide, a cheerful climber called Sefu, has already started up the trail.',
+        mission: 'Solve the puzzles, put together what they reveal and find the one word that opens Beatrix Holloway\'s vault. Say it at the stone door before the flood seals the valley.',
         chapters: [
           {
             name: 'The Plated Giant',
             intro: 'The trail climbs through ferns taller than a house. At the first camp, you find three rusted tent pegs and a page pinned to a tree with a thorn. Holloway has sketched a huge plant-eater with a tiny head and a double row of plates along its back. She watched a whole herd of them cross the warm springs at dawn, she wrote, moving as slowly as ships. Sefu points to a line of hollows in the mud, each one wide enough to stand in.',
             word: 'STEGOSAURUS',
             type: 'mosaic'
-          },
-          {
-            name: 'The Digging Ground',
-            intro: 'By the second day, black clouds fill the sky and the river has begun to rise. The path ends at a cliff of red rock, where Holloway spent four summers with a small hammer and a soft brush. Her notebook lists forty-one finds. Rows of long, pale shapes still stick out of the stone, far too large to be from anything alive today. Everything an animal leaves behind, she wrote, can tell its whole story. In the cliff beyond them stands a door of cut stone.',
-            word: 'BONE',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'Rain hammers on the red cliff, and the roar of the river grows louder behind you. Sefu holds up the lantern, and the carved door gleams wet in its light. There is no handle and no keyhole, only a brass grille at the height of your mouth. Speak the two words.',
-        ending: 'Stone grinds on stone and the door swings inward. Stegosaurus and bone: the living giant she saw, and what it left behind. Inside the vault lies an egg the size of a pumpkin, turned to rock, and a final note from Beatrix Holloway. She had stayed because she was happy here, she wrote, and she asks only that you take her story home. Sefu leads you along the high ledge just as the river bursts over the trail. A week later, every newspaper in the world carries her name. Well done, explorers.',
+        finalLock: 'Rain hammers on the red cliff, and the roar of the river grows louder behind you. Sefu holds up the lantern, and the carved door gleams wet in its light. There is no handle and no keyhole, only a brass grille at the height of your mouth. Speak the word.',
+        ending: 'Stone grinds on stone and the door swings inward. Stegosaurus: the living giant she watched cross the warm springs at dawn. Inside the vault lies an egg the size of a pumpkin, turned to rock, and a final note from Beatrix Holloway. She had stayed because she was happy here, she wrote, and she asks only that you take her story home. Sefu leads you along the high ledge just as the river bursts over the trail. A week later, every newspaper in the world carries her name. Well done, explorers.',
         certificate: 'For finding the vault of Beatrix Holloway and bringing her discovery back to the world.',
         teamName: 'The Mossgate Valley Expedition',
         party: {
-          letter: 'To whoever finds this trunk: my name is Beatrix Holloway, and I came to the Mossgate Valley in 1924 with five porters and a mule named Biscuit. What I found here changed my life. I have sealed my greatest discovery in a stone vault, and only two words will open it. My clues are scattered along the trail, among the giant ferns and warm springs. Beware the river, for it floods without warning. If you are brave enough to follow me, take up your Code Sheet and begin. Yours in discovery, Beatrix Holloway',
+          letter: 'To whoever finds this trunk: my name is Beatrix Holloway, and I came to the Mossgate Valley in 1924 with five porters and a mule named Biscuit. What I found here changed my life. I have sealed my greatest discovery in a stone vault, and only one word will open it. My clues are scattered along the trail, among the giant ferns and warm springs. Beware the river, for it floods without warning. If you are brave enough to follow me, take up your Code Sheet and begin. Yours in discovery, Beatrix Holloway',
           roles: { leader: 'Expedition Leader', scribe: 'Journal Keeper', hintKeeper: 'Friend of Sefu', timekeeper: 'River Watcher', codebreaker: 'Fossil Hunter', assembler: 'Bone Fitter' },
           reward: 'Holloway Medal of Exploration'
         },
@@ -495,9 +441,9 @@
           ['How soon is the storm due?', ['In two days', 'In a week', 'Tonight'], 0],
           ['How long were the footprints said to be?', ['As long as a spoon', 'As long as a canoe', 'As long as a house'], 1],
           ['How many tent pegs are at the first camp?', ['One', 'Nine', 'Three'], 2],
-          ['What color is the cliff?', ['Red', 'White', 'Black'], 0],
-          ['How many summers did she spend at the cliff?', ['Two', 'Four', 'Twelve'], 1],
-          ['How many finds does her notebook list?', ['Seven', 'Ninety', 'Forty-one'], 2],
+          ['Where was Holloway\'s trunk found?', ['At the mouth of the valley', 'In a cave', 'On a riverboat'], 0],
+          ['What held the page to the tree?', ['A nail', 'A thorn', 'A ribbon'], 1],
+          ['What is the journal made of?', ['Paper and wood', 'Silk', 'Leather'], 2],
           ['What is a scientist who studies ancient life called?', ['A paleontologist', 'A geologist', 'An astronomer'], 0, 'trivia'],
           ['What do we call the preserved remains of ancient animals?', ['Crystals', 'Fossils', 'Minerals'], 1, 'trivia'],
           ['Which dinosaur was famous for its short arms and huge teeth?', ['Triceratops', 'Diplodocus', 'Tyrannosaurus'], 2, 'trivia'],
@@ -515,29 +461,23 @@
       story: {
         title: 'The Tomb of the Sleeping Queen',
         tagline: 'A sealed tomb, a broken promise, and a desert wind that will not stop.',
-        prologue: 'Three thousand years ago, Queen Nefrura ruled the river city of Akhet, and she was laid to rest in the sands west of the Nile. Last Tuesday, the archaeologist Dr. Layla Hassan opened the outer door of her tomb. By nightfall, a hot wind had risen across the valley, and it has not stopped since. Wells are filling with sand, the camels refuse to walk, and the seven workers have all gone home. An inscription on the door warns that the queen must be greeted with two sacred words, or the wind will bury the valley. Dr. Hassan is out of water and out of time. She has only her old assistant Karim, a lantern, and you.',
-        mission: 'Solve the puzzles, put together what they reveal and find the two sacred words of Queen Nefrura. Speak them in the burial chamber before the wind buries the valley.',
+        prologue: 'Three thousand years ago, Queen Nefrura ruled the river city of Akhet, and she was laid to rest in the sands west of the Nile. Last Tuesday, the archaeologist Dr. Layla Hassan opened the outer door of her tomb. By nightfall, a hot wind had risen across the valley, and it has not stopped since. Wells are filling with sand, the camels refuse to walk, and the seven workers have all gone home. An inscription on the door warns that the queen must be greeted with a sacred word, or the wind will bury the valley. Dr. Hassan is out of water and out of time. She has only her old assistant Karim, a lantern, and you.',
+        mission: 'Solve the puzzles, put together what they reveal and find the sacred word of Queen Nefrura. Speak it in the burial chamber before the wind buries the valley.',
         chapters: [
           {
             name: 'The Road to the Tomb',
             intro: 'You walk the last two kilometers with scarves across your faces. Karim leads the way, carrying a jar of water and a coil of blue rope. Far across the sand rises the shape the workers call the Mountain of Kings, its four smooth sides pointing to the sky. Nefrura ordered a small copy of it built above her own tomb, so that she would not be forgotten. Its stones are carved with stars, and on the east face you find the first line of her message.',
             word: 'PYRAMID',
             type: 'mosaic'
-          },
-          {
-            name: 'The Hall of Offerings',
-            intro: 'Inside, the air is suddenly cold. Forty-two steps lead down to a hall painted gold and green, where clay jars still stand in rows. In every painting, the queen holds the same small object to the lips of her people, a looped cross that the old priests believed could give the breath of life. Dr. Hassan traces one with her finger, in a hand that shakes. The wind moans in the stairwell behind you, and sand begins to pour down the steps like water.',
-            word: 'ANKH',
-            type: 'mosaic'
           }
         ],
         puzzleTitles: [],
-        finalLock: 'The burial chamber is small and very still. The painted face of Queen Nefrura looks up from her golden coffin, calm and patient. Behind you, the sand hisses down the steps, and Karim\'s lantern gutters. Dr. Hassan nods to you. Say the two words to the queen, and say them with respect.',
-        ending: 'For a moment there is no sound at all. Then, high above, the wind drops. Pyramid and ankh: the monument that remembers, and the sign of life. Nefrura asked only that those who woke her should remember her name and honor life, and today you have done both. When you climb back into the sun, the air is clear and the sand lies still. Karim laughs and pours out the last of the water, and far away a camel bellows. Dr. Hassan closes the door gently behind her. The valley is safe, and the queen sleeps on.',
+        finalLock: 'The burial chamber is small and very still. The painted face of Queen Nefrura looks up from her golden coffin, calm and patient. Behind you, the sand hisses down the steps, and Karim\'s lantern gutters. Dr. Hassan nods to you. Say the word to the queen, and say it with respect.',
+        ending: 'For a moment there is no sound at all. Then, high above, the wind drops. Pyramid: the monument that remembers. Nefrura asked only that those who woke her should remember her name, and today you have. When you climb back into the sun, the air is clear and the sand lies still. Karim laughs and pours out the last of the water, and far away a camel bellows. Dr. Hassan closes the door gently behind her. The valley is safe, and the queen sleeps on.',
         certificate: 'For greeting Queen Nefrura with the sacred words and saving the valley of Akhet.',
         teamName: 'The Friends of Queen Nefrura',
         party: {
-          letter: 'To anyone who can still reach the valley: my name is Dr. Layla Hassan. Last Tuesday we opened the outer door of the tomb of Queen Nefrura, and by nightfall a hot wind had risen that will not stop. The wells are filling with sand and my seven workers have gone home. The inscription says the queen must be greeted with two sacred words, or the wind will bury us all. Only Karim remains with me. I beg you to come quickly. Take up your Code Sheet and begin. Dr. Hassan',
+          letter: 'To anyone who can still reach the valley: my name is Dr. Layla Hassan. Last Tuesday we opened the outer door of the tomb of Queen Nefrura, and by nightfall a hot wind had risen that will not stop. The wells are filling with sand and my seven workers have gone home. The inscription says the queen must be greeted with a sacred word, or the wind will bury us all. Only Karim remains with me. I beg you to come quickly. Take up your Code Sheet and begin. Dr. Hassan',
           roles: { leader: 'High Priest', scribe: 'Royal Scribe', hintKeeper: 'Friend of Karim', timekeeper: 'Watcher of the Sand', codebreaker: 'Tomb Scholar', assembler: 'Stone Mason' },
           reward: 'Golden Seal of Queen Nefrura'
         },
@@ -551,9 +491,9 @@
           ['How long ago did the queen rule?', ['Three thousand years', 'Five hundred years', 'Ten thousand years'], 0],
           ['What color is Karim\'s rope?', ['Red', 'Blue', 'White'], 1],
           ['What are carved on the stones?', ['Birds', 'Snakes', 'Stars'], 2],
-          ['How many steps lead down to the hall?', ['Forty-two', 'Twelve', 'Ninety'], 0],
-          ['What colors is the hall painted?', ['Red and black', 'Gold and green', 'Blue and white'], 1],
-          ['What stands in rows in the hall?', ['Statues', 'Chairs', 'Clay jars'], 2],
+          ['How far do you walk across the sand?', ['Two kilometers', 'Ten kilometers', 'Half a kilometer'], 0],
+          ['On which face of the stones is her message?', ['The north face', 'The east face', 'The west face'], 1],
+          ['What are the wells filling with?', ['Mud', 'Salt', 'Sand'], 2],
           ['Which great river flows through Egypt?', ['The Nile', 'The Amazon', 'The Rhine'], 0, 'trivia'],
           ['What was a ruler of ancient Egypt usually called?', ['An emperor', 'A pharaoh', 'A sultan'], 1, 'trivia'],
           ['What did ancient Egyptians write on, made from a river plant?', ['Silk', 'Slate', 'Papyrus'], 2, 'trivia'],
