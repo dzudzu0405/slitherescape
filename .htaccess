@@ -3,9 +3,13 @@
 Options -Indexes
 DirectoryIndex index.php
 
-# Never serve internals: config, includes, data (sessions, local DB), dev tools, and PRO files
-# (pro.php hands those out after checking the account's plan).
-RedirectMatch 404 ^.*/(inc|data|tools|pro)(/.*)?$
+# Never serve internals: config, includes, data (sessions, local DB), dev tools, and PRO and
+# Marketing Studio and Bulk Creator files (pro.php, marketing.php and bulk.php hand those out after checking the account's plan).
+RedirectMatch 404 ^.*/(inc|data|tools|pro|marketing|bulk)(/.*)?$
+
+# pdf.js is an ES module: browsers refuse it unless .mjs is served as JavaScript.
+AddType text/javascript .mjs
+AddType font/woff2 .woff2
 <Files "config.php">
     Require all denied
 </Files>

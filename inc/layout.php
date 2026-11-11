@@ -40,6 +40,7 @@ function page_head(string $title, string $bodyClass = '', array $opts = []): voi
   <?php if (!empty($opts['center'])): ?><div class="topbar-center"><?= $opts['center'] ?></div><?php endif; ?>
   <nav class="topnav">
     <a href="dashboard.php" class="<?= ($opts['nav'] ?? '') === 'projects' ? 'active' : '' ?>">Projects</a>
+    <?php if ($user): ?><a href="marketing.php" class="<?= ($opts['nav'] ?? '') === 'marketing' ? 'active' : '' ?>">Marketing<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock" title="Not on your plan yet">&#128274;</span>' ?></a><?php endif; ?>
     <a href="account.php" class="<?= ($opts['nav'] ?? '') === 'account' ? 'active' : '' ?>">Account</a>
     <?php if ($user && !empty($user['is_admin'])): ?><a href="admin.php" class="<?= ($opts['nav'] ?? '') === 'admin' ? 'active' : '' ?>">Admin</a><?php endif; ?>
     <?php if ($user): ?>
@@ -60,7 +61,7 @@ function asset_version(): string
         // Newest change across all scripts and styles, so any updated file busts the cache.
         $root = __DIR__ . '/../assets/';
         $pro = __DIR__ . '/../pro/';
-        $files = array_merge(glob($root . 'js/*.js') ?: [], glob($root . 'js/*/*.js') ?: [], glob($root . 'css/*.css') ?: [], glob($pro . '*/*.js') ?: []);
+        $files = array_merge(glob($root . 'js/*.js') ?: [], glob($root . 'js/*/*.js') ?: [], glob($root . 'css/*.css') ?: [], glob($pro . '*/*.js') ?: [], glob(__DIR__ . '/../marketing/*.js') ?: [], glob(__DIR__ . '/../bulk/*.js') ?: []);
         $v = (string)max(array_map('filemtime', $files) ?: [0]);
     }
     return $v;

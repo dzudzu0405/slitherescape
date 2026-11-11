@@ -7,8 +7,12 @@ require_once __DIR__ . '/layout.php';
 const CONFIG_FILE = __DIR__ . '/../config.php';
 const DATA_DIR = __DIR__ . '/../data';
 // Bump when schema_sql() gains tables, so existing installs pick them up on the next visit.
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const PLANS = ['pro' => 'SlitherEscape PRO', 'bulk' => 'Bulk Creator', 'marketing' => 'Marketing Studio'];
+// Purchase links: the FE link gives an account, each OTO link adds its plan.
+const ACCESS_PLANS = ['fe' => 'Slitherlink Escape Game Builder (FE)'] + PLANS;
+
+require_once __DIR__ . '/access.php';
 
 function is_installed(): bool
 {
@@ -117,6 +121,9 @@ function schema_sql(string $driver): array
                 source TEXT NOT NULL DEFAULT \'manual\',
                 created_at TEXT NOT NULL,
                 PRIMARY KEY (user_id, plan))',
+            'CREATE TABLE IF NOT EXISTS settings (
+                name TEXT NOT NULL PRIMARY KEY,
+                value TEXT NOT NULL)',
             'CREATE TABLE IF NOT EXISTS library_images (
                 name TEXT NOT NULL PRIMARY KEY,
                 theme TEXT NOT NULL,
@@ -169,6 +176,10 @@ function schema_sql(string $driver): array
             created_at DATETIME NOT NULL,
             PRIMARY KEY (user_id, plan),
             CONSTRAINT entitlements_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS settings (
+            name VARCHAR(60) NOT NULL PRIMARY KEY,
+            value TEXT NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
         'CREATE TABLE IF NOT EXISTS library_images (
             name VARCHAR(20) NOT NULL PRIMARY KEY,

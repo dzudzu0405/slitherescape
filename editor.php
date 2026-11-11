@@ -16,6 +16,7 @@ if (isset($_GET['id'])) {
 }
 $title = $project['title'] ?? 'New game';
 $pro = has_plan($user, 'pro');
+$bulk = has_plan($user, 'bulk');
 $boot = [
     'id' => $project ? (int)$project['id'] : 0,
     'title' => $title,
@@ -32,7 +33,8 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_
 window.ACCOUNT_DEFAULTS = <?= json_encode($defaults, $jsonFlags) ?>;
 window.PROJECT = <?= json_encode($boot, $jsonFlags) ?>;
 window.ASSET_VERSION = <?= json_encode(asset_version()) ?>;
-window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config()['upgrade_url'] ?? '')], $jsonFlags) ?>;
+window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => upgrade_url('pro')], $jsonFlags) ?>;
+window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
 </script>
 <main class="workspace">
 
@@ -225,6 +227,7 @@ window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config
             <button class="btn ghost sm" id="btn-regen">New puzzles</button>
             <button class="btn ghost sm" id="btn-restart">Start over</button>
           </div>
+          <a class="btn ghost sm" id="btn-listing" style="margin-top:10px" href="marketing.php<?= $project ? '?project=' . (int)$project['id'] : '' ?>">Make listing images &amp; video<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></a>
           <details class="verifier">
             <summary id="verifier-summary"></summary>
             <ul class="checklist" id="checklist"></ul>
@@ -238,6 +241,23 @@ window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config
           <button class="btn primary" id="edit-done">Done</button>
         </div>
         <div class="story-form" id="story-form"></div>
+      </div>
+
+      <div class="card card-pad section" id="bulk-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Variants <span class="badge warn">Bulk Creator</span><?= $bulk ? "" : " <span class=\"nav-lock\">&#128274;</span>" ?></h2>
+            <p>Sell this story as several products: other difficulties, paper sizes and print styles, each with its own puzzles and answer key, in one ZIP.</p>
+          </div>
+        </div>
+        <?php if ($bulk): ?>
+        <div id="bulk-variants"><p class="small muted">Loading…</p></div>
+        <?php else: ?>
+        <div class="mk-actions">
+          <?php if (upgrade_url("bulk") !== ""): ?><a class="btn primary" href="<?= h(upgrade_url("bulk")) ?>" target="_blank" rel="noopener">Upgrade to Bulk Creator</a><?php endif; ?>
+          <span class="small muted">Already bought it? Open the access link from your purchase receipt while signed in.</span>
+        </div>
+        <?php endif; ?>
       </div>
 
       <div class="section">
@@ -258,12 +278,19 @@ window.PRO = <?= json_encode(['enabled' => $pro, 'upgradeUrl' => (string)(config
 
 <div class="toast" id="toast"></div>
 <?php
-$scripts = ['assets/vendor/jspdf.umd.min.js', 'assets/js/pdf/paper.js', 'assets/js/pdf/pdf.js', 'assets/js/ui.js', 'assets/js/themes.js', 'assets/js/story.js', 'assets/js/templates.js'];
+$scripts = ['assets/vendor/jspdf.umd.min.js', 'assets/js/pdf/paper.js', 'assets/js/pdf/pdf.js', 'assets/js/ui.js', 'assets/js/themes.js', 'assets/js/story.js', 'assets/js/templates.js', 'assets/js/handoff.js'];
 foreach ($scripts as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
 if ($pro) {
     // Engine helpers the Mosaic planner needs on this page, then the gated PRO files.
     foreach (['assets/js/engine/glyphs.js', 'assets/js/engine/slither.js', 'assets/js/engine/generator.js'] as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
     foreach (['mosaic', 'pdf-mosaic', 'pdf-party', 'packs', 'library'] as $f) echo '<script src="pro.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
+}
+if ($bulk) {
+    // Bulk Creator: ZIP library, then the gated variants panel (it waits for the editor to load).
+    echo '<script src="assets/vendor/jszip.min.js?v=' . h(asset_version()) . '"></script>' . "
+";
+    echo '<script src="bulk.php?f=variants&amp;v=' . h(asset_version()) . '"></script>' . "
+";
 }
 page_foot(['assets/js/editor.js']);
 ?>

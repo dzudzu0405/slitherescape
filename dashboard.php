@@ -29,6 +29,7 @@ page_head('Projects', '', ['user' => $user, 'nav' => 'projects']);
     </div>
     <div class="toolbar">
       <?php if ($projects): ?><input type="text" id="search" placeholder="Search by title or code…"><?php endif; ?>
+      <a class="btn ghost" href="bundle.php">Make a bundle<?= has_plan($user, 'bulk') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></a>
       <a class="btn primary" href="editor.php">+ New game</a>
     </div>
   </div>

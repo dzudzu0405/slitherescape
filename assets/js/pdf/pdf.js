@@ -205,7 +205,9 @@
     const y = frame.y + frame.h - 14;
     this.font('Fell', 8.5, C.brown, 'italic');
     this.text(`© ${this.g.shop || 'Your Shop Name'} · For personal & classroom use`, frame.x + 26, y);
-    this.text(`${this.g.story.title} · ${this.pageNo}`, frame.x + frame.w - 26, y, { align: 'right' });
+    // Bulk variants print their code on every page so a host never mixes up answer keys.
+    const code = this.g.variantCode ? ` · ${this.g.variantCode}` : '';
+    this.text(`${this.g.story.title}${code} · ${this.pageNo}`, frame.x + frame.w - 26, y, { align: 'right' });
   };
 
   // ------------------------------------------------------------------ ornaments
@@ -709,6 +711,10 @@
     const cx = this.geo.W / 2;
     this.font('Fell', 30, C.ink);
     this.text('Answer Key', cx, box.y + 24, { align: 'center' });
+    if (g.variantCode) {
+      this.font('FellSC', 11, C.red);
+      this.text(`For variant ${g.variantCode} only`, box.x + box.w, box.y + 6, { align: 'right' });
+    }
     this.divider(cx, box.y + 40, 160);
     this.font('FellSC', 14, C.brown);
     this.text('The secret code', cx, box.y + 72, { align: 'center' });
@@ -789,6 +795,19 @@
     this.text('Escaped', sx, sy + 22, { align: 'center' });
     this.font('Fell', 10, C.brown, 'italic');
     this.text(`© ${g.shop || 'Your Shop Name'}`, box.x, box.y + box.h + 6);
+    // Bundle games: the certificate hands over this game's letter of the bundle's Master Code.
+    if (g.bundleLetter) {
+      // Top-left corner: clear of the centred title and of the fields along the bottom.
+      const lx = box.x + 14, ly = box.y + 14;
+      doc.setDrawColor(...C.red); doc.setLineWidth(1.2);
+      doc.rect(lx, ly, 30, 34);
+      this.font('Digits', 20, C.red);
+      this.text(g.bundleLetter, lx + 15, ly + 25, { align: 'center' });
+      this.font('FellSC', 10.5, C.red);
+      this.text('Master Code', lx + 38, ly + 14);
+      this.font('Fell', 9.5, C.brown, 'italic');
+      this.text(`letter ${g.bundleIndex} of ${g.bundleTotal}`, lx + 38, ly + 28);
+    }
   };
 
   // ------------------------------------------------------------------ build

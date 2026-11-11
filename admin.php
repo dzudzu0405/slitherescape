@@ -1,5 +1,5 @@
 <?php
-// Owner page: create accounts and grant plans by hand (until WarriorPlus is connected).
+// Owner page: purchase links, Google sign-in settings, and accounts with their plans.
 declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 
@@ -36,6 +36,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('Plan updated.');
         }
         redirect('admin.php');
+    } elseif ($action === 'regen') {
+        $plan = (string)($_POST['plan'] ?? '');
+        if (isset(ACCESS_PLANS[$plan])) {
+            new_access_key($plan);
+            flash('New link made for ' . ACCESS_PLANS[$plan] . '. The old link no longer works; update it in WarriorPlus.');
+        }
+        redirect('admin.php');
+    } elseif ($action === 'sales') {
+        foreach (PLANS as $plan => $label) {
+            $url = trim((string)($_POST['sales'][$plan] ?? ''));
+            if ($url !== '' && !preg_match('~^https?://~i', $url)) { $errors[] = "The sales page for $label must start with https://"; continue; }
+            set_setting('upgrade_url_' . $plan, $url);
+        }
+        if (!$errors) { flash('Sales pages saved.'); redirect('admin.php'); }
+    } elseif ($action === 'google') {
+        $id = trim((string)($_POST['client_id'] ?? ''));
+        $secret = trim((string)($_POST['client_secret'] ?? ''));
+        set_setting('google_client_id', $id);
+        // A blank secret keeps the saved one, so it never has to be shown on the page.
+        if ($secret !== '' || $id === '') set_setting('google_client_secret', $secret);
+        flash($id === '' ? 'Google sign-in turned off.' : 'Google sign-in saved.');
+        redirect('admin.php');
     }
 }
 
@@ -50,6 +72,49 @@ page_head('Admin', '', ['user' => $user, 'nav' => 'admin']);
   <div class="page-head"><div><h1>Accounts</h1><p>Create accounts and grant plans by hand. <a href="admin-library.php">Review the image library</a></p></div></div>
   <?php if ($f): ?><div class="alert <?= h($f['kind']) ?>"><?= h($f['msg']) ?></div><?php endif; ?>
   <?php foreach ($errors as $e): ?><div class="alert err"><?= h($e) ?></div><?php endforeach; ?>
+
+  <div class="card card-pad section">
+    <h3 style="margin-bottom:6px">Purchase links</h3>
+    <p class="small muted" style="margin-bottom:14px">Put each link in the WarriorPlus delivery page of its product. A buyer who opens the FE link and signs in gets an account; an OTO link adds that plan to the account. If a link leaks, make a new one: the old link stops working, and buyers who already used it keep their plan.</p>
+    <?php foreach (ACCESS_PLANS as $plan => $label): ?>
+    <form method="post" style="margin-bottom:10px">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="regen">
+      <input type="hidden" name="plan" value="<?= h($plan) ?>">
+      <label class="field" style="margin-bottom:0"><span><?= h($label) ?></span>
+        <div class="link-row">
+          <input type="text" readonly value="<?= h(access_url($plan)) ?>" onclick="this.select()">
+          <button class="btn ghost sm" type="button" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.textContent='Copied'">Copy</button>
+          <button class="btn ghost sm" type="submit" onclick="return confirm('Make a new link? The old one stops working.')">New link</button>
+        </div>
+      </label>
+    </form>
+    <?php endforeach; ?>
+  </div>
+
+  <form class="card card-pad section" method="post">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="sales">
+    <h3 style="margin-bottom:6px">Sales pages</h3>
+    <p class="small muted" style="margin-bottom:14px">Customers who don't own a plan see its features locked, with an upgrade button to this page.</p>
+    <?php foreach (PLANS as $plan => $label): ?>
+    <label class="field"><span><?= h($label) ?></span><input type="url" name="sales[<?= h($plan) ?>]" value="<?= h(setting('upgrade_url_' . $plan)) ?>" placeholder="https://warriorplus.com/o2/..."></label>
+    <?php endforeach; ?>
+    <button class="btn primary" type="submit">Save</button>
+  </form>
+
+  <form class="card card-pad section" method="post">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="google">
+    <h3 style="margin-bottom:6px">Google sign-in <?= google_configured() ? '<span class="badge ok">On</span>' : '<span class="badge">Off</span>' ?></h3>
+    <p class="small muted" style="margin-bottom:14px">In Google Cloud Console → APIs &amp; Services → Credentials, create an OAuth client ID of type "Web application" and add this Authorized redirect URI:<br><span class="mono"><?= h(google_redirect_uri()) ?></span></p>
+    <div class="row">
+      <label class="field"><span>Client ID</span><input type="text" name="client_id" value="<?= h(setting('google_client_id')) ?>" autocomplete="off"></label>
+      <label class="field"><span>Client secret</span><input type="password" name="client_secret" placeholder="<?= setting('google_client_secret') !== '' ? 'Saved — leave blank to keep' : '' ?>" autocomplete="new-password"></label>
+    </div>
+    <?php if (!function_exists('curl_init') && !ini_get('allow_url_fopen')): ?><div class="alert err">This server has neither cURL nor allow_url_fopen, so it cannot talk to Google. Enable cURL in cPanel → Select PHP Version → Extensions.</div><?php endif; ?>
+    <button class="btn primary" type="submit">Save</button>
+  </form>
 
   <form class="card card-pad section" method="post">
     <?= csrf_field() ?>

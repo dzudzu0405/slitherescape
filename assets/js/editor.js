@@ -877,6 +877,63 @@
     };
   }
 
+  // ---------------------------------------------------------------- Bulk Creator hooks
+  // Builds one variant of the open game (its own difficulty, paper, print style and seed) into a PDF,
+  // then puts the game on screen back exactly as it was. Story and questions are shared.
+  function generateAll() {
+    const slots = gameSlots();
+    const seen = {};
+    const jobs = slots.map((slot, i) => jobFor(i, slot, state.settings.seed, seen));
+    return new Promise((resolve, reject) => {
+      const out = [];
+      const errors = [];
+      runJobs(jobs, {
+        onPuzzle(i, p) { out[i] = p; },
+        onError(i, msg) { errors.push(msg); if (i < 0) reject(new Error(msg)); },
+        onDone() { errors.length ? reject(new Error(errors[0])) : resolve(out); }
+      });
+    });
+  }
+
+  async function buildVariant(v, onProgress) {
+    if (!state.story) throw new Error('Open a finished game first.');
+    if (building) throw new Error('Wait until the puzzles on screen are built.');
+    const saved = { settings: JSON.parse(JSON.stringify(state.settings)), puzzles: state.puzzles, mosaics: state.mosaics, example: state.example };
+    try {
+      const keepSize = v.difficulty === saved.settings.difficulty;
+      Object.assign(state.settings, {
+        difficulty: v.difficulty, paper: v.paper, ink: v.inkSaver ? 'white' : 'aged', seed: v.seed,
+        w: keepSize ? saved.settings.w : null, h: keepSize ? saved.settings.h : null
+      });
+      state.mosaics = {};
+      const planError = planMosaics();
+      if (planError) throw new Error(planError);
+      onProgress(0, 'Building puzzles');
+      state.puzzles = await generateAll();
+      const slots = gameSlots();
+      const bad = state.puzzles.filter((p, i) => !p || !p.verify || !p.verify.ok || !p.verify.unique || (slots[i].kind === 'letter' && p.letter !== slots[i].letter)).length;
+      if (bad || state.puzzles.length !== slots.length) throw new Error(`${bad || 'Some'} puzzle(s) failed the checks`);
+      const game = await gameForPdf();
+      game.variantCode = v.code;
+      const doc = await window.PdfBuilder.build(game, onProgress);
+      return { doc, puzzles: slots.length, pages: doc.getNumberOfPages(), minutes: game.minutes };
+    } finally {
+      state.settings = saved.settings;
+      state.puzzles = saved.puzzles;
+      state.mosaics = saved.mosaics;
+      state.example = saved.example;
+    }
+  }
+
+  window.EditorBulk = {
+    buildVariant,
+    current: () => (state.story ? {
+      projectId: project.id, title: state.story.title, code: codeSpaced(), difficulty: state.settings.difficulty,
+      paper: effective().paper, inkSaver: effective().inkSaver, hasMosaic: state.story.chapters.some(Story.isMosaic)
+    } : null),
+    slug
+  };
+
   $('#export-kit').addEventListener('click', async () => {
     const btn = $('#export-kit');
     const status = (pct, text) => {
@@ -920,6 +977,33 @@
       status(0, 'Export failed: ' + err.message);
     } finally {
       btn.disabled = false;
+    }
+  });
+
+  // Marketing Studio: build the PDF here and hand it over, so the seller never downloads and re-uploads it.
+  // Accounts without the plan follow the link to the locked Marketing Studio page instead.
+  const listingBtn = $('#btn-listing');
+  if (listingBtn && window.MARKETING_OWNED && window.Handoff) listingBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (listingBtn.classList.contains('disabled')) return;
+    const status = (pct, text) => {
+      $('#export-fill').style.width = Math.round(pct * 100) + '%';
+      $('#export-status').textContent = text;
+    };
+    listingBtn.classList.add('disabled');
+    $('#export-progress').classList.remove('hidden');
+    status(0, 'Preparing the game for Marketing Studio…');
+    try {
+      if (dirty) await save();
+      const eff = effective();
+      const doc = await window.PdfBuilder.build(await gameForPdf(), (pct, text) => status(pct, `${text}…`));
+      await window.Handoff.put({ pdf: doc.output('arraybuffer'), name: `${slug(state.story.title)}-${eff.paper}.pdf`, themeId: state.themeId || '' });
+      status(1, 'Opening Marketing Studio…');
+      location.href = 'marketing.php?from=editor' + (project.id ? '&project=' + project.id : '');
+    } catch (err) {
+      console.error(err);
+      status(0, 'Could not prepare the game: ' + err.message);
+      listingBtn.classList.remove('disabled');
     }
   });
 
