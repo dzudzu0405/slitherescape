@@ -89,5 +89,6 @@ page_head('Account', '', ['user' => $user, 'nav' => 'account']);
     </div>
     <button class="btn" type="submit">Change password</button>
   </form>
+  <?= legal_links() ?>
 </main>
 <?php page_foot(['assets/js/ui.js']); ?>

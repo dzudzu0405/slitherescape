@@ -73,5 +73,6 @@ page_head('Log in', 'auth', ['bare' => true]);
     </form>
   </div>
   <p class="auth-foot">Forgot your password? Open <span class="mono">install.php?reset</span> on your site.</p>
+  <p class="auth-foot small">By signing in you agree to our <a href="terms.php">Terms of Service</a> and <a href="privacy.php">Privacy Policy</a>.</p>
 </main>
 <?php page_foot(); ?>

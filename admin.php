@@ -58,6 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($secret !== '' || $id === '') set_setting('google_client_secret', $secret);
         flash($id === '' ? 'Google sign-in turned off.' : 'Google sign-in saved.');
         redirect('admin.php');
+    } elseif ($action === 'legal') {
+        $name = trim((string)($_POST['legal_name'] ?? ''));
+        $email = trim((string)($_POST['legal_email'] ?? ''));
+        $country = trim((string)($_POST['legal_country'] ?? ''));
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Enter a valid contact email for the legal pages.';
+        if (mb_strlen($name) > 120 || mb_strlen($country) > 80) $errors[] = 'The name or country is too long.';
+        if (!$errors) {
+            // The "Last updated" date only moves when the details actually change.
+            if ([$name, $email, $country] !== [setting('legal_name'), setting('legal_email'), setting('legal_country')]) {
+                set_setting('legal_updated', gmdate('Y-m-d'));
+            }
+            set_setting('legal_name', $name);
+            set_setting('legal_email', $email);
+            set_setting('legal_country', $country);
+            flash('Legal page details saved.');
+            redirect('admin.php');
+        }
     }
 }
 
@@ -113,6 +130,20 @@ page_head('Admin', '', ['user' => $user, 'nav' => 'admin']);
       <label class="field"><span>Client secret</span><input type="password" name="client_secret" placeholder="<?= setting('google_client_secret') !== '' ? 'Saved — leave blank to keep' : '' ?>" autocomplete="new-password"></label>
     </div>
     <?php if (!function_exists('curl_init') && !ini_get('allow_url_fopen')): ?><div class="alert err">This server has neither cURL nor allow_url_fopen, so it cannot talk to Google. Enable cURL in cPanel → Select PHP Version → Extensions.</div><?php endif; ?>
+    <button class="btn primary" type="submit">Save</button>
+  </form>
+
+  <form class="card card-pad section" method="post">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="legal">
+    <h3 style="margin-bottom:6px">Privacy Policy &amp; Terms <?= legal_complete() ? '<span class="badge ok">Ready</span>' : '<span class="badge warn">Details missing</span>' ?></h3>
+    <p class="small muted" style="margin-bottom:14px">Shown on <a href="privacy.php" target="_blank">privacy.php</a> and <a href="terms.php" target="_blank">terms.php</a>. Put these two links in Google Cloud Console → OAuth consent screen (Privacy policy and Terms of service):<br><span class="mono"><?= h(app_url('privacy.php')) ?></span><br><span class="mono"><?= h(app_url('terms.php')) ?></span></p>
+    <div class="row">
+      <label class="field"><span>Business or owner name</span><input type="text" name="legal_name" maxlength="120" value="<?= h(setting('legal_name')) ?>" placeholder="e.g. Dzu Studio LLC"></label>
+      <label class="field"><span>Contact email</span><input type="email" name="legal_email" value="<?= h(setting('legal_email')) ?>" placeholder="support@yourdomain.com"></label>
+    </div>
+    <label class="field"><span>Country whose laws apply</span><input type="text" name="legal_country" maxlength="80" value="<?= h(setting('legal_country')) ?>" placeholder="e.g. Vietnam"></label>
+    <p class="small muted" style="margin:-6px 0 14px">These pages are a starting template, not legal advice. Have them reviewed for your business and the countries you sell to.</p>
     <button class="btn primary" type="submit">Save</button>
   </form>
 

@@ -13,6 +13,7 @@ const PLANS = ['pro' => 'SlitherEscape PRO', 'bulk' => 'Bulk Creator', 'marketin
 const ACCESS_PLANS = ['fe' => 'Slitherlink Escape Game Builder (FE)'] + PLANS;
 
 require_once __DIR__ . '/access.php';
+require_once __DIR__ . '/legal.php';
 
 function is_installed(): bool
 {
