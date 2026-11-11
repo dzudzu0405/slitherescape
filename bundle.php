@@ -75,6 +75,41 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
     <div id="bd-games"></div>
   </div>
 
+  <div class="card card-pad section" id="nb-card">
+    <h3 style="margin-bottom:6px">New games from your AI <span class="optional">optional</span></h3>
+    <p class="small muted" style="margin-bottom:12px">Need more games for this bundle? Choose a theme for each, copy the prompt into ChatGPT or Claude, and paste the whole reply back. Games go to the AI in lots of <?= 3 ?> so every reply stays complete. Finished games are saved to your projects and added to the list above.</p>
+    <div class="row">
+      <label class="field"><span>How many new games</span>
+        <select id="nb-count"><?php for ($i = 0; $i <= 9; $i++): ?><option value="<?= $i ?>"><?= $i ?: 'None' ?></option><?php endfor; ?></select>
+      </label>
+      <label class="field"><span>Theme</span><select id="nb-theme"></select></label>
+    </div>
+    <div id="nb-rows"></div>
+    <button class="btn primary hidden" id="nb-start" type="button">Make the prompt</button>
+    <div class="hidden" id="nb-work">
+      <div class="nb-lot">
+        <div><b id="nb-lot-head"></b><div class="small muted" id="nb-lot-sub"></div></div>
+        <button class="btn primary" id="nb-copy" type="button">Copy prompt</button>
+      </div>
+      <details class="nb-prompt"><summary class="small">See the prompt</summary><pre id="nb-prompt"></pre></details>
+      <label class="field" style="margin-top:12px"><span>Paste the AI's whole reply here</span>
+        <textarea id="nb-reply" rows="6" class="mono" placeholder="=== GAME 1 ===&#10;TITLE: ..."></textarea>
+      </label>
+      <button class="btn" id="nb-read" type="button">Read the reply</button>
+      <div id="nb-help" style="margin-top:12px"></div>
+      <table class="admin-table nb-table" style="margin-top:12px"><thead><tr><th>Game</th><th>Theme</th><th>Status</th><th></th></tr></thead><tbody id="nb-table"></tbody></table>
+      <div id="nb-edit" class="hidden" style="margin-top:12px">
+        <label class="field"><span id="nb-edit-label">Edit the game's text</span><textarea id="nb-edit-text" rows="12" class="mono"></textarea></label>
+        <button class="btn primary" id="nb-edit-check" type="button">Check this game</button>
+        <button class="btn ghost" id="nb-edit-close" type="button">Close</button>
+      </div>
+      <div class="nb-build">
+        <button class="btn primary" id="nb-build" type="button" disabled>Build puzzles and add the games</button>
+        <span class="small muted" id="nb-build-status"></span>
+      </div>
+    </div>
+  </div>
+
   <div class="card card-pad section">
     <h3 style="margin-bottom:6px">3. Master Code</h3>
     <p class="small muted" style="margin-bottom:12px">One letter per game, A to Z: game 1 gives the first letter, game 2 the second, and so on. The letters are printed on each game's certificate, so players only collect them by finishing the games.</p>
@@ -100,11 +135,11 @@ if ($owned) {
     $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
     echo '<script>window.BUNDLE = ' . json_encode(['games' => $games, 'defaults' => $defaults, 'pro' => $pro], $flags) . ';window.ASSET_VERSION = ' . json_encode(asset_version()) . ';</script>' . "\n";
     $scripts = ['assets/vendor/jspdf.umd.min.js', 'assets/vendor/pdf-lib.min.js', 'assets/vendor/jszip.min.js', 'assets/js/pdf/paper.js', 'assets/js/pdf/pdf.js',
-        'assets/js/themes.js', 'assets/js/story.js', 'assets/js/engine/glyphs.js', 'assets/js/engine/slither.js', 'assets/js/engine/generator.js'];
+        'assets/js/ui.js', 'assets/js/themes.js', 'assets/js/story.js', 'assets/js/engine/glyphs.js', 'assets/js/engine/slither.js', 'assets/js/engine/generator.js'];
     foreach ($scripts as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
     if ($pro) {
         foreach (['mosaic', 'pdf-mosaic', 'pdf-party', 'library'] as $f) echo '<script src="pro.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
     }
-    echo '<script src="bulk.php?f=bundle&amp;v=' . h(asset_version()) . '"></script>' . "\n";
+    foreach (['batch', 'bundle'] as $f) echo '<script src="bulk.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
 }
 page_foot();

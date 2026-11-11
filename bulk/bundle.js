@@ -112,17 +112,40 @@
   ['bd-format', 'bd-paper', 'bd-print'].forEach((id) => $(id).addEventListener('change', renderChecks));
 
   // ---------------------------------------------------------------- one game, from its saved project
+  // One puzzle-engine worker for the page: example puzzles for How to Play, and whole games.
   let worker = null, jobId = 0;
   const waiting = new Map();
+  function getWorker() {
+    if (worker) return worker;
+    worker = new Worker('assets/js/engine/worker.js?v=' + encodeURIComponent(window.ASSET_VERSION || ''));
+    worker.onmessage = (e) => {
+      const m = e.data, h = waiting.get(m.id);
+      if (!h) return;
+      if (m.type === 'example') { waiting.delete(m.id); h.resolve(m.example); }
+      else if (m.type === 'puzzle') h.puzzle(m.index, m.puzzle);
+      else if (m.type === 'error') { if (h.puzzle) h.error(m.index, m.message); else { waiting.delete(m.id); h.reject(new Error(m.message)); } }
+      else if (m.type === 'done') { waiting.delete(m.id); h.resolve(); }
+    };
+    return worker;
+  }
   function example(seed) {
-    if (!worker) {
-      worker = new Worker('assets/js/engine/worker.js?v=' + encodeURIComponent(window.ASSET_VERSION || ''));
-      worker.onmessage = (e) => { const h = waiting.get(e.data.id); if (!h) return; waiting.delete(e.data.id); e.data.type === 'example' ? h.resolve(e.data.example) : h.reject(new Error(e.data.message)); };
-    }
     return new Promise((resolve, reject) => {
       const id = ++jobId;
       waiting.set(id, { resolve, reject });
-      worker.postMessage({ type: 'example', id, seed: seed + '-example' });
+      getWorker().postMessage({ type: 'example', id, seed: seed + '-example' });
+    });
+  }
+  // Builds every puzzle of a letter game. Resolves with the puzzles in slot order.
+  function buildPuzzles(jobs, onOne) {
+    return new Promise((resolve, reject) => {
+      const id = ++jobId, out = [], errors = [];
+      waiting.set(id, {
+        puzzle(i, p) { out[i] = p; onOne(out.filter(Boolean).length); },
+        error(i, msg) { errors.push(msg); },
+        resolve() { errors.length ? reject(new Error(errors[0])) : resolve(out); },
+        reject
+      });
+      getWorker().postMessage({ type: 'build', id, jobs });
     });
   }
 
@@ -472,6 +495,219 @@
     }
   }
   $('bd-run').addEventListener('click', run);
+
+  // ---------------------------------------------------------------- new games from the AI (spec 12.2)
+  const BB = window.BulkBatch;
+  const T = window.Themes;
+  const STATUS = { waiting: ['', 'Waiting'], cut: ['warn', 'Cut off'], error: ['err', 'Needs fixes'], valid: ['ok', 'Valid'], edited: ['ok', 'Edited by hand'], building: ['warn', 'Building…'], added: ['dark', 'Added'] };
+  const SIZES = { easy: [7, 9], medium: [10, 12], hard: [12, 13] };
+  let fresh = [];     // [{ n, themeId, plotId, difficulty, status, story, errors, warnings, block }]
+  let lots = [], lot = 0, editing = null;
+
+  const themeOptions = (sel) => T.THEMES.map((t) => `<option value="${t.id}"${t.id === sel ? ' selected' : ''}>${esc(t.label)}</option>`).join('');
+  const plotOptions = (sel) => T.PLOTS.map((p) => `<option value="${p.id}"${p.id === sel ? ' selected' : ''}>${esc(p.label)}</option>`).join('');
+  $('nb-theme').innerHTML = '<option value="">A different theme per game</option>' + themeOptions('');
+
+  function planRows() {
+    const n = +$('nb-count').value, common = $('nb-theme').value;
+    const keep = fresh;
+    fresh = Array.from({ length: n }, (_, i) => keep[i] || { n: i + 1, themeId: T.THEMES[i % T.THEMES.length].id, plotId: T.PLOTS[i % T.PLOTS.length].id, difficulty: 'medium', status: 'waiting' });
+    if (common) fresh.forEach((g) => { g.themeId = common; });
+    $('nb-rows').innerHTML = n ? `<table class="admin-table nb-plan"><thead><tr><th>Game</th>${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `<tr>
+      <td>New game ${g.n}</td>
+      ${common ? '' : `<td><select data-g="${i}" data-k="themeId">${themeOptions(g.themeId)}</select></td>`}
+      <td><select data-g="${i}" data-k="plotId">${plotOptions(g.plotId)}</select></td>
+      <td><select data-g="${i}" data-k="difficulty">${['easy', 'medium', 'hard'].map((d) => `<option value="${d}"${d === g.difficulty ? ' selected' : ''}>${PRESETS[d].audience}</option>`).join('')}</select></td>
+    </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}` : '';
+    $('nb-start').classList.toggle('hidden', !n);
+    $('nb-start').textContent = n > BB.LOT ? `Make the prompts (${Math.ceil(n / BB.LOT)} lots)` : 'Make the prompt';
+  }
+  $('nb-count').addEventListener('change', planRows);
+  $('nb-theme').addEventListener('change', planRows);
+  $('nb-rows').addEventListener('change', (e) => { const s = e.target.closest('[data-g]'); if (s) fresh[+s.dataset.g][s.dataset.k] = s.value; });
+
+  // Codes and titles a new game must not repeat: every saved game and every other new game.
+  function others(except) {
+    return GAMES.map((g) => ({ code: codeOf(g), title: g.title }))
+      .concat(fresh.filter((g) => g !== except && g.story && g.status !== 'error').map((g) => ({ code: g.story.chapters.map((c) => c.word).join(' '), title: g.story.title })));
+  }
+
+  function prompt() {
+    return BB.buildPrompt(lots[lot], {
+      bundleName: $('bd-name').value.trim(),
+      avoidCodes: [...new Set(others(null).map((o) => o.code).filter(Boolean))],
+      avoidTitles: [...new Set(others(null).map((o) => o.title).filter(Boolean))]
+    });
+  }
+
+  function startWork() {
+    lots = [];
+    for (let i = 0; i < fresh.length; i += BB.LOT) lots.push(fresh.slice(i, i + BB.LOT));
+    lot = 0;
+    $('nb-work').classList.remove('hidden');
+    $('nb-count').disabled = $('nb-theme').disabled = true;
+    $('nb-rows').querySelectorAll('select').forEach((s) => { s.disabled = true; });
+    $('nb-start').classList.add('hidden');
+    showLot();
+  }
+  $('nb-start').addEventListener('click', startWork);
+
+  function showLot() {
+    const l = lots[lot];
+    $('nb-lot-head').textContent = `Lot ${lot + 1} of ${lots.length}`;
+    $('nb-lot-sub').textContent = `New game${l.length > 1 ? 's' : ''} ${l.map((g) => g.n).join(', ')} · paste the prompt into a new AI chat`;
+    $('nb-prompt').textContent = prompt();
+    $('nb-reply').value = '';
+    $('nb-help').innerHTML = '';
+    renderTable();
+  }
+
+  function copy(text, btn) {
+    navigator.clipboard.writeText(text).then(() => { const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = t; }, 1500); });
+  }
+  $('nb-copy').addEventListener('click', (e) => copy(prompt(), e.currentTarget));
+
+  function judge(g, story) {
+    g.story = story;
+    const c = BB.check(story, others(g));
+    g.errors = c.errors; g.warnings = c.warnings;
+    return c.errors.length === 0;
+  }
+
+  function readReply() {
+    const games = BB.splitGames($('nb-reply').value);
+    const l = lots[lot];
+    const found = l.filter((g) => games[g.n]);
+    if (!found.length) {
+      $('nb-help').innerHTML = `<div class="alert err">No game blocks found. The reply should contain lines like === GAME ${l[0].n} ===. Paste the AI's whole reply, or copy the prompt again into a new chat.</div>`;
+      return;
+    }
+    found.forEach((g) => {
+      const part = games[g.n];
+      g.block = part.text;
+      if (!part.complete) { g.status = 'cut'; g.errors = []; return; }
+      g.status = judge(g, BB.parseGame(part.body)) ? 'valid' : 'error';
+    });
+    renderTable();
+    renderHelp();
+  }
+  $('nb-read').addEventListener('click', readReply);
+
+  function renderHelp() {
+    const l = lots[lot];
+    const missing = l.filter((g) => g.status === 'waiting' || g.status === 'cut');
+    const bad = l.filter((g) => g.status === 'error');
+    let html = '';
+    if (missing.length) {
+      html += `<div class="alert info">The reply stopped before ${missing.map((g) => `game ${g.n}`).join(' and ')} was complete. Ask the AI to continue in the same chat:
+        <div style="margin-top:8px"><button class="btn sm" data-copy="continue">Copy "continue" request</button></div></div>`;
+    }
+    bad.forEach((g) => {
+      html += `<div class="alert err"><b>New game ${g.n}${g.story && g.story.title ? ` · ${esc(g.story.title)}` : ''}</b> needs ${g.errors.length} fix${g.errors.length > 1 ? 'es' : ''}:
+        <ul>${g.errors.slice(0, 6).map((e) => `<li>${esc(e.msg)}</li>`).join('')}${g.errors.length > 6 ? `<li>and ${g.errors.length - 6} more</li>` : ''}</ul>
+        <button class="btn sm" data-copy="fix" data-n="${g.n}">Copy fix request</button> <button class="btn ghost sm" data-edit="${g.n}">Fix it by hand</button></div>`;
+    });
+    if (!missing.length && !bad.length) {
+      html += lot + 1 < lots.length
+        ? `<div class="alert ok">Lot ${lot + 1} is done. <button class="btn primary sm" id="nb-next">Next lot</button></div>`
+        : '<div class="alert ok">Every new game is ready. Build the puzzles to add them to the bundle.</div>';
+    } else {
+      html += '<p class="small muted">Paste the AI\'s answer to a request in the box above and read it again: only the games in it are updated.</p>';
+    }
+    $('nb-help').innerHTML = html;
+    const next = $('nb-next');
+    if (next) next.addEventListener('click', () => { lot++; showLot(); });
+  }
+
+  $('nb-help').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]');
+    if (c) {
+      const l = lots[lot];
+      const text = c.dataset.copy === 'continue'
+        ? BB.continuePrompt(l, l.filter((g) => g.status !== 'waiting' && g.status !== 'cut').map((g) => g.n))
+        : BB.fixPrompt(+c.dataset.n, fresh.find((g) => g.n === +c.dataset.n).errors);
+      copy(text, c);
+    }
+    if (ed) openEdit(+ed.dataset.edit);
+  });
+
+  function renderTable() {
+    $('nb-table').innerHTML = fresh.map((g) => {
+      const [kind, label] = STATUS[g.status];
+      const theme = T.theme(g.themeId);
+      const inLot = lots[lot] && lots[lot].includes(g);
+      return `<tr${inLot ? ' class="nb-current"' : ''}>
+        <td>${g.n}${g.story && g.story.title ? ` · ${esc(g.story.title)}` : ''}</td>
+        <td>${esc(theme ? theme.label : '')}</td>
+        <td><span class="badge ${kind}">${label}</span>${g.story && g.status !== 'cut' ? ` <span class="small muted mono">${esc(g.story.chapters.map((c) => c.word).join(' '))}</span>` : ''}</td>
+        <td>${g.block && g.status !== 'added' && g.status !== 'building' ? `<button class="btn ghost sm" data-edit="${g.n}">Edit</button>` : ''}</td>
+      </tr>`;
+    }).join('');
+    const ready = fresh.filter((g) => g.status === 'valid' || g.status === 'edited');
+    $('nb-build').disabled = !ready.length;
+    $('nb-build').textContent = ready.length ? `Build puzzles and add ${ready.length} game${ready.length > 1 ? 's' : ''}` : 'Build puzzles and add the games';
+  }
+  $('nb-table').addEventListener('click', (e) => { const ed = e.target.closest('[data-edit]'); if (ed) openEdit(+ed.dataset.edit); });
+
+  // Fix by hand: the game's own text block, checked again on demand.
+  function openEdit(n) {
+    editing = fresh.find((g) => g.n === n);
+    $('nb-edit').classList.remove('hidden');
+    $('nb-edit-label').textContent = `New game ${n}: edit the text, then check it again`;
+    $('nb-edit-text').value = editing.block || '';
+    $('nb-edit-text').focus();
+  }
+  $('nb-edit-close').addEventListener('click', () => { $('nb-edit').classList.add('hidden'); editing = null; });
+  $('nb-edit-check').addEventListener('click', () => {
+    if (!editing) return;
+    const part = BB.splitGames($('nb-edit-text').value)[editing.n];
+    const body = part ? part.body : $('nb-edit-text').value;
+    editing.block = part ? part.text : `=== GAME ${editing.n} ===\n${body}\n=== END GAME ${editing.n} ===`;
+    editing.status = judge(editing, BB.parseGame(body)) ? 'edited' : 'error';
+    if (editing.status === 'edited') { $('nb-edit').classList.add('hidden'); editing = null; }
+    renderTable();
+    renderHelp();
+  });
+
+  // Builds each ready game's puzzles, saves it as a project and puts it in the bundle list.
+  function newSeed() { const h = () => Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0'); return `${h()}-${h()}`; }
+  async function buildNew() {
+    const ready = fresh.filter((g) => g.status === 'valid' || g.status === 'edited');
+    $('nb-build').disabled = true;
+    for (const g of ready) {
+      g.status = 'building';
+      renderTable();
+      try {
+        const settings = { difficulty: g.difficulty, count: null, chapters: null, w: null, h: null, reverse: 1, paper: '', ink: '', motif: 'auto', seed: newSeed(),
+          mode: 'letter', modeChapters: 2, chapterTypes: ['letter', 'mosaic'], kit: false, kitPlayers: 4, kitPlay: 'together', kitTeams: 2 };
+        const data = { version: 1, themeId: g.themeId, plotId: g.plotId, code: '', settings, mosaics: {}, titleTouched: false, story: g.story, puzzles: [] };
+        const slots = slotsOf(data);
+        const [W, H] = SIZES[g.difficulty];
+        const seen = {};
+        // Same jobs as the editor: Adults get a reverse puzzle as the last letter of chapter 1.
+        const jobs = slots.map((s, i) => ({
+          index: i, letter: s.letter, W, H, difficulty: g.difficulty,
+          reverse: g.difficulty === 'hard' && s.pos === s.len - 1 && s.chapter < 1,
+          seed: `${settings.seed}-${i}-${s.letter}`, variant: (seen[s.letter] = (seen[s.letter] || 0) + 1) - 1
+        }));
+        data.puzzles = await buildPuzzles(jobs, (k) => { $('nb-build-status').textContent = `New game ${g.n}: puzzle ${k} of ${jobs.length}`; });
+        const res = await window.UI.api('save', { id: 0, title: g.story.title, data });
+        GAMES.unshift({ id: res.id, title: g.story.title, code: g.story.chapters.map((c) => c.word).join(' '), difficulty: g.difficulty, puzzles: slots.length, ready: res.status === 'ready', data });
+        if (res.status === 'ready') order.push(res.id);
+        g.status = res.status === 'ready' ? 'added' : 'error';
+        if (res.status !== 'ready') g.errors = [{ msg: 'Some puzzles could not be built. Open the game in the editor and use "New puzzles".', ai: '' }];
+      } catch (e) {
+        g.status = 'valid';
+        $('nb-build-status').textContent = `New game ${g.n}: ${e.message}`;
+      }
+      renderTable();
+      renderGames();
+    }
+    const added = fresh.filter((g) => g.status === 'added').length;
+    $('nb-build-status').textContent = added ? `${added} new game${added > 1 ? 's' : ''} saved to your projects and added to the bundle.` : $('nb-build-status').textContent;
+  }
+  $('nb-build').addEventListener('click', buildNew);
+  planRows();
 
   // Start: account paper and print style, then the list.
   if (DEFAULTS.paper === 'a4') $('bd-paper').value = 'a4';

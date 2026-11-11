@@ -4,7 +4,7 @@
 declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 
-const BULK_FILES = ['variants' => 'variants.js', 'bundle' => 'bundle.js'];
+const BULK_FILES = ['variants' => 'variants.js', 'bundle' => 'bundle.js', 'batch' => 'batch.js'];
 
 if (!is_installed()) { http_response_code(503); exit; }
 $user = current_user();
