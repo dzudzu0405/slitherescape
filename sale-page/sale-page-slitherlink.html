@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slitherlink Escape Game Builder — Printable Escape Games You Can Sell</title>
+<meta name="description" content="Build a complete printable escape game in a browser: a story, 8–15 verified Slitherlink puzzles, hint cards, a host guide and an answer key. Every solved loop draws a letter; the letters spell the secret code. Export print-ready PDFs for Etsy and Amazon KDP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Manrope:wght@400;500;700;800&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Palette taken from the printed game itself: aged paper, brown ink, one red-brown accent */
+    --paper:#F4E8CB;
+    --paper-2:#EEDDBA;
+    --card:#FBF4E2;
+    --ink:#3B2412;
+    --ink-dim:#5A3E27;
+    --brown:#7A5230;
+    --tan:#C9A877;
+    --wash:#D9BF8C;
+    --red:#7A2E1E;
+    --red-hi:#93392A;
+    --green:#3F6B45;
+    --line:rgba(59,36,18,.16);
+    --line-strong:rgba(59,36,18,.34);
+    --hard:#3B2412;
+    --serif:'IM Fell English','Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --sc:'IM Fell English SC','IM Fell English',Georgia,serif;
+    --sans:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --num:'Noto Serif','DejaVu Serif',Georgia,serif;   /* lining figures: IM Fell's old-style 1 reads as a letter I */
+    --ck:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M2.6 8.7l3.6 3.6 7.3-8.2' fill='none' stroke='%233F6B45' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    --xx:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.6 3.6l8.8 8.8M12.4 3.6l-8.8 8.8' fill='none' stroke='%237A2E1E' stroke-width='2.4' stroke-linecap='round'/></svg>");
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  /* uneven paper: stains and darker edges, drawn once and fixed behind the page */
+  body::before{
+    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(ellipse 55% 40% at 10% 6%, rgba(150,100,40,.20), transparent 70%),
+      radial-gradient(ellipse 45% 35% at 92% 24%, rgba(120,70,30,.14), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 24% 72%, rgba(190,150,80,.18), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 88% 96%, rgba(120,70,30,.20), transparent 70%),
+      radial-gradient(ellipse at center, transparent 55%, rgba(90,55,25,.18) 100%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+    html{scroll-behavior:auto;}
+  }
+  h1,h2,h3{font-family:var(--serif); font-weight:400; letter-spacing:-.005em; text-wrap:balance; margin:0; color:var(--ink);}
+  h1{font-size:clamp(36px,6vw,62px); line-height:1.06;}
+  h2{font-size:clamp(28px,4.4vw,42px); line-height:1.12;}
+  h3{font-size:21px; line-height:1.2;}
+  p{margin:0;}
+  a{color:inherit;}
+  img,svg{max-width:100%;}
+  em{font-style:italic; color:var(--red);}
+  :focus-visible{outline:3px solid var(--red); outline-offset:3px; border-radius:4px;}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+  .wrap-narrow{max-width:800px; margin:0 auto; padding:0 24px;}
+  section{padding:84px 0;}
+  .center{text-align:center;}
+  .lead{font-size:17.5px; color:var(--ink-dim); max-width:62ch;}
+  .center .lead{margin-left:auto; margin-right:auto;}
+
+  .reveal.armed{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.armed.is-visible{opacity:1; transform:none;}
+  @media (prefers-reduced-motion: reduce){ .reveal.armed{opacity:1; transform:none;} }
+
+  .eyebrow{
+    display:inline-block; font-family:var(--sc); font-size:14px; letter-spacing:.16em; text-transform:uppercase;
+    color:#F4E8CB; background:var(--ink); padding:7px 16px 6px; border-radius:999px;
+    box-shadow:3px 3px 0 var(--tan);
+  }
+  .section-head{margin-bottom:46px;}
+  .section-head h2{margin-top:18px;}
+  .section-head .lead{margin-top:16px;}
+
+  /* diamond rule */
+  .orn{display:flex; align-items:center; gap:12px; color:var(--brown); margin:0 auto; max-width:360px;}
+  .orn::before,.orn::after{content:''; flex:1; height:1.5px; background:var(--brown); opacity:.55;}
+  .orn i{width:9px; height:9px; background:var(--brown); transform:rotate(45deg); flex:none;}
+
+  /* ---------- cards: double border, hard shadow ---------- */
+  .card{
+    background:var(--card); border:2.5px solid var(--ink); border-radius:6px;
+    box-shadow:inset 0 0 0 4px var(--card), inset 0 0 0 5.5px rgba(122,82,48,.45), 5px 5px 0 var(--hard);
+    padding:28px 26px;
+  }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    font-family:var(--sans); font-weight:800; font-size:17px; text-decoration:none; text-align:center;
+    padding:17px 32px; border-radius:6px; cursor:pointer;
+    color:#FBF4E2; background:var(--red); border:3px solid var(--ink);
+    box-shadow:0 5px 0 var(--hard); transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--red-hi); transform:translateY(-2px); box-shadow:0 7px 0 var(--hard);}
+  .btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--hard);}
+  .btn small{font-weight:700; font-size:.78em; opacity:.85; letter-spacing:.04em; text-transform:uppercase;}
+  .btn-ghost{background:transparent; color:var(--ink); box-shadow:0 4px 0 var(--hard);}
+  .btn-ghost:hover{background:var(--wash);}
+  .btn-sm{padding:10px 18px; font-size:14px; box-shadow:0 3px 0 var(--hard);}
+  .btn-sub{display:block; margin-top:14px; font-size:13px; color:var(--brown); text-align:center;}
+
+  /* ---------- topbar ---------- */
+  .topbar{position:sticky; top:0; z-index:40; background:rgba(244,232,203,.94); backdrop-filter:blur(8px); border-bottom:3px solid var(--ink);}
+  .topbar-inner{max-width:1080px; margin:0 auto; padding:11px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none;}
+  .brand-mark{width:36px; height:36px; border-radius:8px; background:var(--ink); color:var(--tan); display:flex; align-items:center; justify-content:center; flex:none; box-shadow:2px 2px 0 var(--tan);}
+  .brand-mark svg{width:22px; height:22px;}
+  .brand-text{display:flex; flex-direction:column; line-height:1.15;}
+  .brand-text .b1{font-family:var(--sc); font-size:19px; letter-spacing:.03em; white-space:nowrap;}
+  .brand-text .b2{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--brown); white-space:nowrap;}
+  .topbar-cta{display:flex; align-items:center; gap:16px;}
+  .price-chip{font-size:12.5px; color:var(--ink-dim);}
+  .price-chip b{font-family:var(--num); font-size:22px; font-weight:700; color:var(--red); margin-left:4px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 76px; border-bottom:3px solid var(--ink); position:relative;}
+  .hero-grid{display:grid; grid-template-columns:1.08fr .92fr; gap:46px; align-items:center;}
+  .hero h1{margin-top:22px;}
+  .hero-sub{margin-top:22px; font-size:18px; color:var(--ink-dim); max-width:56ch;}
+  .hero-cta{margin-top:32px;}
+  .trust-row{margin-top:28px; display:grid; grid-template-columns:repeat(2,auto); justify-content:start; gap:9px 28px; font-size:13.5px; color:var(--ink-dim);}
+  .trust-row span{display:flex; gap:8px; align-items:flex-start;}
+  .trust-row span::before{content:''; width:14px; height:14px; margin-top:.28em; flex:none; background:var(--ck) center/contain no-repeat;}
+
+  /* ---------- demo puzzle ---------- */
+  .demo{padding:20px 20px 22px; text-align:center;}
+  .demo-tag{font-family:var(--sc); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown);}
+  .demo h3{margin-top:4px; font-size:22px;}
+  .demo svg{display:block; width:100%; max-width:340px; margin:14px auto 0; height:auto; touch-action:manipulation;}
+  .demo-msg{min-height:44px; margin-top:12px; font-size:14px; color:var(--ink-dim); display:flex; align-items:center; justify-content:center;}
+  .demo-msg b{color:var(--red);}
+  .demo-btns{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:6px;}
+  .demo .edge-hit{stroke:transparent; stroke-width:20; cursor:pointer; stroke-linecap:round;}
+  .demo .edge-hit:hover + .edge-ghost{opacity:.35;}
+  .demo .edge-line{stroke:var(--ink); stroke-width:4.5; stroke-linecap:round; opacity:0; transition:opacity .15s ease; pointer-events:none;}
+  .demo .edge-line.on{opacity:1;}
+  .demo .sol-line{stroke:var(--red); stroke-width:5; stroke-linecap:round; opacity:0; transition:opacity .5s ease; pointer-events:none;}
+  .demo.solved .sol-line{opacity:1;}
+  .demo .shade{fill:var(--wash); opacity:0; transition:opacity .7s ease .25s;}
+  .demo.solved .shade{opacity:1;}
+  .demo .clue{font-family:var(--num); font-weight:700; font-size:21px; fill:var(--ink); text-anchor:middle; pointer-events:none;}
+  .demo .dot{fill:var(--ink);}
+
+  /* ---------- problem / fork ---------- */
+  .fork{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  .fork h3{font-family:var(--sc); font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown);}
+  .fork ul{list-style:none; margin:18px 0 0; padding:0; display:flex; flex-direction:column; gap:13px; font-size:15.5px;}
+  .fork li{display:flex; gap:11px; align-items:flex-start;}
+  .fork .old li::before{content:''; width:14px; height:14px; margin-top:.3em; flex:none; background:var(--xx) center/contain no-repeat;}
+  .fork .new li::before{content:''; width:14px; height:14px; margin-top:.3em; flex:none; background:var(--ck) center/contain no-repeat;}
+  .fork .new{--card:#FFF8E6;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:34px;}
+  .stat{text-align:center; padding:6px 8px;}
+  .stat b{display:block; font-family:var(--num); font-weight:700; font-size:38px; line-height:1.1; color:var(--red);}
+  .stat span{display:block; margin-top:8px; font-size:13.5px; color:var(--ink-dim);}
+
+  /* ---------- the twist: letters -> code ---------- */
+  .twist{background:var(--paper-2); border-top:3px solid var(--ink); border-bottom:3px solid var(--ink);}
+  .code-demo{display:flex; flex-direction:column; gap:22px; align-items:center; margin-top:8px;}
+  .chapters{display:flex; justify-content:center; gap:30px; flex-wrap:wrap;}
+  .chap{text-align:center;}
+  .nm{font-family:var(--num); font-weight:700; letter-spacing:.04em;}
+  .chap-label{font-family:var(--sc); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown); margin-bottom:9px;}
+  .tiles{display:flex; gap:6px; justify-content:center;}
+  .tile{
+    width:44px; height:52px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-size:30px; color:var(--ink);
+    background:var(--card); border:2.5px solid var(--ink); border-radius:4px; box-shadow:3px 3px 0 var(--hard);
+  }
+      .tile i{position:absolute;}
+  .arrow-down{width:22px; height:30px; color:var(--brown);}
+  .arrow-down svg{width:100%; height:100%;}
+  .lock{
+    display:flex; align-items:center; gap:16px; padding:14px 26px; border:3px solid var(--ink); border-radius:6px;
+    background:var(--card); box-shadow:inset 0 0 0 4px var(--card), inset 0 0 0 5.5px rgba(122,82,48,.45), 5px 5px 0 var(--hard);
+  }
+  .lock svg{width:34px; height:34px; color:var(--red); flex:none;}
+  .lock div{font-family:var(--sc); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown);}
+  .lock b{display:block; font-family:var(--serif); font-weight:400; font-size:30px; letter-spacing:.08em; color:var(--red); line-height:1.1;}
+  .code-note{font-size:14px; color:var(--brown); text-align:center; max-width:60ch;}
+  .rules3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:44px;}
+  .rules3 .card{padding:22px 22px;}
+  .rules3 .n{font-family:var(--num); font-weight:700; font-size:28px; color:var(--red); line-height:1.1;}
+  .rules3 h3{margin-top:8px; font-size:19px;}
+  .rules3 p{margin-top:8px; font-size:14.5px; color:var(--ink-dim);}
+
+  /* ---------- steps ---------- */
+  .panel{
+    background:#2B1A0D; color:#EEDDBA; border:3px solid var(--ink); border-radius:8px; overflow:hidden;
+    box-shadow:6px 6px 0 var(--tan); max-width:760px; margin:0 auto 44px;
+  }
+  .panel-bar{padding:10px 16px; background:#1E1208; font-family:var(--sc); letter-spacing:.1em; font-size:13px; color:var(--tan);}
+  .panel pre{margin:0; padding:20px 22px; font-family:ui-monospace,'Cascadia Mono',Consolas,monospace; font-size:13px; line-height:1.95; overflow-x:auto; white-space:pre;}
+  .panel .k{color:var(--tan);}
+  .panel .ok{color:#9CCB8F;}
+  .steps{display:grid; grid-template-columns:repeat(5,1fr); gap:14px;}
+  .step{padding:22px 18px; position:relative;}
+  .step .n{position:absolute; top:-16px; left:16px; width:36px; height:36px; border-radius:50%; background:var(--ink); color:var(--tan); font-family:var(--num); font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:2px 2px 0 var(--tan);}
+  .step h3{font-size:18px; margin-top:8px;}
+  .step p{margin-top:8px; font-size:13.5px; color:var(--ink-dim); line-height:1.55;}
+  .step .tip{margin-top:10px; font-size:12.5px; color:var(--brown); border-top:1px dashed var(--line-strong); padding-top:9px;}
+
+  /* ---------- inside the PDF ---------- */
+  .pages{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  .pg{padding:18px 16px 16px; position:relative; background:var(--card); border:2.5px solid var(--ink); border-radius:4px; box-shadow:4px 4px 0 var(--hard);}
+  .pg::before{content:''; position:absolute; top:0; right:0; border-style:solid; border-width:0 18px 18px 0; border-color:transparent var(--paper) var(--tan) transparent;}
+  .pg .num{font-family:var(--num); font-weight:700; font-size:12px; letter-spacing:.1em; color:var(--brown);}
+  .pg h3{font-size:17px; margin-top:6px;}
+  .pg p{font-size:13px; color:var(--ink-dim); margin-top:6px; line-height:1.5;}
+  .pages-foot{margin-top:26px; text-align:center; font-size:14.5px; color:var(--brown);}
+
+  /* ---------- modes + levels ---------- */
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  .two h3{margin-bottom:8px;}
+  .two p{font-size:15px; color:var(--ink-dim);}
+  .levels{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .level .tagline{font-family:var(--sc); letter-spacing:.14em; font-size:13px; text-transform:uppercase; color:var(--brown);}
+  .level h3{font-size:30px; margin-top:4px; color:var(--red);}
+  .level .ages{font-size:13.5px; color:var(--brown); margin-top:2px;}
+  .level dl{margin:16px 0 0; display:grid; gap:9px;}
+  .level dl div{display:flex; justify-content:space-between; gap:12px; padding-bottom:9px; border-bottom:1px dotted var(--line-strong); font-size:14px;}
+  .level dt{color:var(--ink-dim);}
+  .level dd{margin:0; font-weight:700; text-align:right; font-family:var(--num); font-size:13.5px;}
+  .level p{margin-top:14px; font-size:13.5px; color:var(--ink-dim);}
+  .levels-note{margin-top:26px; text-align:center; font-size:14.5px; color:var(--ink-dim); max-width:72ch; margin-left:auto; margin-right:auto;}
+
+  /* ---------- hints ---------- */
+  .hintflow{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; counter-reset:h;}
+  .hintflow .card{padding:24px 22px; text-align:left;}
+  .hintflow .card::before{counter-increment:h; content:counter(h); display:block; font-family:var(--num); font-weight:700; font-size:32px; line-height:1.1; color:var(--red); margin-bottom:6px;}
+  .hintflow h3{font-size:19px;}
+  .hintflow p{font-size:14.5px; color:var(--ink-dim); margin-top:8px;}
+  .hint-bars{margin-top:30px; display:flex; flex-direction:column; gap:12px; max-width:560px; margin-left:auto; margin-right:auto;}
+  .hb{display:flex; align-items:center; gap:14px; font-size:13.5px;}
+  .hb span:first-child{width:108px; flex:none; color:var(--ink-dim); text-align:right;}
+  .hb .bar{flex:1; height:18px; background:var(--paper-2); border:2px solid var(--ink); border-radius:3px; overflow:hidden;}
+  .hb .bar i{display:block; height:100%; background:repeating-linear-gradient(45deg,var(--red) 0 6px,#9A4331 6px 12px);}
+  .hb b{width:52px; flex:none; font-family:var(--num); font-size:13px;}
+
+  /* ---------- fairness ---------- */
+  .fair{background:var(--paper-2); border-top:3px solid var(--ink); border-bottom:3px solid var(--ink);}
+  .checks{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  .check{display:flex; gap:16px; padding:22px 22px;}
+  .check .seal{flex:none; width:44px; height:44px; border-radius:50%; background:var(--ink); color:var(--tan); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:2px 2px 0 var(--tan);}
+  .check h3{font-size:18px;}
+  .check p{font-size:14.5px; color:var(--ink-dim); margin-top:6px;}
+
+  /* ---------- made to sell ---------- */
+  .sell{display:grid; grid-template-columns:1fr 1fr; gap:34px; align-items:center;}
+  .sell ul{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:16px;}
+  .sell li{display:flex; gap:12px; font-size:15.5px; color:var(--ink-dim);}
+  .sell li::before{content:''; width:8px; height:8px; margin:.55em 4px 0 3px; flex:none; background:var(--red); transform:rotate(45deg);}
+  .sell li b{color:var(--ink);}
+  .mock-page{
+    position:relative; aspect-ratio:8.5/11; max-width:350px; margin:0 auto; padding:26px 24px 18px;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 12%, rgba(150,100,40,.2), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 90% 90%, rgba(120,70,30,.22), transparent 70%),
+      linear-gradient(100deg, transparent 38%, rgba(59,36,18,.07) 38.3%, rgba(255,255,255,.3) 38.9%, transparent 39.4%),
+      var(--paper-2);
+    border:2.5px solid var(--ink); box-shadow:7px 7px 0 var(--hard); transform:rotate(1.4deg);
+    display:flex; flex-direction:column;
+  }
+  .mock-page::before{content:''; position:absolute; inset:10px; border:2px solid var(--brown); outline:1px solid var(--brown); outline-offset:3px; pointer-events:none;}
+  .mock-page .mp-title{font-family:var(--sc); font-size:13px; letter-spacing:.14em; text-align:center; color:var(--brown); margin-top:8px;}
+  .mock-page .mp-h{font-family:var(--serif); font-size:25px; text-align:center; margin-top:6px; line-height:1.1;}
+  .mock-page .mp-grid{flex:1; margin:16px 8px; display:flex; align-items:center; justify-content:center;}
+  .mock-page .mp-grid svg{width:78%; height:auto;}
+  .mock-page .mp-box{display:flex; justify-content:center; align-items:center; gap:10px; font-size:11px; color:var(--brown);}
+  .mock-page .mp-box i{width:34px; height:34px; border:2px solid var(--ink); background:var(--card);}
+  .mock-page .mp-foot{display:flex; justify-content:space-between; gap:8px; font-size:9px; color:var(--brown); margin-top:14px; padding:0 8px; font-style:italic;}
+  .mock-cap{margin-top:16px; text-align:center; font-size:12.5px; color:var(--brown);}
+
+  /* ---------- who ---------- */
+  .who-card h3{font-family:var(--sc); font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown);}
+  .who-card ul{list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; font-size:15px;}
+  .who-card li{display:flex; gap:10px; align-items:flex-start;}
+  .who-card.yes li::before{content:''; width:14px; height:14px; margin-top:.3em; flex:none; background:var(--ck) center/contain no-repeat;}
+  .who-card.no li::before{content:'—'; color:var(--brown); font-weight:800; flex:none;}
+
+  /* ---------- pricing ---------- */
+  .offer{max-width:560px; margin:0 auto; text-align:center; padding:38px 34px 36px;}
+  .offer .name{font-family:var(--sc); letter-spacing:.14em; text-transform:uppercase; font-size:14px; color:var(--brown);}
+  .offer .price{font-family:var(--num); font-weight:700; font-size:80px; line-height:1; color:var(--red); margin-top:6px;}
+  .offer .price sup{font-size:.42em; vertical-align:top; position:relative; top:.16em; margin-right:3px;}
+  .offer .per{font-size:14px; color:var(--brown); margin-top:2px;}
+  .offer ul{list-style:none; margin:26px 0 28px; padding:0; text-align:left; display:flex; flex-direction:column; gap:12px; font-size:15px;}
+  .offer li{display:flex; gap:11px;}
+  .offer li::before{content:''; width:14px; height:14px; margin-top:.3em; flex:none; background:var(--ck) center/contain no-repeat;}
+  .offer .btn{width:100%;}
+
+  /* ---------- faq ---------- */
+  .faq{max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+  .faq details{background:var(--card); border:2.5px solid var(--ink); border-radius:6px; box-shadow:4px 4px 0 var(--hard); overflow:hidden;}
+  .faq summary{list-style:none; cursor:pointer; padding:17px 22px; display:flex; justify-content:space-between; align-items:center; gap:16px; font-weight:800; font-size:16px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:'+'; font-family:var(--serif); font-size:28px; line-height:1; color:var(--red); flex:none; transition:transform .2s ease;}
+  .faq details[open] summary::after{transform:rotate(45deg);}
+  .faq .a{padding:0 22px 20px; font-size:15px; color:var(--ink-dim); line-height:1.7;}
+
+  /* ---------- final + footer ---------- */
+  .final{text-align:center; border-top:3px solid var(--ink); background:var(--paper-2);}
+  .final h2{margin-top:18px;}
+  .final .lead{margin-top:16px;}
+  .final .hero-cta{margin-top:30px;}
+  .contact{margin:44px auto 0; max-width:620px; padding:24px 26px; text-align:center;}
+  .contact h3{font-size:20px;}
+  .contact p{font-size:14.5px; color:var(--ink-dim); margin-top:6px;}
+  .contact a{font-weight:800;}
+  .ps{max-width:640px; margin:38px auto 0; text-align:left; font-size:15px; color:var(--ink-dim); display:flex; flex-direction:column; gap:12px;}
+  footer{background:var(--ink); color:#D9C7A3; padding:40px 0 46px;}
+  footer .brand-text .b1{color:#F4E8CB;}
+  footer .brand-text .b2{color:var(--tan);}
+  .foot-grid{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+  .foot-links{display:flex; gap:20px; flex-wrap:wrap; font-size:13.5px;}
+  .foot-links a{text-decoration:none;}
+  .foot-links a:hover{color:#fff; text-decoration:underline;}
+  .foot-legal{margin-top:24px; font-size:12px; line-height:1.7; color:#A98F68; max-width:920px;}
+
+  .sticky-cta{display:none; position:fixed; left:0; right:0; bottom:0; z-index:50; padding:11px 14px; background:rgba(244,232,203,.97); border-top:3px solid var(--ink);}
+  .sticky-cta .btn{width:100%; padding:14px;}
+
+  @media (max-width:960px){
+    .hero-grid{grid-template-columns:1fr; gap:38px;}
+    .steps{grid-template-columns:repeat(2,1fr); row-gap:30px;}
+    .pages{grid-template-columns:repeat(2,1fr);}
+    .stats{grid-template-columns:repeat(2,1fr); row-gap:22px;}
+    .sell{grid-template-columns:1fr;}
+  }
+  @media (max-width:720px){
+    section{padding:62px 0;}
+    .fork,.two,.levels,.hintflow,.checks,.rules3{grid-template-columns:1fr;}
+    .topbar .price-chip{display:none;}
+    .topbar .btn-sm{white-space:nowrap; padding:9px 13px; font-size:13px;}
+    .topbar .btn-sm{display:none;}
+    .topbar-inner{padding:10px 16px; gap:10px;}
+    .brand-text .b1{font-size:16px;}
+    .eyebrow{font-size:12.5px; letter-spacing:.1em;}
+    .sticky-cta{display:block;}
+    body{padding-bottom:78px;}
+    .trust-row{grid-template-columns:1fr;}
+    .offer .price{font-size:66px;}
+    .tile{width:36px; height:44px; font-size:25px;}
+    .steps{grid-template-columns:1fr;}
+    .hb span:first-child{width:78px;}
+  }
+  @media (max-width:420px){
+    .wrap,.wrap-narrow{padding:0 18px;}
+    .pages{grid-template-columns:1fr;}
+    .brand-text .b2{display:none;}
+  }
+
+
+/* ================= MOTION LAYER =================
+   Everything below is armed by fx.js, so with scripts blocked the page is a
+   plain, fully visible document. */
+
+.progress{
+  position:fixed; top:0; left:0; height:4px; width:100%; z-index:60; pointer-events:none;
+  transform:scaleX(0); transform-origin:0 50%; will-change:transform;
+  background:linear-gradient(90deg,var(--red),var(--tan));
+}
+.topbar{transition:box-shadow .28s ease;}
+.topbar.is-stuck{box-shadow:0 10px 24px -14px rgba(59,36,18,.65);}
+
+/* staggered children */
+.s-item{opacity:0; transform:translateY(18px); transition:opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);}
+.s-item.s-in{opacity:1; transform:none;}
+.s-item.pop{transform:scale(.9) translateY(10px); transition-timing-function:cubic-bezier(.34,1.56,.64,1);}
+.s-item.pop.s-in{transform:none;}
+
+/* cards are picked up a little when hovered */
+.card:not(.demo):not(.offer), .pg, .check, .step{transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease;}
+.card:not(.demo):not(.offer):hover, .step:hover{
+  transform:translate(-2px,-4px) rotate(-.45deg);
+  box-shadow:inset 0 0 0 4px var(--card), inset 0 0 0 5.5px rgba(122,82,48,.45), 8px 9px 0 var(--hard);
+}
+.pg:hover{transform:translate(-2px,-4px) rotate(.6deg); box-shadow:7px 8px 0 var(--hard);}
+.pg:nth-child(even):hover{transform:translate(-2px,-4px) rotate(-.6deg);}
+
+/* warm cursor glow */
+.glow{position:relative;}
+.glow::after{
+  content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(240px circle at var(--gx,50%) var(--gy,0%), rgba(201,168,119,.42), transparent 72%);
+  mix-blend-mode:multiply; opacity:0; transition:opacity .3s ease;
+}
+.glow:hover::after{opacity:1;}
+
+/* the primary buttons catch the light now and then */
+.btn{position:relative; overflow:hidden;}
+.btn:not(.btn-ghost)::after{
+  content:''; position:absolute; top:0; left:-60%; width:36%; height:100%; pointer-events:none;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,244,214,.5) 50%,transparent 100%);
+  transform:skewX(-20deg); animation:btn-shine 3.8s ease-in-out infinite;
+}
+@keyframes btn-shine{0%{left:-60%;} 55%{left:135%;} 100%{left:135%;}}
+
+/* floating tiles behind the hero */
+.hero, .oto-head, .jv-hero{position:relative;}
+.hero > .wrap, .oto-head > .wrap-narrow, .oto-head > .wrap, .jv-hero > .wrap{position:relative; z-index:1;}
+.hero-deco{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.hero-deco .t{
+  position:absolute; display:flex; align-items:center; justify-content:center; width:44px; height:52px;
+  font-family:var(--serif); font-size:29px; color:var(--ink); background:var(--card);
+  border:2.5px solid var(--ink); border-radius:4px; box-shadow:3px 3px 0 var(--hard); opacity:.5;
+}
+.hero-deco .d1{left:1.6%; top:24%; animation:float-a 7.5s ease-in-out infinite;}
+.hero-deco .d2{right:1.6%; top:9%; animation:float-b 9.5s ease-in-out infinite;}
+.hero-deco .d3{right:2.4%; bottom:12%; animation:float-a 8.5s ease-in-out infinite reverse;}
+.hero-deco .d4{left:2.4%; bottom:9%; animation:float-b 6.5s ease-in-out infinite reverse;}
+@keyframes float-a{0%,100%{transform:translateY(0) rotate(-10deg);} 50%{transform:translateY(-20px) rotate(5deg);}}
+@keyframes float-b{0%,100%{transform:translateY(0) rotate(4deg);} 50%{transform:translateY(17px) rotate(-9deg);}}
+@media (max-width:1240px){ .hero-deco{display:none;} }
+
+/* theme marquee */
+.marquee{
+  position:relative; margin-top:34px; display:flex; flex-direction:column; gap:12px; overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+}
+.mq-row{display:flex; gap:10px; width:max-content; animation:mq-left 46s linear infinite;}
+.mq-row.rev{animation-name:mq-right; animation-duration:54s;}
+.marquee:hover .mq-row{animation-play-state:paused;}
+.mq-row span{
+  flex:none; white-space:nowrap; font-weight:700; font-size:14px; color:var(--ink);
+  background:var(--card); border:2px solid var(--ink); border-radius:999px; padding:8px 17px; box-shadow:2px 2px 0 var(--hard);
+}
+@keyframes mq-left{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+@keyframes mq-right{from{transform:translateX(-50%);} to{transform:translateX(0);}}
+
+/* console print-out, line by line */
+.panel pre .tl{display:block; white-space:pre;}
+.panel pre.armed .tl{opacity:0; transform:translateY(3px);}
+.panel pre.armed.is-typed .tl{animation:tl-in .3s ease forwards;}
+@keyframes tl-in{to{opacity:1; transform:none;}}
+.term-cursor{display:inline-block; width:8px; height:14px; background:var(--tan); vertical-align:-2px; margin-left:5px; opacity:0;}
+.panel pre.is-typed .term-cursor{animation:blink 1.05s steps(1) infinite 1.6s;}
+@keyframes blink{0%,50%{opacity:1;} 50.01%,100%{opacity:0;}}
+
+/* hand-drawn circle */
+.circle-hl{position:relative; display:inline-block; white-space:nowrap; margin:0 .02em 0 .28em;}
+.circle-hl > svg{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-2deg);
+  width:134%; height:200%; overflow:visible; pointer-events:none; max-width:none;
+}
+.circle-hl svg path{fill:none; stroke:var(--brown); stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:700; stroke-dashoffset:0;}
+.circle-hl.armed svg path{stroke-dashoffset:700;}
+.circle-hl.armed.is-drawn svg path{animation:draw-circle 1.1s cubic-bezier(.65,0,.35,1) .2s forwards;}
+@keyframes draw-circle{to{stroke-dashoffset:0;}}
+
+/* letter tiles flip in one by one, then the lock opens */
+.tile{--r:0deg; transform:rotate(var(--r));}
+.tile:nth-child(odd){--r:-1.5deg;}
+.tile:nth-child(even){--r:1.2deg;}
+.tiles.armed .tile{opacity:0;}
+.tiles.is-in .tile{animation:tile-in .55s cubic-bezier(.34,1.56,.64,1) both; animation-delay:calc(var(--i,0) * 110ms);}
+@keyframes tile-in{0%{opacity:0; transform:translateY(-16px) rotateX(90deg);} 100%{opacity:1; transform:rotate(var(--r));}}
+.lock .shackle{transition:transform .55s cubic-bezier(.34,1.56,.64,1); transform-origin:8px 10.5px;}
+.lock.is-open .shackle{transform:translateY(-3px) rotate(-20deg);}
+.lock.is-open{animation:lock-pop .5s ease;}
+@keyframes lock-pop{0%{transform:scale(1);} 40%{transform:scale(1.04);} 100%{transform:scale(1);}}
+
+/* faq */
+.faq summary{transition:background .2s ease;}
+.faq summary:hover{background:var(--paper-2);}
+.faq details[open] .a{animation:faq-in .3s cubic-bezier(.22,1,.36,1);}
+@keyframes faq-in{from{opacity:0; transform:translateY(-7px);} to{opacity:1; transform:none;}}
+
+/* sticky CTA slides up once the hero is behind you */
+.sticky-cta.armed{transform:translateY(115%); transition:transform .38s cubic-bezier(.22,1,.36,1);}
+.sticky-cta.armed.is-up{transform:none;}
+
+/* sound toggle */
+.sfx{
+  display:inline-flex; align-items:center; gap:7px; cursor:pointer; flex:none;
+  font-family:var(--sc); font-size:12px; letter-spacing:.14em; color:var(--ink);
+  background:var(--card); border:2.5px solid var(--ink); border-radius:999px; padding:6px 11px 5px; box-shadow:0 3px 0 var(--hard);
+}
+.sfx svg{width:15px; height:15px;}
+.sfx[aria-pressed="false"]{opacity:.6;}
+.sfx[aria-pressed="false"] .sfx-wave{display:none;}
+@media (max-width:720px){ .sfx .sfx-label{display:none;} .sfx{padding:6px 8px;} }
+
+@media (prefers-reduced-motion: reduce){
+  .hero-deco .t, .mq-row, .btn::after, .tiles.is-in .tile, .circle-hl.armed.is-drawn svg path{animation:none !important;}
+  .s-item, .sticky-cta.armed{opacity:1 !important; transform:none !important; transition:none !important;}
+  .tiles.armed .tile{opacity:1;}
+}
+
+/* digits inside the old-style display fonts are set in a lining-figure serif (wrapped by fx.js) */
+.nm{font-family:var(--num); font-weight:700; font-size:.86em; letter-spacing:.03em; font-style:normal;}
+
+
+/* ================= OTO + JV SHARED COMPONENTS ================= */
+.oto-banner{background:var(--ink); color:#F4E8CB; text-align:center; font-family:var(--sc); letter-spacing:.14em; text-transform:uppercase; font-size:13px; padding:9px 16px;}
+.oto-banner b{color:var(--tan); font-weight:400;}
+.oto-head{padding:64px 0 58px; text-align:center; border-bottom:3px solid var(--ink); overflow:hidden;}
+.oto-head h1{margin-top:20px; font-size:clamp(34px,5.6vw,56px);}
+.oto-head .hero-sub{margin:20px auto 0; max-width:64ch;}
+.oto-head .oto-buy{margin-top:30px;}
+
+.tick{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:13px; font-size:15px;}
+.tick li{display:flex; gap:11px; align-items:flex-start;}
+.tick li::before{content:''; width:14px; height:14px; margin-top:.32em; flex:none; background:var(--ck) center/contain no-repeat;}
+.tick li b{color:var(--ink);}
+.tick.dim li{color:var(--ink-dim);}
+
+.oto-grid{display:grid; grid-template-columns:1.3fr .7fr; gap:24px;}
+.oto-grid h3{font-family:var(--sc); font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--brown);}
+.oto-grid .sub{font-size:14px; color:var(--brown); margin-top:6px;}
+.oto-grid .tick{margin-top:20px;}
+.oto-grid .tick li span{display:block; font-size:13.5px; color:var(--ink-dim); margin-top:3px;}
+
+.feat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:22px;}
+.feat{padding:26px 24px;}
+.feat .tag{display:inline-block; font-family:var(--sc); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--card); background:var(--red); padding:4px 11px 3px; border-radius:999px;}
+.feat h3{margin-top:12px; font-size:23px;}
+.feat p{margin-top:9px; font-size:14.5px; color:var(--ink-dim);}
+
+.oto-numbers{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:34px;}
+.oto-num{text-align:center; padding:6px;}
+.oto-num b{display:block; font-family:var(--num); font-weight:700; font-size:34px; line-height:1.1; color:var(--red);}
+.oto-num span{display:block; margin-top:7px; font-size:13.5px; color:var(--ink-dim);}
+
+.oto-buy{text-align:center;}
+.oto-note{font-size:13.5px; color:var(--brown); margin:14px auto 0; max-width:58ch;}
+.oto-decline{display:inline-block; margin-top:18px; font-size:14px; color:var(--brown); text-decoration:underline; text-underline-offset:3px;}
+.oto-decline:hover{color:var(--red);}
+.price-line{font-family:var(--num); font-weight:700; color:var(--red); font-size:1.15em;}
+
+.tbl-wrap{overflow-x:auto;}
+table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var(--card); border:2.5px solid var(--ink); box-shadow:5px 5px 0 var(--hard);}
+.tbl th, .tbl td{padding:13px 16px; text-align:left; border-bottom:1.5px dotted var(--line-strong); vertical-align:top;}
+.tbl th{font-family:var(--sc); font-weight:400; letter-spacing:.12em; text-transform:uppercase; font-size:13px; background:var(--paper-2); color:var(--brown); border-bottom:2.5px solid var(--ink);}
+.tbl tr:last-child td{border-bottom:0;}
+.tbl td:first-child{font-weight:700; color:var(--ink);}
+.tbl td.hi{color:var(--red); font-weight:700;}
+
+.stagger-note{font-size:14px; color:var(--brown); text-align:center; margin-top:22px;}
+
+@media (max-width:960px){ .oto-grid{grid-template-columns:1fr;} .oto-numbers{grid-template-columns:repeat(2,1fr); row-gap:22px;} }
+@media (max-width:720px){ .feat-grid{grid-template-columns:1fr;} .oto-head{padding:48px 0 44px;} }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h5M14 5h5M5 5v5M19 5v5M10 10v5M14 10h5M5 15h5M5 19h14M19 14v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="5" r="1.4" fill="currentColor"/><circle cx="19" cy="19" r="1.4" fill="currentColor"/></svg>
+      </span>
+      <span class="brand-text"><span class="b1">Slitherlink Escape</span><span class="b2">Game Builder</span></span>
+    </a>
+    <div class="topbar-cta">
+      <div class="price-chip">Launch price<b>$17</b></div>
+      <a class="btn btn-sm" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get Instant Access</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="hero-deco" aria-hidden="true"><span class="t d1">E</span><span class="t d2">K</span><span class="t d3">M</span><span class="t d4">A</span></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Web app &middot; Printable escape games</span>
+      <h1>Solve the loop. <em>Read the letter.</em> Crack the code.</h1>
+      <p class="hero-sub">Slitherlink Escape Game Builder assembles a complete printable escape game &mdash; a story, 8 to 15 verified Slitherlink puzzles, hint cards, a host guide and an answer key &mdash; and exports it as a print-ready PDF you can sell. Every solved loop forms a letter. The letters spell the secret code.</p>
+      <div class="hero-cta">
+        <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+        <span class="btn-sub" style="text-align:left;">Unlimited games &middot; no watermark &middot; commercial licence included</span>
+      </div>
+      <div class="trust-row">
+        <span>8&ndash;15 puzzles per game</span>
+        <span>Every puzzle has exactly one solution</span>
+        <span>A4, Letter &amp; KDP 8.5&times;11</span>
+        <span>18 story themes</span>
+        <span>Your shop name on every page</span>
+        <span>Ages 11&ndash;17 and adults</span>
+      </div>
+    </div>
+
+    <div class="card demo" id="demo" aria-labelledby="demoTitle">
+      <div class="demo-tag">Try one &middot; illustrative sample</div>
+      <h3 id="demoTitle">Draw the loop. What letter is hiding?</h3>
+      <svg id="demoSvg" role="img" aria-label="A 7 by 9 Slitherlink grid. Tap between dots to draw a line."></svg>
+      <div class="demo-msg" id="demoMsg">Tap between two dots to draw a line. A number says how many of that square&rsquo;s four sides the loop uses.</div>
+      <div class="demo-btns">
+        <button class="btn btn-ghost btn-sm" type="button" id="demoSolve">Show the solution</button>
+        <button class="btn btn-ghost btn-sm" type="button" id="demoClear">Clear</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ PROBLEM ============ -->
+<section class="reveal" id="why">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Why these never get listed</span>
+      <h2>Puzzles are easy to find. A <em>sellable escape game</em> is not.</h2>
+      <p class="lead">A real escape game is thirty-odd pages that all have to agree with each other: the story, the code, the puzzles, the hints, the host guide. That is where most listings stall.</p>
+    </div>
+
+    <div class="fork">
+      <div class="card old">
+        <h3>Making one by hand</h3>
+        <ul>
+          <li>Source or draw puzzles, then check each has exactly one solution</li>
+          <li>Design letter shapes that still work when drawn as a single loop</li>
+          <li>Write a story whose secret code matches the number of puzzles</li>
+          <li>Build hint cards, a host guide and an answer key that all line up</li>
+          <li>Rework every page for A4, Letter and KDP trim sizes</li>
+          <li>Start again for the next game &mdash; and risk duplicate content</li>
+        </ul>
+      </div>
+      <div class="card new">
+        <h3>With the Builder</h3>
+        <ul>
+          <li>Puzzles are generated, then checked by two independent solvers</li>
+          <li>All 26 letters are drawn for you, in more than one shape</li>
+          <li>The code, chapters and puzzle count are validated before you can export</li>
+          <li>Hint cards, host guide, answer key and certificate are assembled for you</li>
+          <li>One choice of paper size, your shop name on every page</li>
+          <li>A fresh seed every export &mdash; your puzzle set is yours alone</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b>8&ndash;15</b><span>puzzles in every game</span></div>
+      <div class="stat"><b data-count="26">26</b><span>letters, A to Z, all drawn</span></div>
+      <div class="stat"><b data-count="1">1</b><span>solution per puzzle &mdash; verified</span></div>
+      <div class="stat"><b data-count="30">30</b><span>pages in our sample game</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE TWIST ============ -->
+<section class="twist reveal" id="twist">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">The twist</span>
+      <h2>Every solved loop is <span class="circle-hl"><em>a letter</em><svg viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true"><path d="M12,30 C12,10 56,3 110,3 C164,3 208,10 208,30 C208,50 164,57 110,57 C57,57 14,51 12,33"/></svg></span>.</h2>
+      <p class="lead">Finish a puzzle and shade inside the loop: the shape is a capital letter. Each chapter&rsquo;s letters spell a word, and the words join into the code that opens the Final Lock. Every puzzle page says exactly which letter it is &mdash; <i>&ldquo;Word 2, letter 3 of 6&rdquo;</i> &mdash; so the code assembles itself.</p>
+    </div>
+
+    <div class="code-demo" aria-label="Example: eleven puzzles give eleven letters, which spell MAGIC SLEIGH">
+      <div class="chapters">
+        <div class="chap">
+          <div class="chap-label">Chapter <span class="nm">1</span> &middot; <span class="nm">5</span> puzzles</div>
+          <div class="tiles"><span class="tile">M</span><span class="tile">A</span><span class="tile">G</span><span class="tile">I</span><span class="tile">C</span></div>
+        </div>
+        <div class="chap">
+          <div class="chap-label">Chapter <span class="nm">2</span> &middot; <span class="nm">6</span> puzzles</div>
+          <div class="tiles"><span class="tile">S</span><span class="tile">L</span><span class="tile">E</span><span class="tile">I</span><span class="tile">G</span><span class="tile">H</span></div>
+        </div>
+      </div>
+      <div class="arrow-down" aria-hidden="true"><svg viewBox="0 0 22 30" fill="none"><path d="M11 2v24M3 18l8 8 8-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="lock">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><g class="shackle"><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g><circle cx="12" cy="15.5" r="1.4" fill="currentColor"/></svg>
+        <div>Final Lock<b>MAGIC SLEIGH</b></div>
+      </div>
+      <p class="code-note">From our sample game, <i>The Christmas Eve Lockdown</i>: 11 puzzles, 11 letters, 2 chapters, one code.</p>
+    </div>
+
+    <div class="rules3">
+      <div class="card"><div class="n">8&ndash;15</div><h3>Letters in the code</h3><p>One puzzle per letter, so the puzzle count is always the letter count. Repeated letters still get a puzzle each.</p></div>
+      <div class="card"><div class="n">2&ndash;3</div><h3>Chapters, one word each</h3><p>Each chapter opens with a story page and ends with a word. A riddle on the Code Sheet hints at every word.</p></div>
+      <div class="card"><div class="n">1</div><h3>Code tied to the story</h3><p>The code is part of the plot &mdash; checked against the story before the game can be built.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="reveal" id="how">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">How it works</span>
+      <h2>Five steps from blank page to <em>listing-ready PDF</em>.</h2>
+      <p class="lead">There is no AI inside the Builder and no chatbot to babysit. It writes the story prompt, you run it in whichever AI you already use, and the Builder checks what comes back.</p>
+    </div>
+
+    <div class="panel" aria-label="What a project looks like, step by step">
+      <div class="panel-bar">new game &mdash; &ldquo;The Christmas Eve Lockdown&rdquo;</div>
+<pre><span class="tl"><span class="k">Step 1  Setup     </span>Christmas &middot; Medium &middot; 11 puzzles &middot; 2 chapters</span><span class="tl"><span class="k">Step 2  Story     </span>copy prompt &rarr; paste into your AI &rarr; paste the reply back</span><span class="tl"><span class="k">Step 3  Check     </span>code MAGIC SLEIGH <span class="ok">&#10003;</span>  11 letters <span class="ok">&#10003;</span>  20 questions <span class="ok">&#10003;</span></span><span class="tl"><span class="k">Step 4  Generate  </span>11 puzzles &middot; one solution each <span class="ok">&#10003;</span> &middot; solved by logic <span class="ok">&#10003;</span></span><span class="tl"><span class="k">Step 5  Export    </span>US Letter &middot; aged paper &middot; 30-page PDF</span></pre>
+    </div>
+
+    <div class="steps">
+      <div class="card step"><span class="n">1</span><h3>Set it up</h3><p>Pick one of 18 themes, a difficulty, 8&ndash;15 puzzles and 2&ndash;3 chapters. Enter your shop name once.</p></div>
+      <div class="card step"><span class="n">2</span><h3>Copy the prompt</h3><p>The Builder writes a ready-made story prompt for your chosen theme. Paste it into ChatGPT, Claude or any AI you use.</p><div class="tip">Prefer no AI? Ready-made story templates are included.</div></div>
+      <div class="card step"><span class="n">3</span><h3>Paste it back</h3><p>The Builder checks the code, letter count, lengths and the 20 hint questions &mdash; and tells you exactly what to fix. Edit any paragraph by hand.</p></div>
+      <div class="card step"><span class="n">4</span><h3>Generate</h3><p>Puzzles are generated in your browser, with a progress bar, and each one is verified before it goes in.</p></div>
+      <div class="card step"><span class="n">5</span><h3>Export</h3><p>Download a print-ready PDF in A4, Letter or KDP 8.5&times;11. Save the project to remake it later.</p></div>
+    </div>
+
+    <div class="marquee" aria-label="Some of the 18 story themes">
+      <div class="mq-row"><span>Christmas</span><span>Halloween</span><span>Easter</span><span>Valentine&rsquo;s Day</span><span>Thanksgiving</span><span>New Year</span><span>Pirates &amp; Treasure</span><span>Ancient Egypt</span><span>Outer Space</span></div>
+      <div class="mq-row rev"><span>Jungle Expedition</span><span>Under the Sea</span><span>Dinosaurs</span><span>School</span><span>Science Lab</span><span>Museum</span><span>Detective Agency</span><span>Medieval Castle</span><span>Wizard Academy</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT'S INSIDE ============ -->
+<section class="reveal" id="inside" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">What&rsquo;s inside every game</span>
+      <h2>One export. <em>Twelve kinds of page.</em></h2>
+      <p class="lead">Everything a host needs to run the game, printed in this order &mdash; nothing for you to lay out.</p>
+    </div>
+
+    <div class="pages">
+      <div class="pg"><div class="num">01</div><h3>Cover</h3><p>Title, tagline, age range, player count and estimated play time.</p></div>
+      <div class="pg"><div class="num">02</div><h3>Prologue &amp; mission</h3><p>The story opener players read first, and what they have to achieve.</p></div>
+      <div class="pg"><div class="num">03</div><h3>How to Play</h3><p>Full Slitherlink rules with a worked example, plus how hints are earned.</p></div>
+      <div class="pg"><div class="num">04</div><h3>Code Sheet</h3><p>Letter boxes per chapter, a riddle for each word, and the final code.</p></div>
+      <div class="pg"><div class="num">05</div><h3>Chapter pages</h3><p>A story lead-in for each chapter before its puzzles begin.</p></div>
+      <div class="pg"><div class="num">06</div><h3>Puzzle pages</h3><p>A story title, the grid, and a box for the letter with its exact position.</p></div>
+      <div class="pg"><div class="num">07</div><h3>Final Lock</h3><p>The page where the finished code opens the ending.</p></div>
+      <div class="pg"><div class="num">08</div><h3>Host guide</h3><p>What to print, set-up, play modes, timing, hint rules and a read-aloud ending.</p></div>
+      <div class="pg"><div class="num">09</div><h3>Hint questions</h3><p>20 multiple-choice questions for the host, with the answers marked.</p></div>
+      <div class="pg"><div class="num">10</div><h3>Hint cards</h3><p>Two per puzzle, six to a page, with cut lines.</p></div>
+      <div class="pg"><div class="num">11</div><h3>Answer key</h3><p>The code plus a picture of every solution, four to a page.</p></div>
+      <div class="pg"><div class="num">12</div><h3>Certificate</h3><p>Landscape: team name, date, finishing time and hints used.</p></div>
+    </div>
+    <p class="pages-foot">The Code Sheet and every puzzle page are tied together by letter position, so the host never has to match anything by hand.</p>
+
+    <div class="two" style="margin-top:56px;">
+      <div class="card"><h3>Group play</h3><p>Everyone works the same game. The host shares the puzzles out between players, who fill in one shared Code Sheet. Works for 2&ndash;6 players.</p></div>
+      <div class="card"><h3>Team play</h3><p>Each team gets its own copy. The first team to open the Final Lock wins, and each hint adds an optional two-minute penalty. Same pages, different hand-out.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIFFICULTY ============ -->
+<section class="reveal" id="levels" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Three difficulty levels</span>
+      <h2>Pitch it at the <em>right age</em>.</h2>
+      <p class="lead">Difficulty follows age and grid size, and it is judged by a solver that reasons like a person &mdash; not just by how many clues are printed.</p>
+    </div>
+
+    <div class="levels">
+      <div class="card level">
+        <div class="tagline">Level <span class="nm">1</span></div><h3>Easy</h3><div class="ages">Ages 11&ndash;13</div>
+        <dl>
+          <div><dt>Grid</dt><dd>7 &times; 9</dd></div>
+          <div><dt>Clues</dt><dd>Plenty</dd></div>
+          <div><dt>Reasoning</dt><dd>Basic rules</dd></div>
+        </dl>
+        <p>Every puzzle draws its letter the normal way: the inside of the loop is the letter.</p>
+      </div>
+      <div class="card level">
+        <div class="tagline">Level <span class="nm">2</span></div><h3>Medium</h3><div class="ages">Ages 14&ndash;17</div>
+        <dl>
+          <div><dt>Grid</dt><dd>10 &times; 12</dd></div>
+          <div><dt>Letter position</dt><dd>Random</dd></div>
+          <div><dt>Reasoning</dt><dd>Try-one-edge</dd></div>
+        </dl>
+        <p>Roughly 5&ndash;8 minutes a puzzle. The time estimate is worked out for you and printed on the cover and host guide.</p>
+      </div>
+      <div class="card level">
+        <div class="tagline">Level <span class="nm">3</span></div><h3>Hard</h3><div class="ages">Adults</div>
+        <dl>
+          <div><dt>Grid</dt><dd>10&times;12 to 13&times;14</dd></div>
+          <div><dt>Boss puzzles</dt><dd>1&ndash;2 reversed</dd></div>
+          <div><dt>Reasoning</dt><dd>Advanced</dd></div>
+        </dl>
+        <p>On a reversed puzzle the loop wraps almost the whole grid and the letter is the blank space inside it.</p>
+      </div>
+    </div>
+    <p class="levels-note">Presets are a starting point. You can set your own puzzle count and grid size, and suggestions come built in: 8&ndash;10 puzzles suit a party or classroom version, 12&ndash;15 suit a book.</p>
+  </div>
+</section>
+
+<!-- ============ HINTS ============ -->
+<section class="twist reveal" id="hints">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Hints you have to earn</span>
+      <h2>Stuck? <em>Answer a question</em> first.</h2>
+      <p class="lead">Players don&rsquo;t just flip to the answer page. A hint is a prize for reading the story and paying attention.</p>
+    </div>
+
+    <div class="hintflow">
+      <div class="card"><h3>Ask the Host</h3><p>The host reads out a multiple-choice question from the game&rsquo;s set of 20 &mdash; part story, part theme trivia. Answers are shuffled between A, B and C.</p></div>
+      <div class="card"><h3>Answer right, get a card</h3><p>A correct answer earns the next hint card for the puzzle they choose. Hint 1 must come before Hint 2.</p></div>
+      <div class="card"><h3>Answer wrong, wait</h3><p>A wrong answer means a two-minute wait before trying a different question. Nobody can brute-force the hints.</p></div>
+    </div>
+
+    <div class="hint-bars" aria-label="How much of the loop each hint card draws">
+      <div class="hb"><span>Hint 1 draws</span><div class="bar"><i style="width:20%"></i></div><b>~20%</b></div>
+      <div class="hb"><span>Hint 2 draws</span><div class="bar"><i style="width:50%"></i></div><b>~50%</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAIRNESS ============ -->
+<section class="reveal" id="verified">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Checked before it reaches your PDF</span>
+      <h2>A puzzle nobody can solve is <em>a refund request</em>.</h2>
+      <p class="lead">Before an export is allowed, the Builder verifies every page that depends on the maths.</p>
+    </div>
+
+    <div class="checks">
+      <div class="card check"><div class="seal">1</div><div><h3>Exactly one solution</h3><p>A second, independent solver counts solutions. A puzzle with two answers is thrown out and regenerated &mdash; it never reaches the page.</p></div></div>
+      <div class="card check"><div class="seal">2</div><div><h3>Solvable by logic alone</h3><p>A solver that plays the way a person does has to finish the puzzle at the chosen level. No guessing required.</p></div></div>
+      <div class="card check"><div class="seal">3</div><div><h3>The letter matches the code</h3><p>The letter each puzzle draws is checked against the code, the chapter words and the printed position on its page.</p></div></div>
+      <div class="card check"><div class="seal">4</div><div><h3>Not just a re-skin</h3><p>Every export uses a fresh random seed, so puzzle sets don&rsquo;t repeat between sellers &mdash; which helps you stay clear of duplicate-content problems on Amazon KDP.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MADE TO SELL ============ -->
+<section class="twist reveal" id="sell">
+  <div class="wrap sell">
+    <div>
+      <span class="eyebrow">Made to sell</span>
+      <h2 style="margin-top:18px;">Your shop name. <em>Nobody else&rsquo;s.</em></h2>
+      <ul>
+        <li><span><b>White-label.</b> The footer carries only your shop name, the game title and the page number. No branding from us anywhere on the page.</span></li>
+        <li><span><b>Three paper sizes.</b> A4 and US Letter for Etsy, and KDP 8.5&times;11 with bleed and a gutter margin for print-on-demand books.</span></li>
+        <li><span><b>An aged-paper look.</b> Warm brown tones, double borders, diamond ornaments and a round stamp on the certificate. An ink-saver option gives printers a white background.</span></li>
+        <li><span><b>A commercial licence.</b> Sell the PDFs you export on Etsy, Amazon KDP and other marketplaces. Fonts, textures and ornaments in the pages are licensed for commercial use.</span></li>
+        <li><span><b>Save and remake.</b> Projects are saved so you can reopen, edit and re-export, or duplicate one with a new seed for a different puzzle set.</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="mock-page" aria-hidden="true">
+        <div class="mp-title">Chapter <span class="nm">2</span> &middot; Puzzle <span class="nm">3</span></div>
+        <div class="mp-h">Frost on the sleigh runners</div>
+        <div class="mp-grid">
+          <svg viewBox="0 0 120 150"><g fill="#3B2412">
+            <circle cx="12" cy="12" r="2.2"/><circle cx="36" cy="12" r="2.2"/><circle cx="60" cy="12" r="2.2"/><circle cx="84" cy="12" r="2.2"/><circle cx="108" cy="12" r="2.2"/>
+            <circle cx="12" cy="36" r="2.2"/><circle cx="36" cy="36" r="2.2"/><circle cx="60" cy="36" r="2.2"/><circle cx="84" cy="36" r="2.2"/><circle cx="108" cy="36" r="2.2"/>
+            <circle cx="12" cy="60" r="2.2"/><circle cx="36" cy="60" r="2.2"/><circle cx="60" cy="60" r="2.2"/><circle cx="84" cy="60" r="2.2"/><circle cx="108" cy="60" r="2.2"/>
+            <circle cx="12" cy="84" r="2.2"/><circle cx="36" cy="84" r="2.2"/><circle cx="60" cy="84" r="2.2"/><circle cx="84" cy="84" r="2.2"/><circle cx="108" cy="84" r="2.2"/>
+            <circle cx="12" cy="108" r="2.2"/><circle cx="36" cy="108" r="2.2"/><circle cx="60" cy="108" r="2.2"/><circle cx="84" cy="108" r="2.2"/><circle cx="108" cy="108" r="2.2"/>
+            <circle cx="12" cy="132" r="2.2"/><circle cx="36" cy="132" r="2.2"/><circle cx="60" cy="132" r="2.2"/><circle cx="84" cy="132" r="2.2"/><circle cx="108" cy="132" r="2.2"/>
+          </g><g font-family="Noto Serif, DejaVu Serif, Georgia, serif" font-weight="700" font-size="11" fill="#3B2412" text-anchor="middle">
+            <text x="24" y="28">2</text><text x="72" y="28">1</text><text x="96" y="52">3</text><text x="48" y="52">2</text><text x="24" y="76">1</text><text x="72" y="100">2</text><text x="96" y="100">1</text><text x="48" y="124">3</text><text x="24" y="124">2</text>
+          </g></svg>
+        </div>
+        <div class="mp-box"><span>Word 2, letter 3 of 6</span><i></i></div>
+        <div class="mp-foot"><span>&copy; Your Shop Name &middot; For personal &amp; classroom use</span><span>Game title &middot; 14</span></div>
+      </div>
+      <p class="mock-cap">Illustration of a puzzle page layout &mdash; your shop name in the footer, the letter position under the grid.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHO ============ -->
+<section class="reveal" id="who">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Is this for you?</span>
+      <h2>Honest about <em>who it suits</em>.</h2>
+    </div>
+    <div class="fork">
+      <div class="card who-card yes">
+        <h3>It suits you if</h3>
+        <ul>
+          <li>You sell, or want to sell, printables on Etsy, Amazon KDP or other marketplaces</li>
+          <li>You run escape-room parties, classroom days or puzzle clubs for teens and adults</li>
+          <li>You want to make several themed games &mdash; Christmas, Halloween, detective &mdash; without starting from zero each time</li>
+          <li>You are happy to paste a prompt into an AI and check the result</li>
+        </ul>
+      </div>
+      <div class="card who-card no">
+        <h3>It doesn&rsquo;t suit you if</h3>
+        <ul>
+          <li>You want something to play on screen &mdash; every game is made to be printed</li>
+          <li>You want a story written with no AI involved at all, beyond the starter templates</li>
+          <li>You want to play alone &mdash; games are hosted, for 2&ndash;6 people</li>
+          <li>You plan to resell the software itself &mdash; what you sell is the PDFs you export</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="twist reveal" id="offer">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Get the Builder</span>
+      <h2>One plan. <em>Everything above.</em></h2>
+    </div>
+
+    <div class="card offer">
+      <div class="name">Slitherlink Escape Game Builder</div>
+      <div class="price"><sup>$</sup><span data-count="17">17</span></div>
+      <div class="per">Launch price</div>
+      <ul>
+        <li>Games of 8&ndash;15 puzzles in 2&ndash;3 chapters, with Easy, Medium and Hard presets &mdash; or set your own sizes</li>
+        <li>18 story themes and a ready-made story prompt for each</li>
+        <li>Every puzzle verified: one solution, solvable by logic</li>
+        <li>The full print set &mdash; cover to certificate &mdash; in A4, Letter or KDP 8.5&times;11</li>
+        <li>Hint cards, 20 hint questions and a host guide in every game</li>
+        <li>Your shop name on every page, no platform branding</li>
+        <li>Saved projects, and a new seed for a different puzzle set each time</li>
+        <li><b>Unlimited games, no watermark, commercial licence</b></li>
+      </ul>
+      <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+      <span class="btn-sub">Instant access in your browser</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="reveal" id="faq">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Straight answers</span>
+      <h2>Before you <em>decide</em>.</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Do I need an AI subscription?</summary>
+        <div class="a">The Builder never calls an AI service itself. It writes the story prompt for you; you paste it into whichever AI chat you already use, then paste the reply back and the Builder checks it. If you would rather not use AI, ready-made story templates are included.</div></details>
+      <details><summary>Can I really sell the games?</summary>
+        <div class="a">Yes. The PDFs you export are yours to sell on Etsy, Amazon KDP and other marketplaces, and the fonts, textures and ornaments in them are licensed for commercial use. What is not included is reselling the Builder itself. You are also responsible for the story text the AI writes for you &mdash; the prompt tells the AI to write original content and avoid copyrighted characters and names, but it is worth a read before you list.</div></details>
+      <details><summary>Who actually plays these?</summary>
+        <div class="a">Students aged 11&ndash;17 and adults, in a hosted game for 2&ndash;6 players &mdash; one person runs the hints and the Final Lock. Games are for printing, not for playing on screen.</div></details>
+      <details><summary>What if my players have never done Slitherlink?</summary>
+        <div class="a">Every game prints a How to Play page with the full rules and a small worked example, shown unsolved and solved. Easy uses only the basic rules.</div></details>
+      <details><summary>How do I know a puzzle really has one answer?</summary>
+        <div class="a">Each puzzle is checked by a second solver that counts solutions, and the export is blocked unless every puzzle in the game passes. A puzzle with more than one solution is discarded and a new one is generated.</div></details>
+      <details><summary>Which paper sizes can I export?</summary>
+        <div class="a">A4 and US Letter for Etsy-style downloads, and KDP 8.5&times;11 with bleed and a gutter margin. The certificate is always landscape.</div></details>
+      <details><summary>Do I need to install anything?</summary>
+        <div class="a">No. It is a web app: puzzles are generated and the PDF is built in your browser, so you only need a modern browser and a printer or a KDP account to use the result.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL ============ -->
+<section class="final reveal">
+  <div class="wrap-narrow">
+    <span class="eyebrow">Last call</span>
+    <h2>Your next listing is <em>one code</em> away.</h2>
+    <p class="lead">Pick a theme, run the prompt, press export. A story, up to fifteen verified puzzles and a full host kit &mdash; ready to print and ready to sell.</p>
+    <div class="hero-cta">
+      <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+      <div class="btn-sub">Unlimited games &middot; no watermark &middot; commercial licence</div>
+    </div>
+
+    <div class="card contact">
+      <h3>Talk to us before you buy</h3>
+      <p>Not sure it fits your shop? Send a message &mdash; <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">REPLACE_WITH_SUPPORT_EMAIL</a></p>
+    </div>
+
+    <div class="ps">
+      <p><b>P.S.</b> A game is only the first listing. Change the theme and the seed and the same Builder gives you a Halloween game, a detective game and a Valentine&rsquo;s game that share nothing but the engine.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h5M14 5h5M5 5v5M19 5v5M10 10v5M14 10h5M5 15h5M5 19h14M19 14v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="5" r="1.4" fill="currentColor"/><circle cx="19" cy="19" r="1.4" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-text"><span class="b1">Slitherlink Escape</span><span class="b2">Game Builder</span></span>
+      </a>
+      <div class="foot-links">
+        <a href="#offer">Pricing</a>
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Refund Policy</a>
+        <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">Support</a>
+      </div>
+    </div>
+    <div class="foot-legal">
+      Slitherlink Escape Game Builder is an independent product. Sample pages shown are illustrative. You may sell the PDFs you export; the software itself is licensed, not sold. You are responsible for the story content you generate with your own AI tool. &copy; 2026. All rights reserved.
+    </div>
+    <div class="wplus_spdisclaimer" style="margin-top:18px;font-size:12px;line-height:1.6;opacity:.8;text-align:center"></div>
+  </div>
+</footer>
+
+<div class="sticky-cta"><a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a></div>
+
+<script>
+/* Shared motion + sound layer for the Slitherlink funnel pages. Pure progressive enhancement. */
+(function(){
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   = window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches;
+  var hasIO  = 'IntersectionObserver' in window;
+
+  /* ---------- lining figures: IM Fell digits are old-style (a 1 reads as the letter I) ---------- */
+  (function(){
+    var skip = /^(SCRIPT|STYLE|PRE|CODE|TEXTAREA|INPUT|SVG|BUTTON)$/i, cache = new WeakMap(), re = /\$?\d+(?:[.,]\d+)?%?/g;
+    function oldStyle(el){
+      if (cache.has(el)) return cache.get(el);
+      var v = /IM Fell/.test(getComputedStyle(el).fontFamily); cache.set(el, v); return v;
+    }
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+    while ((n = w.nextNode())) {
+      var p = n.parentElement; if (!p || skip.test(p.tagName) || p.closest('.nm, .swipe__body, svg, pre, .tile, [data-count]')) continue;
+      if (/\d/.test(n.nodeValue) && oldStyle(p)) nodes.push(n);
+    }
+    nodes.forEach(function(t){
+      var txt = t.nodeValue, frag = document.createDocumentFragment(), last = 0, m; re.lastIndex = 0;
+      while ((m = re.exec(txt))) {
+        if (m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+        var s = document.createElement('span'); s.className = 'nm'; s.textContent = m[0]; frag.appendChild(s); last = m.index + m[0].length;
+      }
+      if (last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+      t.parentNode.replaceChild(frag, t);
+    });
+  })();
+
+  /* ---------- sound (Web Audio, only ever after a click) ---------- */
+  var actx = null, soundOn = true;
+  try { soundOn = localStorage.getItem('sl_sfx') !== '0'; } catch(e){}
+  function ctx(){
+    if (!actx) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { actx = new C(); } catch(e){ return null; } }
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function tone(freq, dur, type, vol, delay){
+    if (!soundOn) return; var c = ctx(); if (!c) return;
+    var t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'triangle'; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol || .07, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + .03);
+  }
+  var SFX = window.SLSFX = {
+    press:   function(){ tone(230, .07, 'square', .04); },
+    confirm: function(){ tone(392, .11, 'triangle', .07); tone(587, .17, 'triangle', .07, .09); },
+    open:    function(){ tone(330, .09, 'sine', .06); tone(440, .09, 'sine', .05, .06); },
+    tick:    function(){ tone(560, .05, 'triangle', .045); },
+    stamp:   function(){ tone(120, .16, 'sawtooth', .05); tone(80, .2, 'square', .035, .02); }
+  };
+  (function(){
+    var host = $('.topbar-cta'); if (!host) return;
+    var b = document.createElement('button');
+    b.className = 'sfx'; b.type = 'button'; b.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); b.setAttribute('aria-label', 'Sound effects');
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" fill="currentColor"/><path class="sfx-wave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="sfx-label">SFX</span>';
+    b.addEventListener('click', function(){
+      soundOn = !soundOn; b.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+      try { localStorage.setItem('sl_sfx', soundOn ? '1' : '0'); } catch(e){}
+      if (soundOn) SFX.confirm();
+    });
+    host.insertBefore(b, host.firstChild);
+  })();
+  document.addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('a.btn, button.btn, .swipe__copy, summary') : null;
+    if (!t) return;
+    if (t.tagName === 'SUMMARY') SFX.open();
+    else if (t.classList.contains('btn-ghost') || t.classList.contains('swipe__copy') || t.tagName === 'BUTTON') SFX.press();
+    else SFX.confirm();
+  }, true);
+
+  /* ---------- scroll progress + topbar shadow ---------- */
+  var bar = document.createElement('div'); bar.className = 'progress'; bar.setAttribute('aria-hidden', 'true'); document.body.appendChild(bar);
+  var topbar = $('.topbar'), sticky = $('.sticky-cta'), heroEl = $('.hero, .oto-head, .jv-hero');
+  if (sticky && !reduce) sticky.classList.add('armed');
+  var ticking = false;
+  function onScroll(){
+    ticking = false;
+    var h = document.documentElement.scrollHeight - innerHeight, y = window.pageYOffset || 0;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, y / h) : 0) + ')';
+    if (topbar) topbar.classList.toggle('is-stuck', y > 8);
+    if (sticky && heroEl) sticky.classList.toggle('is-up', y > heroEl.offsetHeight * .6);
+  }
+  window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, {passive:true});
+  onScroll();
+
+  /* ---------- scroll reveal for sections ---------- */
+  if (hasIO && !reduce) {
+    var rio = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('is-visible'); rio.unobserve(e.target); } });
+    }, {threshold:.08});
+    $$('.reveal').forEach(function(el){
+      var r = el.getBoundingClientRect(); if (r.top < innerHeight * .9) return;
+      el.classList.add('armed'); rio.observe(el);
+    });
+  }
+
+  /* ---------- staggered children ---------- */
+  var STAGGER = ['.fork','.stats','.rules3','.steps','.pages','.two','.levels','.hintflow','.checks','.faq','.oto-grid','.oto-numbers','.feat-grid','.kit-grid','.prices','.asset-grid','.funnel','.variants','.shots','[data-stagger]'];
+  if (hasIO && !reduce) {
+    var sio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return; sio.unobserve(e.target);
+        $$(':scope > .s-item', e.target).forEach(function(c){ c.classList.add('s-in'); });
+        setTimeout(function(){ $$(':scope > .s-item', e.target).forEach(function(c){ c.style.transitionDelay = ''; }); }, 1600);
+      });
+    }, {threshold:.12});
+    $$(STAGGER.join(',')).forEach(function(box){
+      var kids = $$(':scope > *', box); if (!kids.length) return;
+      kids.forEach(function(k, i){
+        k.classList.add('s-item'); if (/stat|pg|oto-num/.test(k.className)) k.classList.add('pop');
+        k.style.transitionDelay = Math.min(i, 9) * 70 + 'ms';
+      });
+      sio.observe(box);
+    });
+  }
+
+  /* ---------- cursor glow on cards ---------- */
+  if (fine) {
+    $$('.card:not(.demo), .pg').forEach(function(c){
+      c.classList.add('glow');
+      c.addEventListener('mousemove', function(e){
+        var r = c.getBoundingClientRect();
+        c.style.setProperty('--gx', (e.clientX - r.left) + 'px'); c.style.setProperty('--gy', (e.clientY - r.top) + 'px');
+      });
+    });
+  }
+
+  /* ---------- count-up numbers ---------- */
+  var counters = $$('[data-count]');
+  function runCount(el){
+    var end = parseFloat(el.getAttribute('data-count')), pre = el.getAttribute('data-prefix') || '', suf = el.getAttribute('data-suffix') || '';
+    var dec = (el.getAttribute('data-count').split('.')[1] || '').length, t0 = null, dur = 1100;
+    function step(ts){
+      if (t0 === null) t0 = ts; var p = Math.min(1, (ts - t0) / dur), v = end * (1 - Math.pow(1 - p, 3));
+      el.textContent = pre + v.toFixed(dec) + suf;
+      if (p < 1) requestAnimationFrame(step); else el.textContent = pre + end.toFixed(dec) + suf;
+    }
+    requestAnimationFrame(step);
+  }
+  if (hasIO && !reduce && counters.length) {
+    var cio = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting) { cio.unobserve(e.target); runCount(e.target); } });
+    }, {threshold:.6});
+    counters.forEach(function(el){
+      el.textContent = (el.getAttribute('data-prefix') || '') + '0' + (el.getAttribute('data-suffix') || ''); cio.observe(el);
+    });
+  }
+
+  /* ---------- marquee: duplicate each row so the loop is seamless ---------- */
+  $$('.mq-row').forEach(function(row){
+    var items = row.innerHTML; row.innerHTML = items + items.replace(/<span/g, '<span aria-hidden="true"');
+  });
+
+  /* ---------- console print-out ---------- */
+  $$('.panel pre').forEach(function(pre){
+    var lines = $$('.tl', pre); if (!lines.length || !hasIO || reduce) return;
+    pre.classList.add('armed'); lines.forEach(function(l, i){ l.style.animationDelay = (i * 330) + 'ms'; });
+    var cur = document.createElement('span'); cur.className = 'term-cursor'; lines[lines.length - 1].appendChild(cur);
+    var tio = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting) { tio.unobserve(pre); pre.classList.add('is-typed'); lines.forEach(function(_, i){ setTimeout(SFX.tick, i * 330 + 120); }); } });
+    }, {threshold:.5});
+    tio.observe(pre);
+  });
+
+  /* ---------- hand-drawn circle ---------- */
+  $$('.circle-hl').forEach(function(c){
+    if (!hasIO || reduce) return; c.classList.add('armed');
+    var o = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { o.unobserve(c); c.classList.add('is-drawn'); } }); }, {threshold:.8});
+    o.observe(c);
+  });
+
+  /* ---------- letter tiles flip in, then the lock opens ---------- */
+  $$('.code-demo').forEach(function(demo){
+    var tiles = $$('.tile', demo), tilesBoxes = $$('.tiles', demo), lock = $('.lock', demo);
+    if (!hasIO || reduce) { if (lock) lock.classList.add('is-open'); return; }
+    var n = 0; tiles.forEach(function(t){ t.style.setProperty('--i', n++); });
+    tilesBoxes.forEach(function(b){ b.classList.add('armed'); });
+    var d = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return; d.unobserve(demo);
+        tilesBoxes.forEach(function(b){ b.classList.add('is-in'); });
+        for (var i = 0; i < tiles.length; i++) setTimeout(SFX.tick, i * 110 + 200);
+        setTimeout(function(){ if (lock) { lock.classList.add('is-open'); SFX.stamp(); } }, tiles.length * 110 + 650);
+      });
+    }, {threshold:.45});
+    d.observe(demo);
+  });
+})();
+
+</script>
+<script>
+(function(){
+  var $ = function(s,r){ return (r||document).querySelector(s); };
+
+  /* ---------- demo puzzle: a real loop around the letter E on a 7 x 9 grid ---------- */
+  var COLS = 7, ROWS = 9, CS = 44, PAD = 22, NS = 'http://www.w3.org/2000/svg';
+  var GLYPH = ['XXXXX','X....','X....','XXXX.','X....','X....','XXXXX'];   /* 5 x 7 letter, 1-cell margin */
+  var OX = 1, OY = 1;
+
+  function filled(c, r){
+    var gx = c - OX, gy = r - OY;
+    return gy >= 0 && gy < GLYPH.length && gx >= 0 && gx < GLYPH[0].length && GLYPH[gy].charAt(gx) === 'X';
+  }
+  /* horizontal edge h(r,c): dot (r,c) to (r,c+1); vertical edge v(r,c): dot (r,c) to (r+1,c) */
+  function hSol(r, c){ return filled(c, r - 1) !== filled(c, r); }
+  function vSol(r, c){ return filled(c - 1, r) !== filled(c, r); }
+
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var rand = rng(11);
+  var KEEP = {0:.1, 1:.92, 2:.82, 3:.3};   /* thin the 0s and 3s first, as the real generator does */
+
+  var svg = $('#demoSvg');
+  if (!svg) return;
+  var W = COLS * CS + PAD * 2, H = ROWS * CS + PAD * 2;
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  function el(name, attrs, parent){
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(n); return n;
+  }
+  function X(c){ return PAD + c * CS; }
+  function Y(r){ return PAD + r * CS; }
+
+  var gShade = el('g', {}), gSol = el('g', {}), gMine = el('g', {}), gClue = el('g', {}), gDot = el('g', {}), gHit = el('g', {});
+  var edges = {};   /* key -> {line, sol, on} */
+
+  for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+    if (filled(c, r)) el('rect', {'class':'shade', x:X(c), y:Y(r), width:CS, height:CS}, gShade);
+    var n = (hSol(r,c)?1:0) + (hSol(r+1,c)?1:0) + (vSol(r,c)?1:0) + (vSol(r,c+1)?1:0);
+    if (rand() < KEEP[n]) {
+      var t = el('text', {'class':'clue', x:X(c) + CS/2, y:Y(r) + CS/2, dy:'.35em'}, gClue);
+      t.textContent = n;
+    }
+  }
+  function addEdge(key, x1, y1, x2, y2, isSol){
+    var sol = el('line', {'class':'sol-line', x1:x1, y1:y1, x2:x2, y2:y2}, gSol);
+    if (!isSol) gSol.removeChild(sol);
+    var line = el('line', {'class':'edge-line', x1:x1, y1:y1, x2:x2, y2:y2}, gMine);
+    var hit = el('line', {'class':'edge-hit', x1:x1, y1:y1, x2:x2, y2:y2, 'data-k':key}, gHit);
+    edges[key] = {line:line, sol:isSol, on:false};
+  }
+  for (r = 0; r <= ROWS; r++) for (c = 0; c < COLS; c++) addEdge('h' + r + '_' + c, X(c), Y(r), X(c+1), Y(r), hSol(r,c));
+  for (r = 0; r < ROWS; r++) for (c = 0; c <= COLS; c++) addEdge('v' + r + '_' + c, X(c), Y(r), X(c), Y(r+1), vSol(r,c));
+  for (r = 0; r <= ROWS; r++) for (c = 0; c <= COLS; c++) el('circle', {'class':'dot', cx:X(c), cy:Y(r), r:3.2}, gDot);
+
+  var card = $('#demo'), msg = $('#demoMsg'), btnSolve = $('#demoSolve'), btnClear = $('#demoClear');
+  var START = msg.innerHTML;
+
+  function matches(){
+    for (var k in edges) if (edges[k].on !== edges[k].sol) return false;
+    return true;
+  }
+  function setSolved(on, byUser){
+    card.classList.toggle('solved', on);
+    btnSolve.textContent = on ? 'Hide the solution' : 'Show the solution';
+    if (on) msg.innerHTML = byUser ? '<span><b>That&rsquo;s the loop.</b> Shade inside it and you get the letter <b>E</b>.</span>'
+                                   : '<span>The loop encloses the letter <b>E</b>. In a real game that letter goes into the Code Sheet.</span>';
+    else msg.innerHTML = START;
+  }
+  svg.addEventListener('click', function(e){
+    var k = e.target.getAttribute && e.target.getAttribute('data-k');
+    if (!k) return;
+    var ed = edges[k]; ed.on = !ed.on; ed.line.classList.toggle('on', ed.on);
+    if (matches()) setSolved(true, true);
+    else if (card.classList.contains('solved')) setSolved(false);
+  });
+  btnSolve.addEventListener('click', function(){ setSolved(!card.classList.contains('solved'), false); });
+  btnClear.addEventListener('click', function(){
+    for (var k in edges) { edges[k].on = false; edges[k].line.classList.remove('on'); }
+    setSolved(false);
+  });
+})();
+</script>
+<!-- WarriorPlus "Sales Page Code": paste the product's <script> tag here, just before </body> -->
+</body>
+</html>
