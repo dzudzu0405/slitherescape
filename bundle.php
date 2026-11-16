@@ -106,12 +106,14 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
       </label>
       <label class="field"><span>Same theme for every game?</span><select id="nb-theme"></select></label>
 <?php if ($pro): ?>
-      <label class="field"><span>Game type <span class="badge warn">PRO</span></span>
+      <label class="field"><span>Same game type for every game? <span class="badge warn">PRO</span></span>
         <select id="nb-type">
-          <option value="">I pick a type for each game</option>
-          <option value="classic">Every game: Classic (letters only)</option>
-          <option value="mixed">Every game: Letters + Mosaic picture</option>
-          <option value="mosaic">Every game: Mosaic picture only</option>
+          <option value="">No, I pick a type for each game</option>
+          <optgroup label="Yes, every game is:">
+            <option value="classic">Classic (letters only)</option>
+            <option value="mixed">Letters + Mosaic picture</option>
+            <option value="mosaic">Mosaic picture only</option>
+          </optgroup>
         </select>
       </label>
 <?php endif; ?>

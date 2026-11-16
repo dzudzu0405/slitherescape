@@ -686,11 +686,12 @@
     if (common) fresh.forEach((g) => { g.themeId = common; });
     const allType = $('nb-type') ? $('nb-type').value : '';
     if (allType) fresh.forEach((g) => { g.type = allType; });
-    const cols = (common ? 3 : 4) + (PRO ? 1 : 0), lotCount = Math.ceil(n / BB.LOT);
+    const typeCol = PRO && !allType;
+    const cols = (common ? 3 : 4) + (typeCol ? 1 : 0), lotCount = Math.ceil(n / BB.LOT);
     const lotHead = (i) => i % BB.LOT || lotCount < 2 ? '' : `<tr class="nb-lot-row"><td colspan="${cols}"><b>Prompt ${i / BB.LOT + 1} of ${lotCount}</b> · new games ${i + 1}${Math.min(i + BB.LOT, n) > i + 1 ? `–${Math.min(i + BB.LOT, n)}` : ''}</td></tr>`;
-    $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${PRO ? '<th>Game type</th>' : ''}${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
+    $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${typeCol ? '<th>Game type</th>' : ''}${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
       <td>New game ${g.n}${g.month ? ` <span class="small muted">· ${g.month}</span>` : ''}</td>
-      ${PRO ? `<td><select data-g="${i}" data-k="type">${Object.entries(BB.TYPE_LABEL).map(([v, l]) => `<option value="${v}"${v === g.type ? ' selected' : ''}>${l}</option>`).join('')}</select></td>` : ''}
+      ${typeCol ? `<td><select data-g="${i}" data-k="type">${Object.entries(BB.TYPE_LABEL).map(([v, l]) => `<option value="${v}"${v === g.type ? ' selected' : ''}>${l}</option>`).join('')}</select></td>` : ''}
       ${common ? '' : `<td><select data-g="${i}" data-k="themeId">${themeOptions(g.themeId)}</select></td>`}
       <td><select data-g="${i}" data-k="plotId">${plotOptions(g.plotId)}</select></td>
       <td><select data-g="${i}" data-k="difficulty">${['easy', 'medium', 'hard'].map((d) => `<option value="${d}"${d === g.difficulty ? ' selected' : ''}>${PRESETS[d].audience}</option>`).join('')}</select></td>
@@ -737,7 +738,6 @@
     const s = e.target.closest('[data-g]');
     if (!s) return;
     fresh[+s.dataset.g][s.dataset.k] = s.value;
-    if (s.dataset.k === 'type' && $('nb-type')) $('nb-type').value = fresh.every((g) => g.type === s.value) ? s.value : '';
   });
 
   // Codes and titles a new game must not repeat: every saved game and every other new game.
