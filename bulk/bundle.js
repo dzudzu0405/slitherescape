@@ -682,16 +682,17 @@
   function planRows() {
     const n = +$('nb-count').value, common = $('nb-theme').value;
     const keep = fresh;
-    fresh = Array.from({ length: n }, (_, i) => keep[i] || { n: i + 1, themeId: T.THEMES[i % T.THEMES.length].id, plotId: T.PLOTS[i % T.PLOTS.length].id, difficulty: 'medium', status: 'waiting' });
+    fresh = Array.from({ length: n }, (_, i) => keep[i] || { n: i + 1, type: 'classic', themeId: T.THEMES[i % T.THEMES.length].id, plotId: T.PLOTS[i % T.PLOTS.length].id, difficulty: 'medium', status: 'waiting' });
     if (common) fresh.forEach((g) => { g.themeId = common; });
-    const cols = common ? 3 : 4, lotCount = Math.ceil(n / BB.LOT);
+    const cols = (common ? 3 : 4) + (PRO ? 1 : 0), lotCount = Math.ceil(n / BB.LOT);
     const lotHead = (i) => i % BB.LOT || lotCount < 2 ? '' : `<tr class="nb-lot-row"><td colspan="${cols}"><b>Prompt ${i / BB.LOT + 1} of ${lotCount}</b> · new games ${i + 1}${Math.min(i + BB.LOT, n) > i + 1 ? `–${Math.min(i + BB.LOT, n)}` : ''}</td></tr>`;
-    $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
+    $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${PRO ? '<th>Game type</th>' : ''}${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
       <td>New game ${g.n}${g.month ? ` <span class="small muted">· ${g.month}</span>` : ''}</td>
+      ${PRO ? `<td><select data-g="${i}" data-k="type">${Object.entries(BB.TYPE_LABEL).map(([v, l]) => `<option value="${v}"${v === g.type ? ' selected' : ''}>${l}</option>`).join('')}</select></td>` : ''}
       ${common ? '' : `<td><select data-g="${i}" data-k="themeId">${themeOptions(g.themeId)}</select></td>`}
       <td><select data-g="${i}" data-k="plotId">${plotOptions(g.plotId)}</select></td>
       <td><select data-g="${i}" data-k="difficulty">${['easy', 'medium', 'hard'].map((d) => `<option value="${d}"${d === g.difficulty ? ' selected' : ''}>${PRESETS[d].audience}</option>`).join('')}</select></td>
-    </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}` : '';
+    </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}${PRO ? '<p class="small muted"><b>Game type:</b> Classic letters has two word chapters. Letters + picture has a word chapter, then a Mosaic picture to assemble. One picture is a single Mosaic picture whose name is the code. Pictures come from your library and suit each game\'s theme.</p>' : ''}` : '';
     $('nb-start').classList.toggle('hidden', !n);
     $('nb-start').textContent = n > BB.LOT ? `Make the ${Math.ceil(n / BB.LOT)} prompts` : 'Make the prompt';
   }
@@ -731,9 +732,20 @@
   $('nb-rows').addEventListener('change', (e) => { const s = e.target.closest('[data-g]'); if (s) fresh[+s.dataset.g][s.dataset.k] = s.value; });
 
   // Codes and titles a new game must not repeat: every saved game and every other new game.
+  const picturesIn = (story) => (story ? story.chapters.filter(isMosaic).map((c) => c.word) : []);
   function others(except) {
-    return GAMES.map((g) => ({ code: codeOf(g), title: g.title }))
-      .concat(fresh.filter((g) => g !== except && g.story && g.status !== 'error').map((g) => ({ code: g.story.chapters.map((c) => c.word).join(' '), title: g.story.title })));
+    return GAMES.filter((g) => !except || g.id !== except.savedId).map((g) => ({ code: codeOf(g), title: g.title, pictures: picturesIn(g.data && g.data.story) }))
+      .concat(fresh.filter((g) => g !== except && g.story && g.status !== 'error' && g.status !== 'added').map((g) => ({ code: g.story.chapters.map((c) => c.word).join(' '), title: g.story.title, pictures: picturesIn(g.story) })));
+  }
+
+  // The pictures a new picture game may use: its theme's, minus those another game already has,
+  // shuffled and capped so the prompt stays short. Fixed once the prompts are made.
+  function pickPictures(g) {
+    if (!BB.hasPicture(g)) { g.pictures = []; return; }
+    const taken = new Set(GAMES.flatMap((x) => picturesIn(x.data && x.data.story)));
+    const pool = T.picturesFor(g.themeId, window.ProLibrary || []).filter((m) => !taken.has(m.name)).map((m) => m.name);
+    const r = window.Generator.rng(`${g.n}-${g.themeId}-${Date.now()}`);
+    g.pictures = r.shuffle(pool).slice(0, 30);
   }
 
   function prompt() {
@@ -748,6 +760,7 @@
     lots = [];
     for (let i = 0; i < fresh.length; i += BB.LOT) lots.push(fresh.slice(i, i + BB.LOT));
     lot = 0;
+    fresh.forEach((g) => { if (!PRO) g.type = 'classic'; pickPictures(g); });
     $('nb-work').classList.remove('hidden');
     $('nb-count').disabled = $('nb-theme').disabled = true;
     $('nb-rows').querySelectorAll('select').forEach((s) => { s.disabled = true; });
@@ -793,7 +806,7 @@
 
   function judge(g, story) {
     g.story = story;
-    const c = BB.check(story, others(g));
+    const c = BB.check(story, others(g), g);
     g.errors = c.errors; g.warnings = c.warnings;
     return c.errors.length === 0;
   }
@@ -810,7 +823,7 @@
       const part = games[g.n];
       g.block = part.text;
       if (!part.complete) { g.status = 'cut'; g.errors = []; return; }
-      g.status = judge(g, BB.parseGame(part.body)) ? 'valid' : 'error';
+      g.status = judge(g, BB.parseGame(part.body, g)) ? 'valid' : 'error';
     });
     renderTable();
     renderHelp();
@@ -862,7 +875,7 @@
       const theme = T.theme(g.themeId);
       const inLot = lots[lot] && lots[lot].includes(g);
       return `<tr${inLot ? ' class="nb-current"' : ''}>
-        <td>${g.n}${g.story && g.story.title ? ` · ${esc(g.story.title)}` : ''}</td>
+        <td>${g.n}${g.story && g.story.title ? ` · ${esc(g.story.title)}` : ''}${BB.hasPicture(g) ? ` <span class="badge">${BB.TYPE_LABEL[g.type]}</span>` : ''}</td>
         <td>${esc(theme ? theme.label : '')}</td>
         <td><span class="badge ${kind}">${label}</span>${g.story && g.status !== 'cut' ? ` <span class="small muted mono">${esc(g.story.chapters.map((c) => c.word).join(' '))}</span>` : ''}</td>
         <td>${g.block && g.status !== 'added' && g.status !== 'building' ? `<button class="btn ghost sm" data-edit="${g.n}">Edit</button>` : ''}</td>
@@ -888,7 +901,7 @@
     const part = BB.splitGames($('nb-edit-text').value)[editing.n];
     const body = part ? part.body : $('nb-edit-text').value;
     editing.block = part ? part.text : `=== GAME ${editing.n} ===\n${body}\n=== END GAME ${editing.n} ===`;
-    editing.status = judge(editing, BB.parseGame(body)) ? 'edited' : 'error';
+    editing.status = judge(editing, BB.parseGame(body, editing)) ? 'edited' : 'error';
     if (editing.status === 'edited') { $('nb-edit').classList.add('hidden'); editing = null; }
     renderTable();
     renderHelp();
@@ -903,14 +916,24 @@
       g.status = 'building';
       renderTable();
       try {
+        const types = BB.typesOf(g);
         const settings = { difficulty: g.difficulty, count: null, chapters: null, w: null, h: null, reverse: 1, paper: '', ink: '', motif: 'auto', seed: newSeed(),
-          mode: 'letter', modeChapters: 2, chapterTypes: ['letter', 'mosaic'], kit: false, kitPlayers: 4, kitPlay: 'together', kitTeams: 2 };
+          mode: g.type === 'mosaic' ? 'mosaic' : g.type === 'mixed' ? 'mixed' : 'letter', modeChapters: 2, chapterTypes: ['letter', 'mosaic'], kit: false, kitPlayers: 4, kitPlay: 'together', kitTeams: 2 };
         const data = { version: 1, themeId: g.themeId, plotId: g.plotId, code: '', settings, mosaics: {}, titleTouched: false, story: g.story, puzzles: [] };
+        // Same cut as the editor: one plan per picture chapter, from the library picture.
+        data.story.chapters.forEach((c, ci) => {
+          c.type = types[ci] === 'mosaic' ? 'mosaic' : 'letter';
+          if (!isMosaic(c)) return;
+          if (!window.Mosaic) throw new Error('picture games need SlitherEscape PRO');
+          const img = (window.ProLibrary || []).find((m) => m.name === c.word);
+          if (!img) throw new Error(`the picture ${c.word} is not in the library`);
+          data.mosaics[ci] = window.Mosaic.plan({ rows: img.rows, difficulty: g.difficulty, seed: `${settings.seed}-m${ci}` });
+        });
         const slots = slotsOf(data);
         const [W, H] = SIZES[g.difficulty];
         const seen = {};
         // Same jobs as the editor: Adults get a reverse puzzle as the last letter of chapter 1.
-        const jobs = slots.map((s, i) => ({
+        const jobs = slots.map((s, i) => (s.kind === 'piece' ? { index: i, mask: s.mask, W: 10, H: 10, difficulty: g.difficulty, seed: `${settings.seed}-${i}-piece` } : {
           index: i, letter: s.letter, W, H, difficulty: g.difficulty,
           reverse: g.difficulty === 'hard' && s.pos === s.len - 1 && s.chapter < 1,
           seed: `${settings.seed}-${i}-${s.letter}`, variant: (seen[s.letter] = (seen[s.letter] || 0) + 1) - 1
@@ -918,6 +941,7 @@
         data.puzzles = await buildPuzzles(jobs, (k) => { $('nb-build-status').textContent = `New game ${g.n}: puzzle ${k} of ${jobs.length}`; });
         const res = await window.UI.api('save', { id: 0, title: g.story.title, data });
         GAMES.unshift({ id: res.id, title: g.story.title, code: g.story.chapters.map((c) => c.word).join(' '), difficulty: g.difficulty, puzzles: slots.length, ready: res.status === 'ready', data });
+        g.savedId = res.id;
         if (res.status === 'ready') order.push(res.id);
         g.status = res.status === 'ready' ? 'added' : 'error';
         if (res.status !== 'ready') g.errors = [{ msg: 'Some puzzles could not be built. Open the game in the editor and use "New puzzles".', ai: '' }];

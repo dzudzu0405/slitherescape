@@ -150,5 +150,32 @@
   function theme(id) { return THEMES.find((t) => t.id === id) || null; }
   function plot(id) { return PLOTS.find((p) => p.id === id) || null; }
 
-  root.Themes = { THEMES, PLOTS, theme, plot };
+  // Themes without their own pictures, or that suit a neighbour's too, borrow from these.
+  const RELATED_IMAGES = {
+    pirates: ['ocean'], ocean: ['pirates'], castle: ['wizard'], wizard: ['castle'], jungle: ['dinosaurs'],
+    museum: ['egypt', 'dinosaurs']
+  };
+  // These themes suit only some of another theme's pictures, so they are borrowed one by one.
+  const RELATED_PICTURES = {
+    thanksgiving: ['PUMPKIN', 'CORN', 'ACORN', 'LEAF', 'APPLE', 'PEAR', 'SCARECROW', 'BARN', 'ROOSTER', 'TRACTOR', 'RAKE', 'BASKET', 'WHEELBARROW', 'FENCE', 'PIG', 'CANDLE', 'MUG', 'PITCHFORK'],
+    detective: ['KEY', 'KEYHOLE', 'PADLOCK', 'BINOCULARS', 'ENVELOPE', 'SPYGLASS', 'CROW', 'OWL', 'CAT', 'LIGHTBULB', 'COMPUTER', 'RADIO', 'MANOR', 'DIAMOND', 'TELEPHONE', 'CAMERA', 'UMBRELLA', 'SUNGLASSES', 'PISTOL', 'NECKTIE', 'DAGGER', 'SKULL', 'BONE'],
+    school: ['APPLE', 'BELL', 'LIGHTBULB', 'COMPUTER', 'TELESCOPE', 'FLASK', 'TESTTUBE', 'PLANET', 'HOURGLASS', 'GEAR', 'ROBOT', 'MUG', 'GUITAR', 'TRUMPET', 'DRUM', 'FLAG', 'MICROSCOPE', 'BRAIN'],
+    jungle: ['FROG', 'SNAKE', 'PARROT', 'BUTTERFLY', 'PALM', 'CROCODILE', 'LIZARD', 'SPIDER', 'CATERPILLAR', 'MUSHROOM', 'TENT', 'BINOCULARS', 'COMPASS', 'PINEAPPLE', 'FLOWER', 'HIPPO'],
+    newyear: ['STAR', 'MOON', 'BELL', 'CANDLE', 'GLASS', 'HOURGLASS', 'COMET', 'ROCKET', 'GIFT', 'CAKE', 'CUPCAKE', 'BALLOON', 'TRUMPET', 'DRUM', 'CANDY', 'SUN', 'HIGHHEEL', 'DRESS', 'NECKTIE', 'HORSESHOE', 'DIAMOND', 'CROWN', 'SUNGLASSES', 'GUITAR', 'SNOWMAN', 'MITTEN', 'CAMERA', 'SNOWFLAKE', 'AIRPLANE', 'HEADPHONES', 'TROPHY'],
+    lab: ['FLASK', 'TESTTUBE', 'LIGHTBULB', 'BATTERY', 'MAGNET', 'GEAR', 'ROBOT', 'COMPUTER', 'PLUG', 'RAT', 'SCREW', 'LIGHTNING', 'TELESCOPE', 'PLANET', 'RADIO', 'MAGNIFIER', 'GLOBE', 'HAMMER'],
+    museum: ['CANNON', 'KNIGHT', 'CROWN', 'TELESCOPE'],
+    egypt: ['CAT', 'SNAKE', 'PALM', 'BASKET', 'FEATHER'],
+    dinosaurs: ['PALM', 'MUSHROOM', 'EGG'],
+    wizard: ['BROOM', 'CROW', 'CAT']
+  };
+
+  // Pictures offered to the AI for a theme: its own and its neighbours', or the whole library when too few.
+  function picturesFor(themeId, lib) {
+    const themes = [themeId].concat(RELATED_IMAGES[themeId] || []);
+    const extra = RELATED_PICTURES[themeId] || [];
+    const own = (lib || []).filter((m) => themes.includes(m.theme) || extra.includes(m.name));
+    return own.length >= 3 ? own : (lib || []);
+  }
+
+  root.Themes = { THEMES, PLOTS, theme, plot, picturesFor };
 })(typeof self !== 'undefined' ? self : globalThis);

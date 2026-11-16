@@ -15,11 +15,31 @@
     hard: ['adults', 'Atmospheric and clever, with real suspense. Tasteful: no gore, no graphic violence.']
   };
 
+  // ---------------------------------------------------------------- game types
+  // classic: two letter chapters. mixed (PRO): a letter chapter, then a picture chapter.
+  // mosaic (PRO): one picture chapter whose name is the whole code.
+  const TYPE_LABEL = { classic: 'Classic letters', mixed: 'Letters + picture', mosaic: 'One picture' };
+  const typesOf = (g) => (g.type === 'mosaic' ? ['mosaic'] : g.type === 'mixed' ? ['letter', 'mosaic'] : ['letter', 'letter']);
+  const hasPicture = (g) => g.type === 'mixed' || g.type === 'mosaic';
+  // The pictures a game may use, as library entries (name, similar, ...).
+  const picturesOf = (g) => (root.ProLibrary || []).filter((m) => (g.pictures || []).includes(m.name));
+
   // ---------------------------------------------------------------- prompt
   function gameBrief(g) {
     const t = Themes.theme(g.themeId), p = Themes.plot(g.plotId), a = AUDIENCE[g.difficulty] || AUDIENCE.medium;
+    const pics = picturesOf(g), names = pics.map((m) => m.name);
+    const alike = [];
+    pics.forEach((m) => (m.similar || []).forEach((o) => { if (names.includes(o) && m.name < o) alike.push(`${m.name}/${o}`); }));
+    const kind = g.type === 'mosaic'
+      ? '- Game type: ONE PICTURE. A single chapter, and it is a PICTURE chapter: the name of the picture is the whole secret code.'
+      : g.type === 'mixed'
+        ? '- Game type: LETTERS + PICTURE. Chapter 1 is a LETTER chapter; chapter 2 is a PICTURE chapter.'
+        : '- Game type: CLASSIC. Two LETTER chapters.';
     return [
       `GAME ${g.n}`,
+      kind,
+      hasPicture(g) ? `- Pictures for the picture chapter (choose ONE, write its name exactly, do not invent others): ${names.join(', ')}.` : '',
+      alike.length ? `- These pairs look too alike, never use both: ${alike.join(', ')}.` : '',
       `- Theme: ${t ? t.label : 'an original theme'}. Setting ideas: ${t ? t.setting : 'your choice'}`,
       p ? `- Story type: ${p.label}. ${p.brief}${g.difficulty === 'easy' && p.kids ? ' ' + p.kids : ''}` : '',
       `- Audience: ${a[0]}. ${a[1]}`,
@@ -28,13 +48,17 @@
     ].filter(Boolean).join('\n');
   }
 
-  function format(n) {
+  function format(g) {
+    const types = typesOf(g), n = g.n;
+    const letters = types.filter((t) => t === 'letter').length;
+    const check = letters === 2 ? 'CODE CHECK: WORD = W-O-R-D (4) | WORD = W-O-R-D (4) | total 8' : 'CODE CHECK: WORD = W-O-R-D (4) | total 4';
     return [
       `=== GAME ${n} ===`,
       'TITLE: ...', 'TAGLINE: ...', 'PROLOGUE: ...', 'MISSION: ...',
-      ...Array.from({ length: CHAPTERS }, (_, i) => [`CHAPTER ${i + 1} NAME: ...`, `CHAPTER ${i + 1} INTRO: ...`, `CHAPTER ${i + 1} WORD: ...`]).flat(),
-      'CODE CHECK: WORD = W-O-R-D (4) | WORD = W-O-R-D (4) | total 8',
-      'PUZZLE TITLES:', '1. [W] ...', '2. [O] ...', '(one line per letter of the code, in order, with that letter in brackets: as many lines as the CODE CHECK total)',
+      ...types.map((t, i) => [`CHAPTER ${i + 1} NAME: ...`, `CHAPTER ${i + 1} INTRO: ...`, `CHAPTER ${i + 1} WORD: ${t === 'mosaic' ? '(the picture\'s name, from GAME ' + n + '\'s list)' : '...'}`]).flat(),
+      ...(letters ? [check,
+        'PUZZLE TITLES:', '1. [W] ...', '2. [O] ...',
+        `(one line per letter of the ${letters === 2 ? 'code' : 'letter word'}, in order, with that letter in brackets: as many lines as the CODE CHECK total${types.includes('mosaic') ? '; the picture gets no titles' : ''})`] : []),
       'FINAL LOCK: ...', 'ENDING: ...', 'CERTIFICATE: ...', 'TEAM NAME: ...',
       'QUESTIONS:', '1. [story] ...?', 'A) ...', 'B) ...', 'C) ...', 'ANSWER: B',
       `(20 questions in this shape; 1-${STORY_QS} [story], ${STORY_QS + 1}-20 [trivia])`,
@@ -42,30 +66,37 @@
     ].join('\n');
   }
 
-  // lot: [{ n, themeId, plotId, difficulty }]; ctx: { bundleName, avoidCodes, avoidTitles }
+  // lot: [{ n, type, pictures, themeId, plotId, difficulty }]; ctx: { bundleName, avoidCodes, avoidTitles }
   function buildPrompt(lot, ctx) {
     const nums = lot.map((g) => g.n);
     const avoid = [...ctx.avoidCodes, ...ctx.avoidTitles.map((t) => `"${t}"`)];
+    const has = (type) => lot.some((g) => (g.type || 'classic') === type);
+    const anyPicture = lot.some(hasPicture);
+    const sameShape = !anyPicture;
+    const codeRules = [];
+    if (has('classic')) codeRules.push(`${anyPicture ? 'CLASSIC games: ' : ''}2 common English words, ${Story.AUTO_LETTERS[0]} to ${Story.AUTO_LETTERS[1]} letters in total, only A-Z, each word 4 to 7 letters. Words the audience knows and can spell: no names, abbreviations or made-up words.`);
+    if (has('mixed')) codeRules.push('LETTERS + PICTURE games: chapter 1\'s word is one common English word of 4 to 7 letters, only A-Z, that the audience can spell; chapter 2\'s word is the name of one picture from that game\'s list.');
+    if (has('mosaic')) codeRules.push('ONE PICTURE games: the code is the name of one picture from that game\'s list, nothing else.');
     return `You are writing the stories for ${lot.length} printable escape-room games in the bundle "${ctx.bundleName || 'Escape Game Collection'}". Write every game completely, one after another, in the exact text format at the end.
 
-How each game works: players solve logic puzzles, and each solved puzzle reveals ONE capital letter. Read in order, the letters spell a SECRET CODE of ${CHAPTERS} words, one word per chapter. Saying the code at the end opens the final lock and wins the game.
+How each game works: players solve logic puzzles to get a SECRET CODE, one word per chapter. In a LETTER chapter each solved puzzle reveals ONE capital letter, and read in order the letters spell the chapter's word.${anyPicture ? ' In a PICTURE chapter the solved puzzles are the pieces of one big picture: players assemble it, and the name of what it shows is the chapter\'s word.' : ''} Saying the code at the end opens the final lock and wins the game.
 
 == THE GAMES ==
 ${lot.map(gameBrief).join('\n\n')}
 
 == THE SECRET CODE (each game) ==
-- ${CHAPTERS} common English words, ${Story.AUTO_LETTERS[0]} to ${Story.AUTO_LETTERS[1]} letters in total, only A-Z, each word 4 to 7 letters. Words the audience knows and can spell: no names, abbreviations or made-up words.
+${codeRules.map((r) => '- ' + r).join('\n')}
 - Each word is a natural key to that game's problem; the ending explains why.
-- Every game in this bundle needs its own code and its own title.${avoid.length ? ` Do not reuse any of these: ${avoid.join(', ')}.` : ''}
+- Every game in this bundle needs its own code${anyPicture ? ', its own picture' : ''} and its own title.${avoid.length ? ` Do not reuse any of these: ${avoid.join(', ')}.` : ''}
 
 == WHAT TO WRITE (each game) ==
 - Word counts are checked by a computer and a reply over any maximum is sent back. Count the words of every short field (title, tagline, names, puzzle titles, certificate, team name, questions, options) before you write it.
 - TITLE (max ${L.title.words} words), TAGLINE (max ${L.tagline.words} words).
 - PROLOGUE (${L.prologue.min}-${L.prologue.words} words): the problem and why the code matters, with at least 6 concrete details (names, colors, numbers, objects, places, times) the questions can ask about.
-- MISSION (${L.mission.min}-${L.mission.words} words): solve the puzzles, collect the ${CHAPTERS} words and say the code before something bad happens.
-- For each chapter: NAME (max ${L.chapterName.words} words); INTRO (${L.chapterIntro.min}-${L.chapterIntro.words} words, at least 3 new details); WORD in capitals.
-- CODE CHECK, written straight after the chapter words: spell each word letter by letter and add up the total.
-- PUZZLE TITLES: exactly one per letter of the code, in code order, so exactly as many as the CODE CHECK total (a 9-letter code has 9 titles). Start each with its letter in brackets, like "1. [W] ...". Max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro.
+- MISSION (${L.mission.min}-${L.mission.words} words): solve the puzzles, ${anyPicture ? 'collect the words (or assemble the picture and name it)' : 'collect the 2 words'} and say the code before something bad happens.
+- For each chapter: NAME (max ${L.chapterName.words} words); INTRO (${L.chapterIntro.min}-${L.chapterIntro.words} words, at least 3 new details); WORD in capitals.${anyPicture ? ' A picture chapter\'s intro leads up to the picture without naming it.' : ''}
+- CODE CHECK, written straight after the chapter words: spell each ${anyPicture ? 'LETTER ' : ''}word letter by letter and add up the total.${has('mosaic') ? ' A ONE PICTURE game has no CODE CHECK.' : ''}
+- PUZZLE TITLES: exactly one per letter of the ${anyPicture ? 'LETTER words' : 'code'}, in order, so exactly as many as the CODE CHECK total (a 9-letter code has 9 titles). Start each with its letter in brackets, like "1. [W] ...". Max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro.${anyPicture ? ' Picture chapters get no titles; a ONE PICTURE game has no PUZZLE TITLES at all.' : ''}
 - FINAL LOCK (${L.finalLock.min}-${L.finalLock.words} words): the tense moment just before the code is spoken.
 - ENDING (${L.ending.min}-${L.ending.words} words): read aloud by the Game Host; explains why the code was the answer and congratulates the players.
 - CERTIFICATE (max ${L.certificate.words} words), TEAM NAME (max ${L.teamName.words} words).
@@ -81,11 +112,11 @@ ${lot.map(gameBrief).join('\n\n')}
 100% original writing in English with American spelling. No copyrighted or trademarked characters, brands, places or names.
 
 == FORMAT ==
-Plain text only: no JSON, no markdown, no bold. One block per game, exactly like this (replace every "..."):
+Plain text only: no JSON, no markdown, no bold. ${sameShape ? 'One block per game, exactly like this (replace every "..."):' : 'One block per game, each exactly in its own shape below (replace every "..."):'}
 
-${format(nums[0])}
+${sameShape ? format(lot[0]) : lot.map(format).join('\n\n')}
 
-Then ${nums.slice(1).map((n) => `=== GAME ${n} ===`).join(', then ')}${nums.length > 1 ? ' in the same shape' : ''}. After the last block write === ALL DONE ===
+${sameShape && nums.length > 1 ? `Then ${nums.slice(1).map((n) => `=== GAME ${n} ===`).join(', then ')} in the same shape. ` : ''}After the last block write === ALL DONE ===
 If you run out of space, stop at the end of a complete game block; I will ask you to continue.`;
   }
 
@@ -135,7 +166,7 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
   }
 
   // Reads one game block into the story shape used by the app.
-  function parseGame(body) {
+  function parseGame(body, game) {
     const raw = { chapters: [], puzzleTitles: [], questions: [], titleTags: [] };
     let field = null, q = null;
     const add = (f, v) => {
@@ -177,7 +208,9 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
     raw.questions.forEach((x) => { x.options = Array.from({ length: Math.max(3, x.options.length) }, (_, i) => x.options[i] || '').filter((o, i) => i < 3 || o); });
     raw.chapters = raw.chapters.filter(Boolean);
     const story = Story.normalise(raw);
-    story.puzzleTitles = lineUp(story.puzzleTitles, raw.titleTags, story.chapters.map((c) => c.word).join(''));
+    const types = typesOf(game || {});
+    story.chapters.forEach((c, i) => { c.type = types[i] === 'mosaic' ? 'mosaic' : 'letter'; });
+    story.puzzleTitles = lineUp(story.puzzleTitles, raw.titleTags, story.chapters.filter((c) => !Story.isMosaic(c)).map((c) => c.word).join(''));
     return story;
   }
 
@@ -196,8 +229,18 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
   }
 
   // Checks one game: the usual story checks plus the bundle's own rules.
-  function check(story, others) {
-    const { errors, warnings } = Story.validate(story, { chapterCount: CHAPTERS, hasGlyph: (ch) => !root.Glyphs || root.Glyphs.has(ch) });
+  function check(story, others, game) {
+    const g = game || {};
+    const { errors, warnings } = Story.validate(story, {
+      chapterCount: typesOf(g).length,
+      images: hasPicture(g) ? picturesOf(g) : undefined,
+      hasGlyph: (ch) => !root.Glyphs || root.Glyphs.has(ch)
+    });
+    // A picture may appear in only one game of the bundle: the Answer Boards would give it away.
+    story.chapters.filter(Story.isMosaic).forEach((c) => {
+      const o = others.find((x) => (x.pictures || []).includes(c.word));
+      if (o) errors.push({ msg: `The picture ${c.word} is already used by "${o.title}".`, ai: `The picture ${c.word} is already used by another game in this bundle. Choose a different picture from this game's list.` });
+    });
     const code = story.chapters.map((c) => c.word).join(' ');
     const clash = others.find((o) => o.code === code);
     if (code && clash) errors.push({ msg: `The code ${code} is already used by "${clash.title}".`, ai: `The code ${code} is already used by another game in this bundle. Choose different code words.` });
@@ -206,5 +249,5 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
     return { errors, warnings, code };
   }
 
-  root.BulkBatch = { LOT, CHAPTERS, buildPrompt, continuePrompt, fixPrompt, splitGames, parseGame, check };
+  root.BulkBatch = { LOT, CHAPTERS, TYPE_LABEL, typesOf, hasPicture, buildPrompt, continuePrompt, fixPrompt, splitGames, parseGame, check };
 })(window);
