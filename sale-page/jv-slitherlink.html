@@ -624,6 +624,16 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 @media (max-width:960px){ .jv-grid{grid-template-columns:1fr;} .funnel{grid-template-columns:repeat(2,1fr);} .aud,.totals{grid-template-columns:1fr;} }
 @media (max-width:720px){ .assets{grid-template-columns:1fr;} .funnel{grid-template-columns:1fr;} .cbar{grid-template-columns:1fr 64px; row-gap:6px;} .cbar .nm{grid-column:1 / -1;} }
 
+  .launch .launch-dates{margin-top:8px; font-size:13px;}
+  .launch .launch-dates b{color:var(--red);}
+  .jv-dash{border-top:1.5px solid var(--line-strong);}
+  .jv-dash-inner{max-width:1080px; margin:0 auto; padding:7px 24px; display:flex; align-items:center; gap:6px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .jv-dash-inner::-webkit-scrollbar{display:none;}
+  .jv-dash a{flex:none; font-size:13px; font-weight:700; color:var(--ink); text-decoration:none; padding:5px 11px; border:1.5px solid var(--line-strong); border-radius:999px; background:var(--card); white-space:nowrap; transition:background .2s, color .2s, border-color .2s;}
+  .jv-dash a:hover, .jv-dash a:focus-visible{background:var(--ink); color:var(--card); border-color:var(--ink);}
+  .jv-dash .sep{flex:none; width:1.5px; height:18px; background:var(--line-strong); margin:0 4px;}
+  section[id], header[id]{scroll-margin-top:132px;}
+  @media (max-width:720px){ .jv-dash-inner{padding:7px 16px;} .jv-dash a{font-size:12.5px; padding:5px 10px;} }
 </style>
 </head>
 
@@ -638,10 +648,21 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <span class="brand-text"><span class="b1">Slitherlink Escape</span><span class="b2">JV &amp; Affiliate Page</span></span>
     </a>
     <div class="topbar-cta">
-      <div class="price-chip">Front end <b>$17</b></div>
-      <a class="btn btn-sm" href="REPLACE_WITH_YOUR_AFFILIATE_SIGNUP_URL">Get your link</a>
+      <div class="price-chip">Earn up to <b>$68.98</b> per buyer</div>
+      <a class="btn btn-sm" href="https://warriorplus.com/as/o/lzgr7c">Get your link</a>
     </div>
   </div>
+  <nav class="jv-dash" aria-label="Affiliate quick links">
+    <div class="jv-dash-inner">
+      <a href="https://slitherescape.promaia.store/sale-page/sale-page-slitherlink.html" target="_blank" rel="noopener">Sales page &#8599;</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#funnel">Commissions</a>
+      <a href="#contest">Contest</a>
+      <a href="#swipes">Email swipes</a>
+      <a href="#rules">Rules</a>
+      <a href="mailto:maiaanderson2000@gmail.com">Contact vendor</a>
+    </div>
+  </nav>
 </div>
 
 
@@ -653,10 +674,10 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <h1>Promote a puzzle game <span class="circle-hl"><em>players crack</em><svg viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true"><path d="M12,30 C12,10 56,3 110,3 C164,3 208,10 208,30 C208,50 164,57 110,57 C57,57 14,51 12,33"/></svg></span>.</h1>
       <p class="hero-sub">Slitherlink Escape Game Builder assembles a complete printable escape game &mdash; story, verified Slitherlink puzzles, hint cards, host guide and answer key &mdash; and exports a print-ready PDF the buyer can <b>sell</b>. A $17 front end for someone already looking to make and sell printables, with three upgrades behind it.</p>
       <div class="jv-cta">
-        <a class="btn" href="REPLACE_WITH_YOUR_AFFILIATE_SIGNUP_URL">Get your affiliate link</a>
-        <a class="btn btn-ghost" href="REPLACE_WITH_SALES_PAGE_URL" target="_blank" rel="noopener">Preview the sales page</a>
+        <a class="btn" href="https://warriorplus.com/as/o/lzgr7c">Get your affiliate link</a>
+        <a class="btn btn-ghost" href="https://slitherescape.promaia.store/sale-page/sale-page-slitherlink.html" target="_blank" rel="noopener">Preview the sales page</a>
       </div>
-      <div class="jv-strip">50% front end &middot; 50% on every upgrade &middot; up to $74 per buyer</div>
+      <div class="jv-strip">50% front end &middot; 50% on every upgrade &middot; $175 affiliate contest</div>
     </div>
 
     <div class="card launch" id="launch">
@@ -724,23 +745,51 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <div class="funnel">
       <div class="card fn"><div class="step">Front end</div><h3>Slitherlink Escape Game Builder</h3><div class="px">$17</div><p>The complete letter-code game: 8&ndash;15 verified puzzles, story prompt, hints, host guide, answer key and certificate. Unlimited games, no watermark, commercial licence.</p><div class="earn">Your commission<b>50% &rarr; $8.50</b></div></div>
       <div class="card fn"><div class="step">Upgrade 1</div><h3>SlitherEscape PRO</h3><div class="px">$27</div><p>Mosaic picture games, the Party Props Kit, Theme Packs and mixed-mode games.</p><div class="earn">Your commission<b>50% &rarr; $13.50</b></div></div>
-      <div class="card fn"><div class="step">Upgrade 2</div><h3>Bulk Creator</h3><div class="px">$47</div><p>One story into every difficulty, paper size and print style, plus bundles of 3&ndash;12 games.</p><div class="earn">Your commission<b>50% &rarr; $23.50</b></div></div>
-      <div class="card fn"><div class="step">Upgrade 3</div><h3>Marketing Studio</h3><div class="px">$57</div><p>15 listing images and a page-flip video, made from the game PDF in the browser.</p><div class="earn">Your commission<b>50% &rarr; $28.50</b></div></div>
+      <div class="card fn"><div class="step">Upgrade 2</div><h3>Bulk Creator</h3><div class="px">$37</div><p>One story into every difficulty, paper size and print style, plus bundles of 3&ndash;12 games.</p><div class="earn">Your commission<b>50% &rarr; $18.50</b></div></div>
+      <div class="card fn"><div class="step">Upgrade 3</div><h3>Marketing Studio</h3><div class="px">$56.95</div><p>15 listing images and a page-flip video, made from the game PDF in the browser.</p><div class="earn">Your commission<b>50% &rarr; $28.48</b></div></div>
     </div>
 
     <div class="cbars" id="cbars" aria-label="Commission per step">
       <div class="cbar"><div class="nm">Front end<small>$17</small></div><div class="trk"><i style="--w:30%"></i></div><div class="amt">$8.50</div></div>
       <div class="cbar"><div class="nm">Upgrade 1<small>$27</small></div><div class="trk"><i style="--w:47%"></i></div><div class="amt">$13.50</div></div>
-      <div class="cbar"><div class="nm">Upgrade 2<small>$47</small></div><div class="trk"><i style="--w:82%"></i></div><div class="amt">$23.50</div></div>
-      <div class="cbar"><div class="nm">Upgrade 3<small>$57</small></div><div class="trk"><i style="--w:100%"></i></div><div class="amt">$28.50</div></div>
+      <div class="cbar"><div class="nm">Upgrade 2<small>$37</small></div><div class="trk"><i style="--w:65%"></i></div><div class="amt">$18.50</div></div>
+      <div class="cbar"><div class="nm">Upgrade 3<small>$56.95</small></div><div class="trk"><i style="--w:100%"></i></div><div class="amt">$28.48</div></div>
     </div>
 
     <div class="totals" data-stagger>
-      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="148">$148</b><span>full funnel value</span></div></div>
-      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="74">$74</b><span>maximum commission per buyer</span></div></div>
+      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="137.95">$137.95</b><span>full funnel value</span></div></div>
+      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="68.98">$68.98</b><span>maximum commission per buyer</span></div></div>
       <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="17">$17</b><span>front-end price point</span></div></div>
     </div>
     <p class="notice">Figures assume a buyer takes the full funnel. Actual upgrade take rate varies, and no earnings are promised or implied.</p>
+  </div>
+</section>
+
+
+<!-- ============ CONTEST ============ -->
+<section class="twist reveal" id="contest">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Affiliate contest</span>
+      <h2>$175 for the <em>top three</em>.</h2>
+      <p class="lead">Ranked by number of front-end sales, from <b>Fri 20 Nov, 9:00 AM</b> to <b>Fri 27 Nov, 11:59 PM</b> (US Eastern), tracked by WarriorPlus.</p>
+    </div>
+
+    <div class="totals" data-stagger>
+      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="100">$100</b><span>1st place</span></div></div>
+      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="50">$50</b><span>2nd place</span></div></div>
+      <div class="card" style="text-align:center;"><div class="oto-num" style="padding:0"><b data-prefix="$" data-count="25">$25</b><span>3rd place</span></div></div>
+    </div>
+
+    <div class="card" style="margin-top:28px; padding:26px 28px;">
+      <h3 style="margin-bottom:14px;">How a prize is won</h3>
+      <ul class="tick">
+        <li><span>Only <b>front-end sales</b> count towards the ranking. Upgrades still pay 50%, but they don&rsquo;t move you up the board.</span></li>
+        <li><span>To claim a prize, your <b>front-end commission</b> in the contest must be at least the prize amount &mdash; $100 for 1st, $50 for 2nd, $25 for 3rd.</span></li>
+        <li><span>If the top affiliate only qualifies for a smaller prize, they take that prize and everyone below moves down a place. Example: 1st place has earned $60 in front-end commission, so they win the $50 prize and the next affiliate takes $25 &mdash; only two prizes are paid.</span></li>
+        <li><span>Results come from the WarriorPlus contest leaderboard. Refunded sales don&rsquo;t count.</span></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -751,17 +800,17 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <span class="eyebrow">Email swipes</span>
       <h2>Copy, paste, <em>personalise</em>, send.</h2>
       <p class="lead">Written to be edited. Swap the opening line for something in your own voice &mdash; the ones that land are always the ones that sound like you. Each swipe comes with a preheader and a few other subject lines to try.</p>
-      <p style="margin-top:8px;"><a href="REPLACE_WITH_SALES_PAGE_URL" target="_blank" rel="noopener">Preview the live sales page &rarr;</a></p>
+      <p style="margin-top:8px;"><a href="https://slitherescape.promaia.store/sale-page/sale-page-slitherlink.html" target="_blank" rel="noopener">Preview the live sales page &rarr;</a></p>
     </div>
 
     <div class="swipe">
       <div class="swipe__head">
-        <div class="swipe__subj"><span>SUBJECT &mdash; PRE-LAUNCH</span>The puzzle that draws its own letters (opens [LAUNCH DAY])<div class="swipe__pre"><b>Preheader:</b>A new way to build printable escape games &mdash; in an afternoon, not a month.</div><div class="swipe__alts"><span>OTHER SUBJECTS TO TRY</span><ul><li>Something for your Etsy shop opens [LAUNCH DAY]</li><li>A sneak peek: escape games that build themselves</li><li>Heads-up: printable escape games, [LAUNCH DATE]</li></ul></div></div>
+        <div class="swipe__subj"><span>SUBJECT &mdash; PRE-LAUNCH</span>The puzzle that draws its own letters (opens Friday 20 November)<div class="swipe__pre"><b>Preheader:</b>A new way to build printable escape games &mdash; in an afternoon, not a month.</div><div class="swipe__alts"><span>OTHER SUBJECTS TO TRY</span><ul><li>Something for your Etsy shop opens Friday 20 November</li><li>A sneak peek: escape games that build themselves</li><li>Heads-up: printable escape games, Friday 20 November</li></ul></div></div>
         <button class="swipe__copy" type="button" data-swipe="1">COPY</button>
       </div>
       <div class="swipe__body" id="swipe1">Hi [First name],
 
-On [LAUNCH DATE] something opens that I think a lot of people on this list will want to see.
+On Friday 20 November something opens that I think a lot of people on this list will want to see.
 
 It's called Slitherlink Escape Game Builder, and it builds complete printable escape games &mdash; the kind people pay good money for on Etsy and Amazon.
 
@@ -773,7 +822,7 @@ I'll send you the full details on launch day, including the launch price.
 
 [Your name]
 
-P.S. If you sell printables &mdash; or run escape-room parties, classes or puzzle clubs &mdash; keep an eye on your inbox on [LAUNCH DATE].</div>
+P.S. If you sell printables &mdash; or run escape-room parties, classes or puzzle clubs &mdash; keep an eye on your inbox on Friday 20 November.</div>
     </div>
 
     <div class="swipe">
@@ -899,7 +948,7 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
         <li>Invent a deadline or fake scarcity</li>
       </ul></div>
     </div>
-    <p class="notice"><b>Before you schedule:</b> confirm the commission split and the launch dates with the vendor. The figures on this page are the intended terms, not a contract.</p>
+    <p class="notice"><b>Key dates:</b> cart opens Fri 20 Nov 2026, 9:00 AM ET &middot; contest closes Fri 27 Nov 2026, 11:59 PM ET. Email the vendor with any question before you schedule.</p>
   </div>
 </section>
 
@@ -908,12 +957,12 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
     <span class="eyebrow">Ready when you are</span>
     <h2>Get your link and <em>start mailing</em>.</h2>
     <div class="jv-cta" style="justify-content:center;">
-      <a class="btn" href="REPLACE_WITH_YOUR_AFFILIATE_SIGNUP_URL">Get your affiliate link</a>
-      <a class="btn btn-ghost" href="REPLACE_WITH_SALES_PAGE_URL" target="_blank" rel="noopener">Preview the sales page</a>
+      <a class="btn" href="https://warriorplus.com/as/o/lzgr7c">Get your affiliate link</a>
+      <a class="btn btn-ghost" href="https://slitherescape.promaia.store/sale-page/sale-page-slitherlink.html" target="_blank" rel="noopener">Preview the sales page</a>
     </div>
     <div class="card contact">
       <h3>Talk to the vendor</h3>
-      <p>Questions, custom swipes, review access or a timing change &mdash; <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">REPLACE_WITH_SUPPORT_EMAIL</a></p>
+      <p>Questions, custom swipes, review access or a timing change &mdash; <a href="mailto:maiaanderson2000@gmail.com">maiaanderson2000@gmail.com</a></p>
     </div>
   </div>
 </section>
@@ -928,9 +977,9 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
         <span class="brand-text"><span class="b1">Slitherlink Escape</span><span class="b2">Game Builder</span></span>
       </a>
       <div class="foot-links">
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
-        <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">Support</a>
+        <a href="https://slitherescape.promaia.store/terms.php">Terms</a>
+        <a href="https://slitherescape.promaia.store/privacy.php">Privacy</a>
+        <a href="mailto:maiaanderson2000@gmail.com">Support</a>
       </div>
     </div>
     <div class="foot-legal">This page is for prospective affiliates and is not a public sales page. Commission figures assume a buyer takes the full funnel; actual upgrade take rate varies and no earnings are promised or implied. Spam, cookie stuffing, bidding on the brand name, misleading claims and fake scarcity are grounds for withheld commission and immediate removal from the programme. Slitherlink Escape Game Builder is an independent product. &copy; 2026.</div>
@@ -939,7 +988,7 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
 </footer>
 
 
-<div class="sticky-cta"><a class="btn" href="REPLACE_WITH_YOUR_AFFILIATE_SIGNUP_URL">Get your affiliate link</a></div>
+<div class="sticky-cta"><a class="btn" href="https://warriorplus.com/as/o/lzgr7c">Get your affiliate link</a></div>
 
 <script>
 /* Shared motion + sound layer for the Slitherlink funnel pages. Pure progressive enhancement. */
@@ -1140,19 +1189,19 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
   var $ = function(s, r){ return (r || document).querySelector(s); };
 
   /* ---------- launch countdown: set LAUNCH to go live, e.g. '2026-12-01T09:00:00-05:00' ---------- */
-  var LAUNCH = '';
+  var LAUNCH = '2026-11-20T09:00:00-05:00';
   var body = $('#launchBody');
   function pad(n){ return n < 10 ? '0' + n : '' + n; }
   if (!LAUNCH || isNaN(new Date(LAUNCH).getTime())) {
     body.innerHTML = '<div class="tbc">Launch date to be confirmed</div><p>Get your link now &mdash; the swipes below are ready to schedule as soon as the date is set.</p>';
   } else {
     var t = new Date(LAUNCH).getTime();
-    body.innerHTML = '<div class="timer"><div><b id="td">00</b><span>Days</span></div><div><b id="th">00</b><span>Hours</span></div><div><b id="tm">00</b><span>Mins</span></div><div><b id="ts">00</b><span>Secs</span></div></div><p id="tp">Cart opens in&hellip; Mail early &mdash; the first 48 hours carry the launch-price urgency.</p>';
+    body.innerHTML = '<div class="timer"><div><b id="td">00</b><span>Days</span></div><div><b id="th">00</b><span>Hours</span></div><div><b id="tm">00</b><span>Mins</span></div><div><b id="ts">00</b><span>Secs</span></div></div><p id="tp">Cart opens Fri 20 Nov, 9:00 AM ET</p><p class="launch-dates">Contest: <b>20&ndash;27 Nov</b> &middot; 1st $100 &middot; 2nd $50 &middot; 3rd $25</p>';
     (function tick(){
       var d = Math.max(0, t - Date.now()), s = Math.floor(d / 1000);
       $('#td').textContent = pad(Math.floor(s / 86400)); $('#th').textContent = pad(Math.floor(s % 86400 / 3600));
       $('#tm').textContent = pad(Math.floor(s % 3600 / 60)); $('#ts').textContent = pad(s % 60);
-      if (d === 0) $('#tp').textContent = 'The cart is open.'; else setTimeout(tick, 1000);
+      if (d === 0) $('#tp').textContent = 'The cart is open — the contest runs until Fri 27 Nov, 11:59 PM ET.'; else setTimeout(tick, 1000);
     })();
   }
 
@@ -1174,6 +1223,19 @@ P.S. Each game takes a theme, a prompt and a click &mdash; and the next one star
     });
   });
 })();
+</script>
+
+<script>
+/* Dashboard links: scroll to the section below the sticky topbar (works even where hash links are blocked) */
+document.querySelectorAll('.jv-dash a[href^="#"]').forEach(function(a){
+  a.addEventListener('click', function(e){
+    var el = document.querySelector(a.getAttribute('href'));
+    if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+    try { history.replaceState(null, '', a.getAttribute('href')); } catch (err) {}
+  });
+});
 </script>
 </body>
 </html>

@@ -121,6 +121,7 @@
   .brand-text .b2{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--brown); white-space:nowrap;}
   .topbar-cta{display:flex; align-items:center; gap:16px;}
   .price-chip{font-size:12.5px; color:var(--ink-dim);}
+  .price-chip s{font-family:var(--num); font-size:15px; font-weight:600; color:var(--ink-dim); margin-left:6px; text-decoration-thickness:2px; opacity:.75;}
   .price-chip b{font-family:var(--num); font-size:22px; font-weight:700; color:var(--red); margin-left:4px;}
 
   /* ---------- hero ---------- */
@@ -553,6 +554,9 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 @media (max-width:960px){ .oto-grid{grid-template-columns:1fr;} .oto-numbers{grid-template-columns:repeat(2,1fr); row-gap:22px;} }
 @media (max-width:720px){ .feat-grid{grid-template-columns:1fr;} .oto-head{padding:48px 0 44px;} }
 
+  /* WarriorPlus disclaimer: W+ injects its own faint colours; keep it readable on the dark footer */
+  .wplus_spdisclaimer, .wplus_spdisclaimer *{color:#E8DCC4 !important; opacity:1 !important;}
+  .wplus_spdisclaimer b, .wplus_spdisclaimer strong{color:#F3E9D2 !important;}
 </style>
 </head>
 <body>
@@ -566,8 +570,8 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <span class="brand-text"><span class="b1">Slitherlink Escape</span><span class="b2">Game Builder</span></span>
     </a>
     <div class="topbar-cta">
-      <div class="price-chip">Launch price<b>$17</b></div>
-      <a class="btn btn-sm" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get Instant Access</a>
+      <div class="price-chip">Launch price<s>$99</s><b>$17</b></div>
+      <a class="btn btn-sm" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get Instant Access</a>
     </div>
   </div>
 </div>
@@ -581,7 +585,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <h1>Solve the loop. <em>Read the letter.</em> Crack the code.</h1>
       <p class="hero-sub">Slitherlink Escape Game Builder assembles a complete printable escape game &mdash; a story, 8 to 15 verified Slitherlink puzzles, hint cards, a host guide and an answer key &mdash; and exports it as a print-ready PDF you can sell. Every solved loop forms a letter. The letters spell the secret code.</p>
       <div class="hero-cta">
-        <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+        <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a>
         <span class="btn-sub" style="text-align:left;">Unlimited games &middot; no watermark &middot; commercial licence included</span>
       </div>
       <div class="trust-row">
@@ -680,7 +684,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 
     <div class="rules3">
       <div class="card"><div class="n">8&ndash;15</div><h3>Letters in the code</h3><p>One puzzle per letter, so the puzzle count is always the letter count. Repeated letters still get a puzzle each.</p></div>
-      <div class="card"><div class="n">2&ndash;3</div><h3>Chapters, one word each</h3><p>Each chapter opens with a story page and ends with a word. A riddle on the Code Sheet hints at every word.</p></div>
+      <div class="card"><div class="n">2&ndash;3</div><h3>Chapters, one word each</h3><p>Each chapter opens with a story page and ends with a word. The only way to the word is to solve its puzzles.</p></div>
       <div class="card"><div class="n">1</div><h3>Code tied to the story</h3><p>The code is part of the plot &mdash; checked against the story before the game can be built.</p></div>
     </div>
   </div>
@@ -728,7 +732,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="pg"><div class="num">01</div><h3>Cover</h3><p>Title, tagline, age range, player count and estimated play time.</p></div>
       <div class="pg"><div class="num">02</div><h3>Prologue &amp; mission</h3><p>The story opener players read first, and what they have to achieve.</p></div>
       <div class="pg"><div class="num">03</div><h3>How to Play</h3><p>Full Slitherlink rules with a worked example, plus how hints are earned.</p></div>
-      <div class="pg"><div class="num">04</div><h3>Code Sheet</h3><p>Letter boxes per chapter, a riddle for each word, and the final code.</p></div>
+      <div class="pg"><div class="num">04</div><h3>Code Sheet</h3><p>Letter boxes for each chapter&rsquo;s word, and the final code.</p></div>
       <div class="pg"><div class="num">05</div><h3>Chapter pages</h3><p>A story lead-in for each chapter before its puzzles begin.</p></div>
       <div class="pg"><div class="num">06</div><h3>Puzzle pages</h3><p>A story title, the grid, and a box for the letter with its exact position.</p></div>
       <div class="pg"><div class="num">07</div><h3>Final Lock</h3><p>The page where the finished code opens the ending.</p></div>
@@ -860,7 +864,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
           </g></svg>
         </div>
         <div class="mp-box"><span>Word 2, letter 3 of 6</span><i></i></div>
-        <div class="mp-foot"><span>&copy; Your Shop Name &middot; For personal &amp; classroom use</span><span>Game title &middot; 14</span></div>
+        <div class="mp-foot"><span>&copy; Your Shop Name</span><span>Game title &middot; 14</span></div>
       </div>
       <p class="mock-cap">Illustration of a puzzle page layout &mdash; your shop name in the footer, the letter position under the grid.</p>
     </div>
@@ -919,7 +923,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
         <li>Saved projects, and a new seed for a different puzzle set each time</li>
         <li><b>Unlimited games, no watermark, commercial licence</b></li>
       </ul>
-      <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+      <a class="wplus-btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4" style="display:block;margin:6px auto 0;max-width:420px"><img src="https://warriorplus.com/o2/btn/fn100011001/lzgr7c/y73b2q/480399" alt="Add to cart" style="display:block;width:100%;height:auto"></a>
       <span class="btn-sub">Instant access in your browser</span>
     </div>
   </div>
@@ -958,13 +962,13 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <h2>Your next listing is <em>one code</em> away.</h2>
     <p class="lead">Pick a theme, run the prompt, press export. A story, up to fifteen verified puzzles and a full host kit &mdash; ready to print and ready to sell.</p>
     <div class="hero-cta">
-      <a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a>
+      <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a>
       <div class="btn-sub">Unlimited games &middot; no watermark &middot; commercial licence</div>
     </div>
 
     <div class="card contact">
       <h3>Talk to us before you buy</h3>
-      <p>Not sure it fits your shop? Send a message &mdash; <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">REPLACE_WITH_SUPPORT_EMAIL</a></p>
+      <p>Not sure it fits your shop? Send a message &mdash; <a href="mailto:maiaanderson2000@gmail.com">maiaanderson2000@gmail.com</a></p>
     </div>
 
     <div class="ps">
@@ -984,20 +988,20 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       </a>
       <div class="foot-links">
         <a href="#offer">Pricing</a>
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
-        <a href="#">Refund Policy</a>
-        <a href="mailto:REPLACE_WITH_SUPPORT_EMAIL">Support</a>
+        <a href="https://slitherescape.promaia.store/terms.php">Terms</a>
+        <a href="https://slitherescape.promaia.store/privacy.php">Privacy</a>
+        <a href="https://slitherescape.promaia.store/terms.php">Refund Policy</a>
+        <a href="mailto:maiaanderson2000@gmail.com">Support</a>
       </div>
     </div>
     <div class="foot-legal">
       Slitherlink Escape Game Builder is an independent product. Sample pages shown are illustrative. You may sell the PDFs you export; the software itself is licensed, not sold. You are responsible for the story content you generate with your own AI tool. &copy; 2026. All rights reserved.
     </div>
-    <div class="wplus_spdisclaimer" style="margin-top:18px;font-size:12px;line-height:1.6;opacity:.8;text-align:center"></div>
+    <div class="wplus_spdisclaimer" style="margin-top:18px;font-size:12px;line-height:1.6;text-align:center"></div>
   </div>
 </footer>
 
-<div class="sticky-cta"><a class="btn" href="REPLACE_WITH_YOUR_SIGNUP_URL">Get the Builder &mdash; $17</a></div>
+<div class="sticky-cta"><a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a></div>
 
 <script>
 /* Shared motion + sound layer for the Slitherlink funnel pages. Pure progressive enhancement. */
@@ -1276,6 +1280,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   });
 })();
 </script>
-<!-- WarriorPlus "Sales Page Code": paste the product's <script> tag here, just before </body> -->
+<!-- WarriorPlus Sales Page Code -->
+<script type="text/javascript" src="https://warriorplus.com/o2/js/y73b2q" defer></script>
 </body>
 </html>

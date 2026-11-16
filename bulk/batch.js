@@ -32,7 +32,7 @@
     return [
       `=== GAME ${n} ===`,
       'TITLE: ...', 'TAGLINE: ...', 'PROLOGUE: ...', 'MISSION: ...',
-      ...Array.from({ length: CHAPTERS }, (_, i) => [`CHAPTER ${i + 1} NAME: ...`, `CHAPTER ${i + 1} INTRO: ...`, `CHAPTER ${i + 1} RIDDLE: ...`, `CHAPTER ${i + 1} WORD: ...`]).flat(),
+      ...Array.from({ length: CHAPTERS }, (_, i) => [`CHAPTER ${i + 1} NAME: ...`, `CHAPTER ${i + 1} INTRO: ...`, `CHAPTER ${i + 1} WORD: ...`]).flat(),
       'PUZZLE TITLES:', '1. ...', '2. ...', '(one numbered line per letter of the code)',
       'FINAL LOCK: ...', 'ENDING: ...', 'CERTIFICATE: ...', 'TEAM NAME: ...',
       'QUESTIONS:', '1. [story] ...?', 'A) ...', 'B) ...', 'C) ...', 'ANSWER: B',
@@ -62,7 +62,7 @@ ${lot.map(gameBrief).join('\n\n')}
 - TITLE (max ${L.title.words} words), TAGLINE (max ${L.tagline.words} words).
 - PROLOGUE (${L.prologue.min}-${L.prologue.words} words): the problem and why the code matters, with at least 6 concrete details (names, colors, numbers, objects, places, times) the questions can ask about.
 - MISSION (${L.mission.min}-${L.mission.words} words): solve the puzzles, collect the ${CHAPTERS} words and say the code before something bad happens.
-- For each chapter: NAME (max ${L.chapterName.words} words); INTRO (${L.chapterIntro.min}-${L.chapterIntro.words} words, at least 3 new details); RIDDLE (max ${L.riddle.words} words) whose answer is exactly that chapter's word and that never contains the word; WORD in capitals.
+- For each chapter: NAME (max ${L.chapterName.words} words); INTRO (${L.chapterIntro.min}-${L.chapterIntro.words} words, at least 3 new details); WORD in capitals.
 - PUZZLE TITLES: one per letter of the code, in code order, max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro.
 - FINAL LOCK (${L.finalLock.min}-${L.finalLock.words} words): the tense moment just before the code is spoken.
 - ENDING (${L.ending.min}-${L.ending.words} words): read aloud by the Game Host; explains why the code was the answer and congratulates the players.
@@ -70,8 +70,8 @@ ${lot.map(gameBrief).join('\n\n')}
 - QUESTIONS: exactly 20, read by the Game Host when players want a hint. 1-${STORY_QS} [story]: answered in the prologue, mission or a chapter intro (never the final lock or ending), each about a different detail. ${STORY_QS + 1}-20 [trivia]: well-known facts about the game's trivia topic. Exactly 3 options (A, B, C), exactly one correct, wrong options plausible, options max ${L.option.words} words, questions max ${L.question.words} words. No "all of the above".
 
 == STAY IN THE STORY, NO SPOILERS ==
-- Only the mission may mention puzzles. Everything else stays in the story world: never mention puzzles, riddles, letters or how the game works.
-- Never use a code word (or its plural) in the riddles, puzzle titles, final lock or questions. Avoid it in the title, tagline, prologue, mission and intros too. The ending may use it.
+- Only the mission may mention puzzles. Everything else stays in the story world: never mention puzzles, letters or how the game works.
+- Never use a code word (or its plural) in the puzzle titles, final lock or questions. Avoid it in the title, tagline, prologue, mission and intros too. The ending may use it.
 - Names, numbers, colors and times stay consistent inside each game.
 - Each game is its own story with its own characters, places and problem. Keep one warm narrator voice across the bundle.
 

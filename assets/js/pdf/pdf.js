@@ -204,7 +204,7 @@
     const { frame } = this.geo;
     const y = frame.y + frame.h - 14;
     this.font('Fell', 8.5, C.brown, 'italic');
-    this.text(`© ${this.g.shop || 'Your Shop Name'} · For personal & classroom use`, frame.x + 26, y);
+    this.text(`© ${this.g.shop || 'Your Shop Name'}`, frame.x + 26, y);
     // Bulk variants print their code on every page so a host never mixes up answer keys.
     const code = this.g.variantCode ? ` · ${this.g.variantCode}` : '';
     this.text(`${this.g.story.title}${code} · ${this.pageNo}`, frame.x + frame.w - 26, y, { align: 'right' });
@@ -463,7 +463,7 @@
         y += size + 26;
         return;
       }
-      y = this.para(`"${c.riddle}"`, box.x + 50, y + 20, box.w - 100, { align: 'center' }) + 8;
+      y += 26;
       const first = this.g.slots.findIndex((sl) => sl.chapter === ci);
       this.letterBoxes(cx, y, [c.word.length], size, { numbers: true, startNumber: first + 1 });
       y += size + 40;

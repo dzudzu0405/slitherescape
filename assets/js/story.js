@@ -11,7 +11,6 @@
     mission: { words: 50, min: 20 },
     chapterName: { words: 6 },
     chapterIntro: { words: 110, min: 50 },
-    riddle: { words: 35 },
     puzzleTitle: { words: 7 },
     finalLock: { words: 90, min: 35 },
     ending: { words: 150, min: 70 },
@@ -171,7 +170,7 @@
       mission: '...',
       chapters: wordsForSkeleton.map((w, i) => (types && types[i] === 'mosaic'
         ? { name: '...', intro: '...', word: 'PICTURE NAME' }
-        : { name: '...', intro: '...', riddle: '...', word: w })),
+        : { name: '...', intro: '...', word: w })),
       puzzleTitles: hasLetters ? ['...', '...', '...'] : [],
       finalLock: '...',
       ending: '...',
@@ -221,7 +220,6 @@ ${codeRules.map((r) => '- ' + r).join('\n')}
 5. chapters: exactly ${chapters}, in the order of the code. For each:
    - name (max ${L.chapterName.words} words)
    - intro (${L.chapterIntro.min}-${L.chapterIntro.words} words): narration that leads into this chapter's puzzles and raises the stakes, with at least 3 new concrete details.
-   - riddle (max ${L.riddle.words} words): printed on the players' Code Sheet; its answer is exactly this chapter's word. Fair and solvable for ${audience[0]}. It must not contain the word or any form of it.${types ? ' Letter chapters only: picture chapters have no riddle.' : ''}
    - word: this chapter's code word in CAPITALS.
 6. puzzleTitles (${titleCount}): one short scene title per letter, max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro. ${titleOrder}
 7. finalLock (${L.finalLock.min}-${L.finalLock.words} words): the tense moment just before the players speak the code.
@@ -235,11 +233,11 @@ ${codeRules.map((r) => '- ' + r).join('\n')}
    - "answer" is the position of the correct option: 0, 1 or 2.${partyItem}
 
 == STAY IN THE STORY ==
-- Only the mission may mention puzzles. The prologue, chapter intros, final lock and ending stay inside the story world: never mention puzzles, riddles, letters, word lengths, how many puzzles there are, or how the game works.
+- Only the mission may mention puzzles. The prologue, chapter intros, final lock and ending stay inside the story world: never mention puzzles, letters, word lengths, how many puzzles there are, or how the game works.
 - Details stay consistent: every name, number, color and time means the same thing everywhere, and any times mentioned add up. Puzzle titles and the ending must not contradict the intros.
 
 == NO SPOILERS ==
-- Never use a code word (or its plural) in the riddles, puzzle titles, final lock or questions: that would give the answer away.
+- Never use a code word (or its plural) in the puzzle titles, final lock or questions: that would give the answer away.
 - Never hint at what a code word means or how long it is in the story text.
 - Avoid the code words in the title, tagline, prologue, mission and chapter intros too. Only if a code word is the theme's own name may it appear there naturally, never highlighted as a clue.
 - The ending may use the code freely.
@@ -258,7 +256,7 @@ ${skeletonText}${checkExample}
 - "puzzleTitles" has ${types ? titleCount : 'exactly one item per letter of the code'}.
 - "questions" has exactly ${QUESTION_COUNT} items: ${STORY_QUESTIONS} story questions first, then ${QUESTION_COUNT - STORY_QUESTIONS} trivia questions, each with exactly 3 options.
 - Every word count is inside its limits.
-- No code word appears where it is not allowed, and the story text never mentions puzzles, letters or riddles (only the mission may mention puzzles).
+- No code word appears where it is not allowed, and the story text never mentions puzzles or letters (only the mission may mention puzzles).
 - Puzzle titles repeat the intros' numbers, colors and names exactly.
 - The JSON is valid: double quotes only around keys and values, no trailing commas.`;
   }
@@ -414,7 +412,6 @@ ${skeletonText}${checkExample}
     story.chapters.forEach((c, i) => {
       over(`chapters[${i}].name`, c.name, LIMITS.chapterName.words, `Chapter ${i + 1} name`);
       over(`chapters[${i}].intro`, c.intro, LIMITS.chapterIntro.words, `Chapter ${i + 1} intro`, LIMITS.chapterIntro.min);
-      if (!isMosaic(c)) over(`chapters[${i}].riddle`, c.riddle, LIMITS.riddle.words, `Chapter ${i + 1} riddle`);
     });
 
     if (partyKit) {
@@ -427,7 +424,7 @@ ${skeletonText}${checkExample}
       }
     }
 
-    // No spoilers. A code word (or its plural) in a riddle, puzzle title, the Final Lock or a
+    // No spoilers. A code word (or its plural) in a puzzle title, the Final Lock or a
     // question gives the answer away: error. In the opening text it is only a warning, since a
     // code like HAPPY HALLOWEEN naturally shares words with its theme. The ending may use it.
     const hardFields = [['finalLock', 'the Final Lock text', story.finalLock]];
@@ -435,7 +432,6 @@ ${skeletonText}${checkExample}
     const softFields = [['title', 'the title', story.title], ['tagline', 'the tagline', story.tagline],
       ['prologue', 'the prologue', story.prologue], ['mission', 'the mission', story.mission]];
     story.chapters.forEach((c, i) => {
-      hardFields.push([`chapters[${i}].riddle`, `chapter ${i + 1} riddle`, c.riddle]);
       softFields.push([`chapters[${i}].name`, `chapter ${i + 1} name`, c.name], [`chapters[${i}].intro`, `chapter ${i + 1} intro`, c.intro]);
     });
     story.puzzleTitles.forEach((t, i) => hardFields.push([`puzzleTitles[${i}]`, `puzzle ${i + 1} title`, t]));

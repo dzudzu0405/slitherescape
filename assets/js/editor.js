@@ -1047,7 +1047,6 @@
           <div class="field"><div class="field-label">Code word<span class="count">${c.word.length} letters</span></div><input type="text" class="mono" data-path="chapters.${ci}.word" value="${esc(c.word)}"></div>
         </div>
         ${fieldText(`chapters.${ci}.intro`, 'Chapter intro', c.intro, L.chapterIntro.words, 4)}
-        ${fieldText(`chapters.${ci}.riddle`, 'Riddle hinting the word (Code Sheet)', c.riddle, L.riddle.words, 2)}
         <div class="field-label">Puzzle titles</div>
         <div class="title-list">${titles}</div>
       </div>`;

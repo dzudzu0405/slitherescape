@@ -51,7 +51,7 @@ page_head('Account', '', ['user' => $user, 'nav' => 'account']);
     <label class="field">
       <span>Shop name</span>
       <input type="text" name="shop_name" maxlength="120" value="<?= h($user['shop_name']) ?>">
-      <div class="hint">Printed on the cover and in the PDF footer, e.g. "© <?= h($user['shop_name'] ?: 'Your Shop Name') ?> · For personal &amp; classroom use".</div>
+      <div class="hint">Printed on the cover and in the PDF footer, e.g. "© <?= h($user['shop_name'] ?: 'Your Shop Name') ?>".</div>
     </label>
     <div class="row">
       <label class="field">
