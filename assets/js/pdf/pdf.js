@@ -112,6 +112,9 @@
     this.textures = textures;
     this.pageNo = 0;
     this.cmaps = {};
+    // Canva export: text is recorded instead of drawn, so it can become editable text boxes.
+    this.textLog = game.recordText ? [] : null;
+    this.logPage = null;
     FONT_FILES.forEach(([, name, style]) => {
       try { this.cmaps[name + style] = doc.internal.getFont(name, style).metadata.cmap.unicode.codeMap; } catch (_) { /* fallback font */ }
     });
@@ -145,13 +148,33 @@
   };
 
   B.text = function (str, x, y, opts = {}) {
-    this.doc.text(this.clean(str), x, y, opts);
+    const s = this.clean(str);
+    if (this.textLog) {
+      const w = this.doc.getTextWidth(s);
+      const left = opts.align === 'center' ? x - w / 2 : opts.align === 'right' ? x - w : x;
+      this.logText(s, left, y, w, 1, this.fontSize, opts.align || 'left');
+      return;
+    }
+    this.doc.text(s, x, y, opts);
+  };
+
+  // One recorded text block: left edge, first baseline, width, line count.
+  B.logText = function (str, x, y, w, lines, lineHeight, align) {
+    const st = this.doc.getFont();
+    this.textLog.push({
+      page: this.logPage || this.pageNo, text: str, x, y, w, lines, lineHeight, align,
+      font: st.fontName, style: st.fontStyle, size: this.fontSize, color: this.doc.getTextColor()
+    });
   };
 
   // Wrapped paragraph. Returns the y below it.
   B.para = function (str, x, y, w, opts = {}) {
     const lh = (opts.lineHeight || 1.32) * this.fontSize;
     const lines = this.doc.splitTextToSize(this.clean(str), w);
+    if (this.textLog) {
+      this.logText(lines.join(' '), x, y, w, lines.length, lh, opts.align === 'center' ? 'center' : 'left');
+      return y + lines.length * lh;
+    }
     lines.forEach((ln, i) => {
       const ax = opts.align === 'center' ? x + w / 2 : x;
       this.doc.text(ln, ax, y + i * lh, { align: opts.align === 'center' ? 'center' : 'left' });
@@ -901,6 +924,7 @@
       steps[k][1]();
       await tick();
     }
+    doc.textLog = b.textLog;
     return { doc, guideUsed: b.guideUsed };
   }
 

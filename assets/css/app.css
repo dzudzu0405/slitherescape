@@ -647,6 +647,11 @@ body.editor > .workspace { flex: 1; }
 .kit-row { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .kit-options { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 14px; }
 .kit-options .field { margin: 0; min-width: 140px; }
+.kit-list { flex-basis: 100%; font-size: 13.5px; }
+.kit-list ol { margin: 6px 0 6px 20px; padding: 0; columns: 2; column-gap: 28px; }
+.kit-list li { margin: 2px 0; break-inside: avoid; }
+#export-kit-canva { margin-top: 8px; }
+@media (max-width: 640px) { .kit-list ol { columns: 1; } }
 #pro-note { margin: 14px 0 0; }
 .mosaic-preview { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
 .mosaic-preview canvas { border: 1px solid var(--line); border-radius: 4px; }

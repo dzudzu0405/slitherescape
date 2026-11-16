@@ -82,6 +82,7 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
           <label class="field"><span>Players</span><select id="kit-players"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></label>
           <label class="field"><span>How they play</span><select id="kit-play"><option value="together">Together</option><option value="teams">Competing teams</option></select></label>
           <label class="field hidden" id="kit-teams-field"><span>Teams</span><select id="kit-teams"><option>2</option><option>3</option><option>4</option></select></label>
+          <div class="kit-list" id="kit-list"></div>
         </div>
       </div>
       <div class="alert info hidden" id="pro-note"></div>
@@ -221,7 +222,8 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
             <div class="progress-track"><div class="progress-fill" id="export-fill"></div></div>
             <div class="progress-text"><span id="export-status">Building pages…</span><span></span></div>
           </div>
-          <button class="btn lg download hidden" id="export-kit">Download Party Kit</button>
+          <button class="btn lg download hidden" id="export-kit">Download Party Kit (PDF)</button>
+          <button class="btn lg download hidden" id="export-kit-canva" title="Upload the .pptx to Canva: every text box can be edited">Download Party Kit for Canva (PPTX)</button>
           <div class="r-links">
             <button class="btn ghost sm" id="btn-edit">Edit text</button>
             <button class="btn ghost sm" id="btn-regen">New puzzles</button>

@@ -234,6 +234,11 @@
     $('#kit-play').value = st.kitPlay;
     $('#kit-teams').value = String(st.kitTeams);
     $('#kit-teams-field').classList.toggle('hidden', st.kitPlay !== 'teams');
+    // What the kit contains, so the seller knows what each printed sheet is.
+    if (window.PdfPro && window.PdfPro.propNames) {
+      const names = window.PdfPro.propNames({ play: st.kitPlay, teams: st.kitTeams, players: st.kitPlayers });
+      $('#kit-list').innerHTML = '<div class="field-label">What&rsquo;s in the kit (' + names.length + ' props, plus a contents page)</div><ol>' + names.map((n) => '<li>' + esc(n) + '</li>').join('') + '</ol><small class="muted">Also as a PowerPoint file you can upload to Canva and edit.</small>';
+    }
     if (PRO.enabled) {
       const note = $('#pro-note');
       const empty = types && !library().length;
@@ -768,6 +773,8 @@
     $('#export-pdf').disabled = bad > 0;
     $('#export-kit').classList.toggle('hidden', !state.settings.kit || !window.PdfPro);
     $('#export-kit').disabled = bad > 0;
+    $('#export-kit-canva').classList.toggle('hidden', !state.settings.kit || !window.PdfPro || !window.PdfPro.buildKitPptx);
+    $('#export-kit-canva').disabled = bad > 0;
 
     let from = 1;
     $('#page-list').innerHTML = pages.map(([name, count, host]) => {
@@ -953,6 +960,35 @@
       const file = `${slug(state.story.title)}-party-kit-${effective().paper}.pdf`;
       doc.save(file);
       status(1, `Downloaded ${file} (${doc.getNumberOfPages()} pages)`);
+    } catch (err) {
+      console.error(err);
+      status(0, 'Export failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('#export-kit-canva').addEventListener('click', async () => {
+    const btn = $('#export-kit-canva');
+    const status = (pct, text) => {
+      $('#export-fill').style.width = Math.round(pct * 100) + '%';
+      $('#export-status').textContent = text;
+    };
+    btn.disabled = true;
+    $('#export-progress').classList.remove('hidden');
+    status(0, 'Preparing…');
+    try {
+      const { blob, slides } = await window.PdfPro.buildKitPptx(await gameForPdf(), (pct, text) => status(pct, `${text}…`));
+      const file = `${slug(state.story.title)}-party-kit-canva.pptx`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      status(1, `Downloaded ${file} (${slides} slides). In Canva: Create a design > Import file, then choose this file.`);
     } catch (err) {
       console.error(err);
       status(0, 'Export failed: ' + err.message);
