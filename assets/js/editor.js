@@ -586,8 +586,8 @@
     return null;
   }
 
-  // The picture printed on the Answer Board plus decoys: first those that look alike, then
-  // the same theme, then any other. Never another picture of this game.
+  // The picture printed on the Answer Board plus decoys with the same letter count: first those
+  // that look alike, then the same theme, then any other. Never another picture of this game.
   function answerBoards() {
     const lib = library();
     const used = state.story.chapters.filter(Story.isMosaic).map((c) => c.word);
@@ -598,10 +598,15 @@
       const img = lib.find((m) => m.name === c.word);
       const size = state.settings.difficulty === 'hard' ? 8 : 6;
       const free = lib.filter((m) => !used.includes(m.name));
-      const near = free.filter((m) => (img.similar || []).includes(m.name));
-      const theme = r.shuffle(free.filter((m) => m.theme === img.theme && !near.includes(m)));
-      const rest = r.shuffle(free.filter((m) => m.theme !== img.theme && !near.includes(m)));
-      boards[ci] = r.shuffle([img].concat(near, theme, rest).slice(0, size));
+      // The word boxes show the answer's length, so decoys with the same letter count come first:
+      // look-alikes, then the same theme, then any theme. Other lengths only fill a gap.
+      const len = img.name.length;
+      const near = free.filter((m) => m !== img && (img.similar || []).includes(m.name));
+      const theme = r.shuffle(free.filter((m) => m !== img && m.theme === img.theme && !near.includes(m)));
+      const rest = r.shuffle(free.filter((m) => m !== img && m.theme !== img.theme && !near.includes(m)));
+      const order = near.concat(theme, rest);
+      const decoys = order.filter((m) => m.name.length === len).concat(order.filter((m) => m.name.length !== len));
+      boards[ci] = r.shuffle([img].concat(decoys.slice(0, size - 1)));
       // The true picture must survive the cut even when many decoys look alike.
       if (!boards[ci].includes(img)) boards[ci][0] = img;
       // Repairs can change a few cells, so the board shows exactly what players assemble.
