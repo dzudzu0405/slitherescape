@@ -684,6 +684,8 @@
     const keep = fresh;
     fresh = Array.from({ length: n }, (_, i) => keep[i] || { n: i + 1, type: 'classic', themeId: T.THEMES[i % T.THEMES.length].id, plotId: T.PLOTS[i % T.PLOTS.length].id, difficulty: 'medium', status: 'waiting' });
     if (common) fresh.forEach((g) => { g.themeId = common; });
+    const allType = $('nb-type') ? $('nb-type').value : '';
+    if (allType) fresh.forEach((g) => { g.type = allType; });
     const cols = (common ? 3 : 4) + (PRO ? 1 : 0), lotCount = Math.ceil(n / BB.LOT);
     const lotHead = (i) => i % BB.LOT || lotCount < 2 ? '' : `<tr class="nb-lot-row"><td colspan="${cols}"><b>Prompt ${i / BB.LOT + 1} of ${lotCount}</b> · new games ${i + 1}${Math.min(i + BB.LOT, n) > i + 1 ? `–${Math.min(i + BB.LOT, n)}` : ''}</td></tr>`;
     $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${PRO ? '<th>Game type</th>' : ''}${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
@@ -692,7 +694,7 @@
       ${common ? '' : `<td><select data-g="${i}" data-k="themeId">${themeOptions(g.themeId)}</select></td>`}
       <td><select data-g="${i}" data-k="plotId">${plotOptions(g.plotId)}</select></td>
       <td><select data-g="${i}" data-k="difficulty">${['easy', 'medium', 'hard'].map((d) => `<option value="${d}"${d === g.difficulty ? ' selected' : ''}>${PRESETS[d].audience}</option>`).join('')}</select></td>
-    </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}${PRO ? '<p class="small muted"><b>Game type:</b> Classic letters has two word chapters. Letters + picture has a word chapter, then a Mosaic picture to assemble. One picture is a single Mosaic picture whose name is the code. Pictures come from your library and suit each game\'s theme.</p>' : ''}` : '';
+    </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}${PRO ? '<p class="small muted"><b>Game type:</b> Classic has two word chapters. Letters + Mosaic picture has a word chapter, then a Mosaic picture to assemble. Mosaic picture only is one big picture whose name is the code. Pictures come from your library and suit each game\'s theme.</p>' : ''}` : '';
     $('nb-start').classList.toggle('hidden', !n);
     $('nb-start').textContent = n > BB.LOT ? `Make the ${Math.ceil(n / BB.LOT)} prompts` : 'Make the prompt';
   }
@@ -729,7 +731,14 @@
   $('bd-type-theme-sel').addEventListener('change', applyKind);
   $('bd-name').addEventListener('input', () => { delete $('bd-name').dataset.auto; });
   $('nb-theme').addEventListener('change', planRows);
-  $('nb-rows').addEventListener('change', (e) => { const s = e.target.closest('[data-g]'); if (s) fresh[+s.dataset.g][s.dataset.k] = s.value; });
+  // One game type for every new game; each row can still be changed afterwards.
+  if ($('nb-type')) $('nb-type').addEventListener('change', () => { const t = $('nb-type').value; if (t) fresh.forEach((g) => { g.type = t; }); planRows(); });
+  $('nb-rows').addEventListener('change', (e) => {
+    const s = e.target.closest('[data-g]');
+    if (!s) return;
+    fresh[+s.dataset.g][s.dataset.k] = s.value;
+    if (s.dataset.k === 'type' && $('nb-type')) $('nb-type').value = fresh.every((g) => g.type === s.value) ? s.value : '';
+  });
 
   // Codes and titles a new game must not repeat: every saved game and every other new game.
   const picturesIn = (story) => (story ? story.chapters.filter(isMosaic).map((c) => c.word) : []);
@@ -763,6 +772,7 @@
     fresh.forEach((g) => { if (!PRO) g.type = 'classic'; pickPictures(g); });
     $('nb-work').classList.remove('hidden');
     $('nb-count').disabled = $('nb-theme').disabled = true;
+    if ($('nb-type')) $('nb-type').disabled = true;
     $('nb-rows').querySelectorAll('select').forEach((s) => { s.disabled = true; });
     $('nb-start').classList.add('hidden');
     showLot();

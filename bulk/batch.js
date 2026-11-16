@@ -18,7 +18,7 @@
   // ---------------------------------------------------------------- game types
   // classic: two letter chapters. mixed (PRO): a letter chapter, then a picture chapter.
   // mosaic (PRO): one picture chapter whose name is the whole code.
-  const TYPE_LABEL = { classic: 'Classic letters', mixed: 'Letters + picture', mosaic: 'One picture' };
+  const TYPE_LABEL = { classic: 'Classic (letters only)', mixed: 'Letters + Mosaic picture', mosaic: 'Mosaic picture only' };
   const typesOf = (g) => (g.type === 'mosaic' ? ['mosaic'] : g.type === 'mixed' ? ['letter', 'mosaic'] : ['letter', 'letter']);
   const hasPicture = (g) => g.type === 'mixed' || g.type === 'mosaic';
   // The pictures a game may use, as library entries (name, similar, ...).

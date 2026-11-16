@@ -51,7 +51,7 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
     <h3 style="margin-bottom:6px">Where do the games come from?</h3>
     <p class="small muted" style="margin-bottom:12px">Make a whole bundle of brand-new games in one go, or pack games you have already made.</p>
     <div class="bd-types bd-src">
-      <label class="bd-type"><input type="radio" name="bd-src" value="new" checked><b>Make new games with AI</b><span>Up to 12 brand-new games at once, each with its own story, secret code and questions. The prompt is written for you.</span></label>
+      <label class="bd-type"><input type="radio" name="bd-src" value="new" checked><b>Make new games with AI</b><span>Up to 12 brand-new games at once, each with its own story, secret code and questions. The prompt is written for you.<?= $pro ? ' Classic or Mosaic.' : '' ?></span></label>
       <label class="bd-type"><input type="radio" name="bd-src" value="saved"><b>Use games I already made</b><span>Pick from your saved projects. No AI prompt needed.</span></label>
     </div>
   </div>
@@ -105,6 +105,16 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
         <select id="nb-count"><?php for ($i = 0; $i <= 12; $i++): ?><option value="<?= $i ?>"><?= $i ?: 'None' ?></option><?php endfor; ?></select>
       </label>
       <label class="field"><span>Same theme for every game?</span><select id="nb-theme"></select></label>
+<?php if ($pro): ?>
+      <label class="field"><span>Game type <span class="badge warn">PRO</span></span>
+        <select id="nb-type">
+          <option value="">I pick a type for each game</option>
+          <option value="classic">Every game: Classic (letters only)</option>
+          <option value="mixed">Every game: Letters + Mosaic picture</option>
+          <option value="mosaic">Every game: Mosaic picture only</option>
+        </select>
+      </label>
+<?php endif; ?>
     </div>
     <div id="nb-rows"></div>
     <button class="btn primary hidden" id="nb-start" type="button">Make the prompt</button>
