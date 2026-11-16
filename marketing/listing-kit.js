@@ -78,13 +78,18 @@
   // Reading the PDF -----------------------------------------------------------------------------
 
   // Only these kinds may appear in a listing. Host pages and unknown pages never do, so nothing can spoil the code.
-  const SAFE_KINDS = new Set(['cover', 'prologue', 'howTo', 'codeSheet', 'chapter', 'puzzle', 'finalLock', 'certificate']);
+  const SAFE_KINDS = new Set(['cover', 'prologue', 'howTo', 'codeSheet', 'chapter', 'puzzle', 'pieces', 'assembly', 'finalLock', 'certificate']);
 
   function classify(text, index) {
     if (/for the game host only/i.test(text)) return 'host';
     if (index === 0) return 'cover';
     if (/certificate of completion/i.test(text)) return 'certificate';
     if (/puzzle\s+\d+\s+of\s+\d+/i.test(text)) return 'puzzle';
+    // Mosaic pages, by the sentences only they carry (How to Play and the Code Sheet mention the boards too).
+    // The Answer Board lists the picture's name among decoys, so it is checked first and never shown.
+    if (/which of these is your finished picture/i.test(text)) return 'answerBoard';
+    if (/picture pieces/i.test(text) && /cut along the dashed lines/i.test(text)) return 'pieces';
+    if (/assembly board/i.test(text) && /glue a piece here/i.test(text)) return 'assembly';
     if (/how to play/i.test(text)) return 'howTo';
     if (/code sheet/i.test(text)) return 'codeSheet';
     if (/the final lock/i.test(text)) return 'finalLock';
@@ -135,6 +140,12 @@
       if (code) secretCode = code[1];
     }
     const puzzles = pages.filter((p) => p.kind === 'puzzle');
+    const pieceCount = pages.filter((p) => p.kind === 'pieces').reduce((n, p) => n + (p.text.match(/\bpiece\s+\d+/gi) || []).length, 0);
+    const chapterTypes = [];
+    pages.forEach((p) => {
+      if (p.kind === 'chapter') chapterTypes.push('letter');
+      else if (p.kind === 'pieces' && chapterTypes.length) chapterTypes[chapterTypes.length - 1] = 'picture';
+    });
     const view = pages[0].page.getViewport({ scale: 1 });
     const paper = Math.abs(view.width - 612) < 3 ? 'US LETTER' : Math.abs(view.width - 595) < 3 ? 'A4' : 'READY TO PRINT';
     const counts = {};
@@ -144,15 +155,18 @@
     return {
       ...facts,
       mission: mission ? mission[1].trim() : '',
-      puzzles: puzzles.length,
-      chapters: counts.chapter || 1,
+      puzzles: facts.puzzlesOnCover || puzzles.length + pieceCount,
+      chapters: chapterTypes.length || 1,
+      chapterTypes: chapterTypes.length ? chapterTypes : ['letter'],
+      hasPictures: chapterTypes.includes('picture'),
+      hasLetters: !chapterTypes.length || chapterTypes.includes('letter'),
       pageCount: pages.length,
       paper, pages, counts, secretCode,
     };
   }
 
   async function renderPdfPage(entry) {
-    const vp = entry.page.getViewport({ scale: 150 / 72 });
+    const vp = entry.page.getViewport({ scale: 150 / 72, rotation: 0 });
     const c = document.createElement('canvas');
     c.width = Math.floor(vp.width);
     c.height = Math.floor(vp.height);
@@ -678,7 +692,7 @@
     const shown = 590;
     A.images.puzzles.slice(0, 6).forEach((img, i) => {
       const cx = cols[i % 3], cy = rows[i < 3 ? 0 : 1];
-      fitText(ctx, `PUZZLE ${i + 1}`, cx, cy - shown / 2 - 18, 400, 40, 800, HEAD, THEME.ink, 3);
+      fitText(ctx, (A.puzzleLabels && A.puzzleLabels[i]) || `PUZZLE ${i + 1}`, cx, cy - shown / 2 - 18, 400, 40, 800, HEAD, THEME.ink, 3);
       drawPage(ctx, img, cx, cy, shown * img.width / img.height, 0);
     });
   }
@@ -712,6 +726,7 @@
       'Story and mission pages',
       'How to Play with an example',
       'Code Sheet and Final Lock',
+      ...(GAME.hasPictures ? ['Picture pieces and boards'] : []),
       'Step-by-step Host Guide',
       '20 hint questions',
       `${GAME.puzzles * 2} cut-out hint cards`,
@@ -737,7 +752,7 @@
     });
     const P = A.images;
     [
-      { img: P.puzzles[0], x: 1190, y: 620, w: 500, rot: -5 },
+      { img: P.puzzles[0] || P.howTo, x: 1190, y: 620, w: 500, rot: -5 },
       { img: P.codeSheet, x: 1660, y: 620, w: 500, rot: 5 },
       { img: P.certificate, x: 1510, y: 1270, w: certWidth(P.certificate, 700), rot: 3 },
       { img: P.cover, x: 1400, y: 930, w: 590, rot: -2 },
@@ -784,12 +799,13 @@
   }
 
   function drawCodeBuild(ctx, A) {
-    heading(ctx, A, 'LETTERS BUILD THE SECRET CODE');
+    const types = GAME.chapterTypes || [];
+    heading(ctx, A, GAME.hasPictures ? (GAME.hasLetters ? 'LETTERS AND PICTURES BUILD THE CODE' : 'THE PICTURES NAME THE SECRET CODE') : 'LETTERS BUILD THE SECRET CODE');
     const words = exampleWords(Math.min(GAME.chapters, 3));
     const rowH = 240, top = words.length === 2 ? 380 : 270;
     words.forEach((word, i) => {
       const y = top + i * rowH;
-      fitText(ctx, `CHAPTER ${i + 1} SPELLS A WORD`, W / 2, y, W - 300, 46, 800, HEAD, THEME.gold, 3);
+      fitText(ctx, types[i] === 'picture' ? `CHAPTER ${i + 1}: NAME THE PICTURE` : `CHAPTER ${i + 1} SPELLS A WORD`, W / 2, y, W - 300, 46, 800, HEAD, THEME.gold, 3);
       drawWordBoxes(ctx, W / 2, y + 34, 124, word);
     });
     const y = top + words.length * rowH + 20;
@@ -895,7 +911,7 @@
   }
 
   function drawCodePages(ctx, A) {
-    heading(ctx, A, 'FROM CODE SHEET TO FINAL LOCK', 'Players track every letter, then face the last door');
+    heading(ctx, A, 'FROM CODE SHEET TO FINAL LOCK', GAME.hasPictures && !GAME.hasLetters ? 'Players note every picture, then face the last door' : 'Players track every letter, then face the last door');
     const P = A.images, h = 1130;
     if (P.codeSheet) drawPage(ctx, P.codeSheet, 560, 930, h * P.codeSheet.width / P.codeSheet.height, -2);
     if (P.finalLock) drawPage(ctx, P.finalLock, 1440, 930, h * P.finalLock.width / P.finalLock.height, 2);
@@ -986,20 +1002,59 @@
     });
   }
 
+  function drawBoard(ctx, cx, cy, size, glued = 3, pop = 1) {
+    const n = 3, c = size / n, x0 = cx - size / 2, y0 = cy - size / 2;
+    ctx.fillStyle = THEME.paper;
+    ctx.strokeStyle = THEME.paperEdge;
+    ctx.lineWidth = 4;
+    roundRect(ctx, x0 - 14, y0 - 14, size + 28, size + 28, 10);
+    ctx.fill();
+    ctx.stroke();
+    [0, 1, 4, 3, 7].slice(0, glued).forEach((k, i) => {
+      const last = i === glued - 1, a = last ? clamp01(pop) : 1;
+      if (a <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.fillStyle = THEME.shade;
+      const px = x0 + (k % n) * c, py = y0 + Math.floor(k / n) * c, k2 = last ? 0.6 + 0.4 * a : 1;
+      ctx.translate(px + c / 2, py + c / 2);
+      ctx.scale(k2, k2);
+      ctx.fillRect(-c / 2 + 4, -c / 2 + 4, c - 8, c - 8);
+      ctx.restore();
+    });
+    ctx.setLineDash([10, 8]);
+    ctx.strokeStyle = THEME.paperEdge;
+    ctx.lineWidth = 2;
+    for (let i = 0; i <= n; i++) {
+      ctx.beginPath(); ctx.moveTo(x0 + i * c, y0); ctx.lineTo(x0 + i * c, y0 + size); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x0, y0 + i * c); ctx.lineTo(x0 + size, y0 + i * c); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
   function drawHowItWorks(ctx, A) {
     ctx.drawImage(A.bg, 0, 0, W, H);
     const p = A.puzzle;
-    fitText(ctx, 'EVERY PUZZLE HIDES A LETTER', W / 2, 140, W - 140, 104, 900, HEAD, THEME.ink, 1);
+    const pictureOnly = GAME.hasPictures && !GAME.hasLetters;
+    fitText(ctx, pictureOnly ? 'EVERY PUZZLE IS A PICTURE PIECE' : 'EVERY PUZZLE HIDES A LETTER', W / 2, 140, W - 140, 104, 900, HEAD, THEME.ink, 1);
     const cell = 80, gridW = p.W * cell, top = 480;
     const cols = [340, 1000, 1660];
-    const labels = ['1. SOLVE THE NUMBERS', '2. CLOSE THE LOOP', '3. CRACK THE CODE'];
+    const labels = ['1. SOLVE THE NUMBERS', '2. CLOSE THE LOOP', pictureOnly ? '3. BUILD THE PICTURE' : '3. CRACK THE CODE'];
     labels.forEach((l, i) => fitText(ctx, l, cols[i], 370, 590, 52, 800, HEAD, THEME.gold, 2));
     drawPuzzle(ctx, p, A.loop, cols[0] - gridW / 2, top, cell, { loop: 0, shade: 0 });
     drawPuzzle(ctx, p, A.loop, cols[1] - gridW / 2, top, cell, { loop: 1, shade: 1 });
-    drawLetterBoxes(ctx, cols[2], 680, 92, 5, 2, p.letter, 1);
-    fitText(ctx, 'Each letter fills a box.', cols[2], 880, 560, 50, 400, SC, THEME.ink);
-    fitText(ctx, 'The final code', cols[2], 950, 560, 50, 400, SC, THEME.ink);
-    fitText(ctx, 'opens the last lock!', cols[2], 1020, 560, 50, 400, SC, THEME.ink);
+    if (pictureOnly) {
+      drawBoard(ctx, cols[2], 690, 300);
+      fitText(ctx, 'Each shaded piece is glued', cols[2], 920, 560, 50, 400, SC, THEME.ink);
+      fitText(ctx, 'on the board. Name the picture', cols[2], 990, 560, 50, 400, SC, THEME.ink);
+      fitText(ctx, 'to open the last lock!', cols[2], 1060, 560, 50, 400, SC, THEME.ink);
+    } else {
+      drawLetterBoxes(ctx, cols[2], 680, 92, 5, 2, p.letter, 1);
+      fitText(ctx, 'Each letter fills a box.', cols[2], 880, 560, 50, 400, SC, THEME.ink);
+      fitText(ctx, 'The final code', cols[2], 950, 560, 50, 400, SC, THEME.ink);
+      fitText(ctx, 'opens the last lock!', cols[2], 1020, 560, 50, 400, SC, THEME.ink);
+    }
+    if (GAME.hasPictures && GAME.hasLetters) fitText(ctx, 'Picture chapters: the solved puzzles are pieces of one big picture, and its name is the word.', W / 2, 1300, W - 200, 44, 400, SC, THEME.ink);
     fitText(ctx, 'Example puzzle shown. Your game has its own puzzles and its own code.', W / 2, 1420, W - 200, 46, 400, SC, THEME.gold);
   }
 
@@ -1007,7 +1062,8 @@
   function drawReveal(ctx, A, t) {
     ctx.drawImage(A.bg, 0, 0, W, H);
     const p = A.puzzle;
-    fitText(ctx, 'EVERY PUZZLE HIDES A LETTER', W / 2, 150, W - 140, 104, 900, HEAD, THEME.ink, 1);
+    const pictureOnly = GAME.hasPictures && !GAME.hasLetters;
+    fitText(ctx, pictureOnly ? 'EVERY PUZZLE IS A PICTURE PIECE' : 'EVERY PUZZLE HIDES A LETTER', W / 2, 150, W - 140, 104, 900, HEAD, THEME.ink, 1);
     const cell = 120, x = 110, y = 300;
     const loop = easeInOut(span(t, 0.3, 2.3));
     const shade = span(t, 2.3, 2.8);
@@ -1018,11 +1074,12 @@
     ctx.globalAlpha = c1;
     fitText(ctx, 'Draw one closed loop', cx, 520, textW, 76, 800, HEAD, THEME.ink);
     ctx.globalAlpha = c2;
-    fitText(ctx, 'Shade it. A letter appears!', cx, 640, textW, 66, 800, HEAD, THEME.gold);
+    fitText(ctx, pictureOnly ? 'Shade it and cut it out!' : 'Shade it. A letter appears!', cx, 640, textW, 66, 800, HEAD, THEME.gold);
     ctx.globalAlpha = c3;
-    fitText(ctx, 'Letters unlock the final code', cx, 1080, textW, 60, 800, HEAD, THEME.ink);
+    fitText(ctx, pictureOnly ? 'Name the picture to open the lock' : 'Letters unlock the final code', cx, 1080, textW, 60, 800, HEAD, THEME.ink);
     ctx.restore();
-    drawLetterBoxes(ctx, cx, 810, 130, 5, 2, p.letter, easeOut(span(t, 3.0, 3.4)));
+    if (pictureOnly) drawBoard(ctx, cx, 870, 260, 3, easeOut(span(t, 3.0, 3.4)));
+    else drawLetterBoxes(ctx, cx, 810, 130, 5, 2, p.letter, easeOut(span(t, 3.0, 3.4)));
   }
 
   function drawEndCard(ctx, A) {
@@ -1031,12 +1088,13 @@
     const cx = 1420;
     fitText(ctx, `${GAME.puzzles} PUZZLES`, cx, 560, 860, 120, 900, HEAD, THEME.ink, 1);
     fitText(ctx, 'ONE SECRET CODE', cx, 680, 860, 84, 900, HEAD, THEME.gold, 1);
-    if (GAME.minutes) fitText(ctx, `${GAME.minutes} MINUTES`, cx, 840, 860, 66, 800, HEAD, THEME.ink, 2);
-    if (GAME.players) fitText(ctx, GAME.players, cx, 930, 860, 56, 800, HEAD, THEME.ink, 2);
+    if (GAME.audience) fitText(ctx, GAME.audience.toUpperCase(), cx, 820, 860, 66, 800, HEAD, THEME.ink, 2);
+    if (GAME.minutes) fitText(ctx, `${GAME.minutes} MINUTES`, cx, 905, 860, 62, 800, HEAD, THEME.ink, 2);
+    if (GAME.players) fitText(ctx, GAME.players, cx, 985, 860, 56, 800, HEAD, THEME.ink, 2);
     ctx.fillStyle = THEME.accent;
-    roundRect(ctx, cx - 370, 1030, 740, 130, 14);
+    roundRect(ctx, cx - 370, 1050, 740, 130, 14);
     ctx.fill();
-    fitText(ctx, 'INSTANT DOWNLOAD', cx, 1115, 660, 66, 900, HEAD, THEME.accentInk, 2);
+    fitText(ctx, 'INSTANT DOWNLOAD', cx, 1135, 660, 66, 900, HEAD, THEME.accentInk, 2);
   }
 
   // Video timeline: fly-in, then the reveal, then the end card. Crossfades are 0.4s.
@@ -1066,6 +1124,11 @@
 
   // Output ---------------------------------------------------------------------------------------
 
+  // Up to six puzzle pages for the listing: letter puzzles first, then Mosaic piece pages.
+  function gridPages(game) {
+    return game.pages.filter((x) => x.kind === 'puzzle').concat(game.pages.filter((x) => x.kind === 'pieces')).slice(0, 6);
+  }
+
   // Renders only the pages the layouts use and activates this game and theme for drawing.
   async function createAssets(game, visual, puzzle) {
     await Promise.all([
@@ -1085,13 +1148,15 @@
     const [cover, howTo, codeSheet, finalLock, certificate, prologue, hostGuide, puzzles] = await Promise.all([
       first('cover'), first('howTo'), first('codeSheet'), first('finalLock'), first('certificate'), first('prologue'),
       hostGuideTop(game),
-      Promise.all(game.pages.filter((x) => x.kind === 'puzzle').slice(0, 6).map(pageImage)),
+      Promise.all(gridPages(game).map(pageImage)),
     ]);
+    const puzzleLabels = gridPages(game).map((p, i) => (p.kind === 'pieces' ? 'PICTURE PIECES' : `PUZZLE ${i + 1}`));
     const layer = document.createElement('canvas');
     layer.width = W; layer.height = H;
     const probe = document.createElement('canvas').getContext('2d');
     return {
       images: { cover, howTo, codeSheet, finalLock, certificate, prologue, hostGuide, puzzles },
+      puzzleLabels,
       usedPages: USED_PAGES,
       puzzle, loop: traceLoop(puzzle),
       bg: makeBackground(visual.material, visual.tint),
@@ -1222,6 +1287,8 @@
 
   root.ListingKit = {
     analyzePdf, resolveVisual, createAssets, renderImage, encodeVideo,
+    videoFrame(A, t) { const c = document.createElement('canvas'); c.width = W; c.height = H; drawVideoFrame(c.getContext('2d'), A, t); return c; },
+    VIDEO_SECONDS: VIDEO.seconds,
     imageNames: Object.keys(IMAGES), materials: Object.keys(MATERIALS), SAFE_KINDS, VISUALS,
   };
 })(window);

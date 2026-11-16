@@ -232,7 +232,11 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
             <button class="btn ghost sm" id="btn-regen">New puzzles</button>
             <button class="btn ghost sm" id="btn-restart">Start over</button>
           </div>
-          <a class="btn ghost sm" id="btn-listing" style="margin-top:10px" href="marketing.php<?= $project ? '?project=' . (int)$project['id'] : '' ?>">Make listing images &amp; video<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></a>
+          <a class="btn listing" id="btn-listing" href="marketing.php<?= $project ? '?project=' . (int)$project['id'] : '' ?>">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg>
+            <span class="listing-text"><b>Make listing images &amp; video<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></b><small>Etsy-ready mockups and a promo video for this game</small></span>
+            <span class="listing-go" aria-hidden="true">&rarr;</span>
+          </a>
           <details class="verifier">
             <summary id="verifier-summary"></summary>
             <ul class="checklist" id="checklist"></ul>

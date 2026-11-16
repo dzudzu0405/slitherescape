@@ -757,3 +757,13 @@ main.page > .legal-links { margin-top: 26px; }
 .nb-lotgame { font-size: 13px; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .nb-lotgame .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
 .nb-lotgame .dot.ok { background: var(--ok); } .nb-lotgame .dot.err { background: var(--err); } .nb-lotgame .dot.warn { background: var(--warn); } .nb-lotgame .dot.dark { background: var(--ink, #3b2a1a); }
+
+/* Editor: the "Make listing images & video" call to action under Download PDF */
+.btn.listing { display: flex; align-items: center; gap: 12px; width: fit-content; max-width: 100%; height: auto; margin-top: 14px; padding: 11px 16px; border: 2px solid var(--accent); border-radius: 12px; background: #FFF8EC; color: var(--accent); text-align: left; box-shadow: 0 2px 0 rgba(122, 46, 30, .15); }
+.btn.listing:hover { background: var(--accent); color: #FFF6EA; border-color: var(--accent); }
+.btn.listing svg { width: 26px; height: 26px; flex: none; }
+.btn.listing .listing-text { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+.btn.listing .listing-text b { font-size: 15px; }
+.btn.listing .listing-text small { font-size: 12px; opacity: .8; font-weight: 400; }
+.btn.listing .listing-go { font-size: 18px; margin-left: 4px; transition: transform .15s; }
+.btn.listing:hover .listing-go { transform: translateX(3px); }
