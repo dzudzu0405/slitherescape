@@ -481,7 +481,8 @@
   // slide background, and every recorded line or paragraph becomes an editable text box on top,
   // so the file opens in Canva (or PowerPoint) with all wording editable.
 
-  const FONT_FACES = { Fell: 'IM Fell English', FellSC: 'IM Fell English SC', Digits: 'DejaVu Serif' };
+  const FONT_FACES = { Fell: 'IM Fell English', FellSC: 'IM Fell English SC', Digits: 'DejaVu Serif', Elite: 'Special Elite', Courier: 'Courier Prime',
+    Sniglet: 'Sniglet', Comic: 'Comic Neue', Cinzel: 'Cinzel Decorative', Crimson: 'Crimson Text' };
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {

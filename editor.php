@@ -185,7 +185,7 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
             <option value="white">Ink saver (white)</option>
             <option value="clean">Clean &amp; Bright (white, theme colors)</option>
             <option value="seasonal">Seasonal pattern (motifs of the season)</option>
-            <option value="casefile">Case File (manila folder)</option>
+            <option value="noir">Detective Notebook (graph paper, fingerprint, paper clip)</option>
           </select>
         </label>
         <div class="field adv-wide">

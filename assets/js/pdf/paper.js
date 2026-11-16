@@ -49,39 +49,75 @@
     ctx.restore();
   }
 
-  // Manila folder card for the Case File style: flat warm colour, fine fibres, one faint
-  // coffee ring and soft edges. No crumples, so typed-looking pages stay crisp.
-  function manila(w, h, seed) {
+  // Detective Notebook paper: aged cream graph paper with moody dark edges, one faint
+  // fingerprint in a corner, a few ink spatters and a coffee ring.
+  function noir(w, h, seed) {
     const r = rng(seed);
     const s = w / 1000;
     const cv = document.createElement('canvas');
     cv.width = w; cv.height = h;
     const ctx = cv.getContext('2d');
-    ctx.fillStyle = '#EAD8A8';
+    ctx.fillStyle = '#EFE6D2';
     ctx.fillRect(0, 0, w, h);
-    blotches(ctx, w, h, 6, r, [205, 178, 118], [246, 234, 196], 0.18);
-    blotches(ctx, w, h, 30, r, [210, 186, 128], [248, 238, 204], 0.08);
-    // Fibres: short faint strokes in every direction.
-    ctx.lineCap = 'round';
-    for (let i = 0; i < 2600; i++) {
-      const x = r() * w, y = r() * h, a = r() * Math.PI, len = (3 + r() * 9) * s;
-      ctx.strokeStyle = r() < 0.5 ? 'rgba(150, 118, 60, 0.10)' : 'rgba(255, 248, 225, 0.18)';
-      ctx.lineWidth = 0.8 * s;
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len); ctx.stroke();
+    blotches(ctx, w, h, 5, r, [196, 172, 128], [250, 244, 230], 0.22);
+    blotches(ctx, w, h, 20, r, [200, 178, 136], [252, 247, 235], 0.10);
+    // Graph paper: fine squares, every fifth line a little darker.
+    const step = 30 * s;
+    for (let k = 0, x = 0; x < w; k++, x += step) {
+      ctx.strokeStyle = k % 5 ? 'rgba(110, 88, 58, 0.13)' : 'rgba(110, 88, 58, 0.24)';
+      ctx.lineWidth = (k % 5 ? 0.9 : 1.3) * s;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
     }
-    // One coffee ring near a corner.
-    const cx = (r() < 0.5 ? 0.18 : 0.82) * w, cy = (r() < 0.5 ? 0.16 : 0.84) * h, rad = (70 + r() * 30) * s;
+    for (let k = 0, y = 0; y < h; k++, y += step) {
+      ctx.strokeStyle = k % 5 ? 'rgba(110, 88, 58, 0.13)' : 'rgba(110, 88, 58, 0.24)';
+      ctx.lineWidth = (k % 5 ? 0.9 : 1.3) * s;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    // Fingerprint: broken, wobbly loops around a core, low in one corner.
+    const fx = (r() < 0.5 ? 0.2 : 0.8) * w, fy = h * (0.78 + r() * 0.08);
     ctx.save();
-    ctx.filter = `blur(${2.2 * s}px)`;
-    ctx.strokeStyle = 'rgba(130, 86, 38, 0.10)';
+    ctx.translate(fx, fy);
+    ctx.rotate((r() - 0.5) * 0.8);
+    ctx.strokeStyle = 'rgba(60, 44, 30, 0.10)';
+    ctx.lineWidth = 3.2 * s;
+    for (let i = 1; i <= 16; i++) {
+      const rx = i * 5.6 * s, ry = rx * 1.32;
+      ctx.setLineDash([(18 + r() * 40) * s, (4 + r() * 9) * s]);
+      ctx.beginPath();
+      for (let k = 0; k <= 60; k++) {
+        const a = (k / 60) * Math.PI * 2;
+        const wob = 1 + 0.05 * Math.sin(a * 3 + i) + 0.03 * Math.sin(a * 7 + i * 2);
+        const px = Math.cos(a) * rx * wob, py = Math.sin(a) * ry * wob - (a > Math.PI ? 0 : i * 0.6 * s);
+        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+    // Ink spatters: a blot and a few droplets.
+    const sx = r() * w * 0.7 + w * 0.15, sy = (r() < 0.5 ? 0.06 : 0.94) * h;
+    ctx.fillStyle = 'rgba(30, 24, 20, 0.16)';
+    ctx.beginPath(); ctx.arc(sx, sy, (6 + r() * 5) * s, 0, Math.PI * 2); ctx.fill();
+    for (let i = 0; i < 9; i++) {
+      const a = r() * Math.PI * 2, d = (14 + r() * 40) * s;
+      ctx.beginPath(); ctx.arc(sx + Math.cos(a) * d, sy + Math.sin(a) * d, (0.8 + r() * 2.4) * s, 0, Math.PI * 2); ctx.fill();
+    }
+    // Coffee ring, opposite corner to the fingerprint.
+    const cx = fx < w / 2 ? 0.8 * w : 0.2 * w, cy = h * 0.14, rad = (62 + r() * 20) * s;
+    ctx.save();
+    ctx.filter = `blur(${2 * s}px)`;
+    ctx.strokeStyle = 'rgba(120, 78, 34, 0.12)';
     ctx.lineWidth = 6 * s;
-    ctx.setLineDash([rad * 1.6, rad * 0.35]);
+    ctx.setLineDash([rad * 1.7, rad * 0.3]);
     ctx.beginPath(); ctx.arc(cx, cy, rad, r() * 6, r() * 6 + Math.PI * 1.85); ctx.stroke();
     ctx.restore();
-    // Soft darker edges.
-    const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.4, w / 2, h / 2, Math.hypot(w, h) * 0.58);
-    vg.addColorStop(0, 'rgba(120, 92, 40, 0)');
-    vg.addColorStop(1, 'rgba(120, 92, 40, 0.22)');
+    // Grain and dark edges.
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) { const n = (r() - 0.5) * 12; d[i] += n; d[i + 1] += n; d[i + 2] += n * 0.8; }
+    ctx.putImageData(img, 0, 0);
+    const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.32, w / 2, h / 2, Math.hypot(w, h) * 0.56);
+    vg.addColorStop(0, 'rgba(50, 36, 22, 0)');
+    vg.addColorStop(1, 'rgba(50, 36, 22, 0.42)');
     ctx.fillStyle = vg;
     ctx.fillRect(0, 0, w, h);
     return cv.toDataURL('image/jpeg', 0.84);
@@ -166,9 +202,9 @@
   }
 
   // Returns a JPEG data URL. `w`,`h` in pixels; `seed` makes each page different.
-  // look: { kind: 'aged' | 'seasonal' | 'casefile', tint: [r, g, b], motifs: [...] } (tint, motifs: seasonal).
+  // look: { kind: 'aged' | 'seasonal' | 'noir', tint: [r, g, b], motifs: [...] } (tint, motifs: seasonal).
   function texture(w, h, seed, look = {}) {
-    if (look.kind === 'casefile') return manila(w, h, seed);
+    if (look.kind === 'noir') return noir(w, h, seed);
     if (look.kind === 'seasonal') return seasonal(w, h, seed, look);
     const r = rng(seed);
     const s = w / 1000; // scale factor for line widths

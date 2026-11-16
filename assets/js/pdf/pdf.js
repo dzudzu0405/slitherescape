@@ -28,6 +28,19 @@
     castle: [112, 32, 44], wizard: [86, 44, 124]
   };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v * (1 - t) + b[i] * t));
+  // A style's type: IM Fell 'Fell' at 20pt and up becomes the heading face, 'FellSC' labels the
+  // label face, the rest the body face (with its italic). Sizes scale because faces differ in width.
+  // Puzzle digits always keep DejaVu.
+  function typeface({ head, label, body, headScale, labelScale, bodyScale, upperLabels }) {
+    const fn = (name, style, size) => {
+      if (name === 'Digits') return null;
+      if (name === 'FellSC') return { name: label, style: 'normal', size: size * labelScale, upper: upperLabels };
+      if (name === 'Fell' && size >= 20) return { name: head, style: 'normal', size: size * headScale };
+      return { name: body, style: style === 'italic' ? 'italic' : 'normal', size: size * bodyScale };
+    };
+    fn.names = [head, label, body];
+    return fn;
+  }
   const WHITE = [255, 255, 255];
   // texture: the background drawn by Paper.texture (null = plain white page); frame: page border.
   const STYLES = {
@@ -35,21 +48,30 @@
     white: { label: 'Ink saver (white)', texture: null, frame: 'classic', inkSaver: true },
     clean: {
       label: 'Clean & Bright', texture: null, frame: 'clean',
+      // Rounded, friendly headings and an easy-reading body face for kids.
+      fonts: typeface({ head: 'Sniglet', label: 'Sniglet', body: 'Comic', headScale: 0.82, labelScale: 0.78, bodyScale: 0.9, upperLabels: true }),
       palette: (a) => ({ ink: [36, 38, 48], brown: mix(a, [30, 30, 40], 0.3), tan: mix(a, WHITE, 0.5), shade: mix(a, WHITE, 0.74), red: a, paper: WHITE, panel: mix(a, WHITE, 0.93) })
     },
     seasonal: {
       // No theme colours: the season shows only in the motifs scattered over a plain ivory page.
       label: 'Seasonal pattern', texture: 'seasonal', frame: 'classic', panelOpacity: 0.9,
+      // Festive engraved capitals for headings and labels, a classic book face for text.
+      fonts: typeface({ head: 'Cinzel', label: 'Cinzel', body: 'Crimson', headScale: 0.74, labelScale: 0.82, bodyScale: 1.04, upperLabels: false }),
       palette: () => ({ paper: [250, 246, 236], panel: [255, 253, 248] })
     },
-    casefile: {
-      label: 'Case File', texture: 'casefile', frame: 'case',
-      palette: () => ({ ink: [32, 32, 36], brown: [78, 74, 66], tan: [168, 154, 118], shade: [214, 198, 152], red: [170, 34, 30], paper: [234, 216, 168], panel: [247, 239, 214] })
-    }
   };
-  const STYLE_ORDER = ['aged', 'white', 'clean', 'seasonal', 'casefile'];
-  // Older games only know inkSaver; their style follows from it.
-  const styleId = (game) => (STYLES[game.style] ? game.style : game.inkSaver ? 'white' : 'aged');
+  STYLES.noir = {
+    // A detective's notebook: sepia graph paper, a fingerprint, ink spatters and a paper clip.
+    label: 'Detective Notebook', texture: 'noir', frame: 'noir', panelOpacity: 0.9,
+    // Typewriter type. Both faces run wider than IM Fell, so sizes come down to keep every page's
+    // text in the space it was laid out for. Small-caps labels become capitals.
+    fonts: typeface({ head: 'Elite', label: 'Elite', body: 'Courier', headScale: 0.8, labelScale: 0.8, bodyScale: 0.84, upperLabels: true }),
+    palette: () => ({ ink: [28, 24, 22], brown: [74, 56, 42], red: [138, 28, 24], tan: [168, 148, 116], shade: [212, 198, 170], paper: [239, 230, 210], panel: [251, 247, 238] })
+  };
+  const STYLE_ORDER = ['aged', 'white', 'clean', 'seasonal', 'noir'];
+  // Older games only know inkSaver; their style follows from it. 'casefile' and 'journal' were
+  // earlier notebook styles, now Detective Notebook.
+  const styleId = (game) => (['casefile', 'journal'].includes(game.style) ? 'noir' : STYLES[game.style] ? game.style : game.inkSaver ? 'white' : 'aged');
   const accentOf = (game) => ACCENTS[game.themeId] || BASE_C.red;
   // Puts the style's colours into C, which every page (and the PRO pages) draws with.
   function applyStyle(game) {
@@ -64,8 +86,22 @@
     ['IMFellEnglish-Regular.ttf', 'Fell', 'normal'],
     ['IMFellEnglish-Italic.ttf', 'Fell', 'italic'],
     ['IMFellEnglishSC-Regular.ttf', 'FellSC', 'normal'],
-    ['DejaVuSerif-Bold.ttf', 'Digits', 'normal']
+    ['DejaVuSerif-Bold.ttf', 'Digits', 'normal'],
+    // Detective Notebook only.
+    ['SpecialElite-Regular.ttf', 'Elite', 'normal'],
+    ['CourierPrime-Regular.ttf', 'Courier', 'normal'],
+    ['CourierPrime-Italic.ttf', 'Courier', 'italic'],
+    // Clean & Bright only.
+    ['Sniglet-ExtraBold.ttf', 'Sniglet', 'normal'],
+    ['ComicNeue-Regular.ttf', 'Comic', 'normal'],
+    ['ComicNeue-Italic.ttf', 'Comic', 'italic'],
+    // Seasonal pattern only.
+    ['CinzelDecorative-Bold.ttf', 'Cinzel', 'normal'],
+    ['CrimsonText-Regular.ttf', 'Crimson', 'normal'],
+    ['CrimsonText-Italic.ttf', 'Crimson', 'italic']
   ];
+  // Faces that belong to one style; a PDF only embeds those of its own style.
+  const STYLE_FONTS = ['Elite', 'Courier', 'Sniglet', 'Comic', 'Cinzel', 'Crimson'];
   // Fixed How to Play text (spec section 2).
   const RULES = [
     'Each puzzle is a grid of dots. Connect neighbouring dots with straight lines (across or down, never diagonally) to draw one single closed loop.',
@@ -247,6 +283,7 @@
   B.clean = function (text) {
     const map = this.cmaps[this.fontKey];
     let s = String(text == null ? '' : text).replace(/→/g, '->').replace(/←/g, '<-').replace(/\s+/g, ' ').trim();
+    if (this.upper) s = s.toUpperCase();
     // Typographic quotes: IM Fell draws the straight " as a closing quote.
     s = s.replace(/(^|[\s(\[{—–-])"/g, '$1“').replace(/"/g, '”')
       .replace(/(^|[\s(\[{—–-])'(?=\w)/g, '$1‘').replace(/'/g, '’');
@@ -261,6 +298,9 @@
   };
 
   B.font = function (name, size, color, style = 'normal') {
+    const swap = this.style && this.style.fonts ? this.style.fonts(name, style, size) : null;
+    this.upper = !!(swap && swap.upper);
+    if (swap) ({ name, style, size } = swap);
     this.doc.setFont(name, style);
     this.doc.setFontSize(size);
     this.doc.setTextColor(...(color || C.ink));
@@ -370,24 +410,19 @@
       [[f.x + 12, f.y + 12], [f.x + f.w - 12, f.y + 12], [f.x + 12, f.y + f.h - 12], [f.x + f.w - 12, f.y + f.h - 12]].forEach(([x, y]) => doc.circle(x, y, 1.8, 'F'));
       return;
     }
-    if (kind === 'case') {
-      // A file folder: thin border, heavy corner brackets and a red stamp at the top right.
-      doc.setDrawColor(...C.brown);
-      doc.setLineWidth(0.7);
-      doc.rect(f.x, f.y, f.w, f.h);
+    if (kind === 'noir') {
+      // Thin double rule in ink, and a paper clip over the top edge.
       doc.setDrawColor(...C.ink);
-      doc.setLineWidth(2.4);
-      const k = 20;
-      [[f.x, f.y, 1, 1], [f.x + f.w, f.y, -1, 1], [f.x, f.y + f.h, 1, -1], [f.x + f.w, f.y + f.h, -1, -1]].forEach(([x, y, dx, dy]) => {
-        doc.line(x, y, x + k * dx, y);
-        doc.line(x, y, x, y + k * dy);
-      });
-      const sw = 86, sh = 19, sx = f.x + f.w - sw - 14, sy = f.y + 7;
-      doc.setDrawColor(...C.red);
-      doc.setLineWidth(1.1);
-      doc.rect(sx, sy, sw, sh);
-      this.font('FellSC', 12, C.red);
-      this.text('Case File', sx + sw / 2, sy + 13.4, { align: 'center' });
+      doc.setLineWidth(1);
+      doc.rect(f.x, f.y, f.w, f.h);
+      doc.setLineWidth(0.4);
+      doc.rect(f.x + 4, f.y + 4, f.w - 8, f.h - 8);
+      const px = f.x + 34, py = f.y - 14;
+      doc.setDrawColor(118, 118, 124);
+      doc.setLineWidth(1.7);
+      doc.roundedRect(px, py, 15, 48, 7.5, 7.5);
+      doc.roundedRect(px + 3.5, py + 6, 8, 34, 4, 4);
+      doc.setFillColor(...C.paper);
       return;
     }
     doc.setDrawColor(...C.brown);
@@ -1037,7 +1072,8 @@
 
   async function render(game, fonts, textures, paper, jsPDF, guidePages, progress, tick) {
     const doc = new jsPDF({ unit: 'pt', format: [paper.w, paper.h], orientation: 'portrait', compress: true });
-    fonts.forEach((f) => { doc.addFileToVFS(f.file, f.data); doc.addFont(f.file, f.name, f.style); });
+    const own = (STYLES[styleId(game)].fonts || {}).names || [];
+    fonts.filter((f) => !STYLE_FONTS.includes(f.name) || own.includes(f.name)).forEach((f) => { doc.addFileToVFS(f.file, f.data); doc.addFont(f.file, f.name, f.style); });
     doc.setProperties({ title: game.story.title, subject: 'Printable escape game', creator: game.shop || '', author: game.shop || '' });
     const b = new Builder(game, doc, textures);
     const s = game.story;

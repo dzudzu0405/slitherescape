@@ -639,7 +639,7 @@
         parts.title = st.name;
         show(st.games.length + 1, 0, 'Putting the bundle together');
         const one = await merge(parts, paper);
-        files.push({ name: `${base}_${st.paper === 'a4' ? 'A4' : 'Letter'}${{ white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', casefile: '_Case-File' }[st.style] || ''}.pdf`, bytes: one.bytes, pages: one.pages });
+        files.push({ name: `${base}_${st.paper === 'a4' ? 'A4' : 'Letter'}${{ white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', noir: '_Detective' }[st.style] || ''}.pdf`, bytes: one.bytes, pages: one.pages });
       } else {
         const back = await pagesPdf(st, built, motif, 'back');
         const start = await merge(Object.assign([{ bytes: front }, { bytes: back }], { title: st.name }), paper);

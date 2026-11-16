@@ -5,7 +5,7 @@
   const DIFFS = [['easy', 'Easy', 'EAS', 'Kids 11–13'], ['medium', 'Medium', 'MED', 'Teens 14–17'], ['hard', 'Hard', 'HRD', 'Adults']];
   const PAPERS = [['letter', 'Letter', 'LTR'], ['a4', 'A4', 'A4'], ['kdp', 'KDP 8.5×11', 'KDP']];
   // Print styles from the PDF builder: [id, label, file-name part].
-  const PRINT_FILE = { aged: '', white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', casefile: '_Case-File' };
+  const PRINT_FILE = { aged: '', white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', noir: '_Detective' };
   const PRINTS = window.PdfBuilder.STYLE_ORDER.map((id) => [id, window.PdfBuilder.STYLES[id].label, PRINT_FILE[id] || '_' + id]);
   const FILE_PAPER = { letter: 'Letter', a4: 'A4', kdp: 'KDP-8.5x11' };
 
