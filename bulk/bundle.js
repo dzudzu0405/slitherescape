@@ -22,6 +22,144 @@
   let order = [];
   let running = false;
 
+  // ---------------------------------------------------------------- kind of bundle (spec 12.2)
+  // Three ready-made kinds. Each picks matching saved games, puts them in order, suggests a name and
+  // plans the missing games for the AI prompt below. The seller can still change everything.
+  const TH = window.Themes;
+  const RANK = { easy: 0, medium: 1, hard: 2 };
+  const LEVELS = ['easy', 'medium', 'hard'];
+  const YEAR = [['January', 'newyear'], ['February', 'valentine'], ['March', 'detective'], ['April', 'easter'], ['May', 'castle'], ['June', 'ocean'],
+    ['July', 'pirates'], ['August', 'space'], ['September', 'school'], ['October', 'halloween'], ['November', 'thanksgiving'], ['December', 'christmas']];
+  const themeOf = (g) => (g && g.data && g.data.themeId) || '';
+  const monthOf = (g) => YEAR.findIndex(([, t]) => t === themeOf(g));
+  const kind = () => (document.querySelector('input[name="bd-type"]:checked') || {}).value || 'custom';
+  // 'new': the bundle is made of new games written by the AI; 'saved': games from the seller's projects.
+  const source = () => (document.querySelector('input[name="bd-src"]:checked') || {}).value || 'new';
+  const themeLabel = (id) => (TH.theme(id) || {}).label || id;
+  const byIdOf = (id) => GAMES.find((g) => g.id === id);
+  // Stable sort of the picked games by a key.
+  const sortOrder = (key) => { order = order.map((id, i) => [id, key(byIdOf(id)), i]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map((x) => x[0]); };
+
+  function suggestName(name) {
+    const el = $('bd-name');
+    if (!el.value.trim() || el.dataset.auto) { el.value = name; el.dataset.auto = '1'; }
+  }
+
+  // ---------------------------------------------------------------- Master Code suggestions
+  // Words and phrases per theme. Only the letters count, so a phrase works as well as a word.
+  // Generic escape words cover every length from 3 to 12, so there is always a suggestion.
+  const WORDS = {
+    christmas: ['Joy', 'Snow', 'Gift', 'Star', 'Merry', 'Bells', 'Jingle', 'Sleigh', 'Tinsel', 'Presents', 'Reindeer', 'Christmas', 'Snowflake', 'North Pole', 'Candy Cane', 'Holly Jolly', 'Jingle Bells', 'Silent Night', 'Gingerbread', 'Deck the Halls'],
+    halloween: ['Boo', 'Bat', 'Moon', 'Bats', 'Ghost', 'Witch', 'Spooky', 'Potion', 'Pumpkin', 'Haunted', 'Cauldron', 'Werewolf', 'Full Moon', 'Halloween', 'Spell Book', 'Graveyard', 'Broomstick', 'Spooky Night', 'Trick or Treat', 'Haunted House'],
+    easter: ['Egg', 'Eggs', 'Bunny', 'Chicks', 'Spring', 'Basket', 'Blossom', 'Egg Hunt', 'Daffodil', 'Easter Egg', 'Springtime', 'Easter Bunny', 'Happy Easter', 'Easter Basket'],
+    valentine: ['Hug', 'Love', 'Rose', 'Kiss', 'Heart', 'Cupid', 'Roses', 'Be Mine', 'Forever', 'True Love', 'Valentine', 'Love Birds', 'Chocolates', 'Sweetheart', 'Sweethearts'],
+    thanksgiving: ['Pie', 'Corn', 'Feast', 'Thanks', 'Autumn', 'Turkey', 'Family', 'Harvest', 'Grateful', 'Blessings', 'Pumpkin Pie', 'Give Thanks', 'Cornucopia', 'Thanksgiving', 'Happy Harvest'],
+    newyear: ['New', 'Year', 'Cheer', 'Party', 'Cheers', 'Sparkle', 'Confetti', 'Midnight', 'Fireworks', 'Countdown', 'Celebrate', 'Resolution', 'New Years Eve', 'Happy New Year', 'New Beginning'],
+    pirates: ['Map', 'Gold', 'Ship', 'Chest', 'Coins', 'Sword', 'Anchor', 'Parrot', 'Captain', 'Compass', 'Treasure', 'Seven Seas', 'Doubloons', 'Jolly Roger', 'Buried Gold', 'Treasure Map', 'Skull Island'],
+    egypt: ['Nile', 'Tomb', 'Mummy', 'Gold Mask', 'Sphinx', 'Scarab', 'Pyramid', 'Pharaoh', 'Pyramids', 'Cleopatra', 'Hieroglyph', 'Golden Mask', 'Lost Pharaoh', 'Valley of Kings'],
+    space: ['Sun', 'Star', 'Moon', 'Comet', 'Orbit', 'Rocket', 'Planet', 'Galaxy', 'Liftoff', 'Blast Off', 'Stardust', 'Moonwalk', 'Milky Way', 'Astronaut', 'Spaceship', 'Supernova', 'Solar System', 'Shooting Star'],
+    jungle: ['Vine', 'Wild', 'Tiger', 'Jungle', 'Monkey', 'Jaguar', 'Toucan', 'Explorer', 'Anaconda', 'Waterfall', 'Lost Temple', 'Rainforest', 'Expedition', 'Jungle Trail', 'Hidden Temple'],
+    ocean: ['Sea', 'Wave', 'Pearl', 'Coral', 'Waves', 'Dolphin', 'Seashell', 'Starfish', 'Seahorse', 'Deep Blue', 'Jellyfish', 'Shipwreck', 'Under the Sea', 'Coral Reef', 'Ocean Depths'],
+    dinosaurs: ['Dino', 'Roar', 'Bones', 'Fossil', 'Raptor', 'Volcano', 'Dinosaur', 'Dinosaurs', 'Fossil Dig', 'Triceratops', 'Stegosaurus', 'Pterodactyl', 'Brontosaurus', 'Fossil Hunter'],
+    school: ['Abc', 'Book', 'Class', 'A Plus', 'Pencil', 'Recess', 'Teacher', 'Library', 'Homework', 'Graduate', 'Classroom', 'School Bell', 'Top of Class', 'Back to School'],
+    lab: ['Lab', 'Atom', 'Laser', 'Eureka', 'Formula', 'Science', 'Molecule', 'Chemistry', 'Discovery', 'Experiment', 'Microscope', 'Big Discovery', 'Mad Scientist'],
+    museum: ['Art', 'Relic', 'Statue', 'Gallery', 'Exhibit', 'Curator', 'Artifact', 'Treasure', 'Lost Relic', 'Masterpiece', 'Night Gallery', 'Ancient Relic'],
+    detective: ['Spy', 'Clue', 'Case', 'Clues', 'Alibi', 'Sleuth', 'Suspect', 'Mystery', 'Evidence', 'Detective', 'Magnifier', 'Case Closed', 'Case Solved', 'Fingerprint', 'Top Detective'],
+    castle: ['King', 'Crown', 'Queen', 'Castle', 'Knight', 'Dragon', 'Throne', 'Kingdom', 'Princess', 'Royal Crown', 'Drawbridge', 'Knighthood', 'Crown Jewels', 'Dragon Slayer'],
+    wizard: ['Owl', 'Wand', 'Magic', 'Spell', 'Potion', 'Wizard', 'Enchant', 'Sorcery', 'Spell Book', 'Magic Wand', 'Enchanted', 'Abracadabra', 'Crystal Ball', 'Magic Potion', 'Spell Caster']
+  };
+  const GENERIC = ['Key', 'Win', 'Map', 'Gold', 'Clue', 'Open', 'Vault', 'Quest', 'Solve', 'Escape', 'Secret', 'Winner', 'Victory', 'Mystery', 'Freedom', 'Treasure', 'Unlocked', 'Champion',
+    'Adventure', 'Master Key', 'Code Break', 'Mastermind', 'Code Master', 'Great Escape', 'Code Breaker', 'Escape Artist', 'Mission Clear'];
+  const lettersOf = (w) => w.toUpperCase().replace(/[^A-Z]/g, '');
+  let masterPick = 0;
+
+  // Every phrase with exactly n letters, best first: the year set's own phrase, then words from
+  // the themes the games share most, then generic escape words. Never one of the games' own codes.
+  function masterIdeas(games, n) {
+    const taken = new Set(games.map((g) => lettersOf(codeOf(g))));
+    const count = {};
+    games.forEach((g) => { const t = themeOf(g); if (WORDS[t]) count[t] = (count[t] || 0) + 1; });
+    const themes = Object.keys(count).sort((a, b) => count[b] - count[a]);
+    const out = [], seen = new Set();
+    const add = (w, from) => { const l = lettersOf(w); if (l.length === n && !taken.has(l) && !seen.has(l)) { seen.add(l); out.push({ word: w, letters: l, from }); } };
+    if (kind() === 'year') add('Happy New Year', 'A Year of Escape Games');
+    themes.forEach((t) => WORDS[t].forEach((w) => add(w, `your ${themeLabel(t)} game${count[t] > 1 ? 's' : ''}`)));
+    GENERIC.forEach((w) => add(w, 'escape games'));
+    return out;
+  }
+
+  // Fills the Master Code while the seller has not typed one. 'next' moves on to another idea.
+  function suggestMaster(next) {
+    const el = $('bd-master'), hint = $('bd-master-hint');
+    const games = order.map(byIdOf).filter(Boolean);
+    if (el.value.trim() && !el.dataset.auto && !next) { hint.textContent = ''; return; }
+    const ideas = games.length ? masterIdeas(games, games.length) : [];
+    if (!ideas.length) { if (el.dataset.auto) el.value = ''; hint.textContent = ''; return; }
+    if (next) masterPick++;
+    else { const i = ideas.findIndex((x) => x.letters === lettersOf(el.value)); masterPick = i >= 0 ? i : 0; }
+    const idea = ideas[masterPick % ideas.length];
+    el.value = idea.letters;
+    el.dataset.auto = '1';
+    hint.textContent = `Suggested from ${idea.from}: ${idea.word.toUpperCase()}${ideas.length > 1 ? ` (idea ${masterPick % ideas.length + 1} of ${ideas.length})` : ''}. Type your own to replace it.`;
+  }
+
+  function applyKind() {
+    const k = kind();
+    $('bd-type-theme').classList.toggle('hidden', k !== 'theme');
+    const fromNew = source() === 'new';
+    const ok = fromNew ? [] : GAMES.filter((g) => !usable(g));
+    const keepOrder = order.slice();
+    // Next usable game that matches, skipping any whose secret code or title is already picked:
+    // a bundle may not repeat either.
+    const seen = new Set();
+    const take = (match) => {
+      const g = ok.find((x) => match(x) && !seen.has('c:' + codeOf(x)) && !seen.has('t:' + x.title));
+      if (g) { seen.add('c:' + codeOf(g)); seen.add('t:' + g.title); }
+      return g;
+    };
+    let note = '', plan = [];
+    if (k === 'theme') {
+      const t = $('bd-type-theme-sel').value;
+      const mine = [];
+      for (let g; mine.length < MAX_GAMES && (g = take((x) => themeOf(x) === t));) mine.push(g);
+      order = mine.map((g) => g.id);
+      sortOrder((g) => RANK[g.difficulty] ?? 1);
+      const need = fromNew ? Math.max(MIN_GAMES, +$('nb-count').value || 0) : Math.max(0, MIN_GAMES - mine.length);
+      plan = Array.from({ length: need }, () => ({ themeId: t }));
+      suggestName(`The ${themeLabel(t)} Escape Collection`);
+      if (fromNew) note = `${need} new ${themeLabel(t)} games are planned below, each with its own story. Change how many under "How many new games".`;
+      else note = `${mine.length} saved ${themeLabel(t)} game${mine.length === 1 ? '' : 's'} picked.`
+        + (need ? ` Add ${need} new ${themeLabel(t)} game${need > 1 ? 's' : ''} below to reach ${MIN_GAMES}.` : ' Untick any you want to leave out.');
+    } else if (k === 'ladder') {
+      if (!order.length) LEVELS.forEach((d) => { const g = take((x) => x.difficulty === d); if (g) order.push(g.id); });
+      const have = new Set(order.map((id) => (byIdOf(id) || {}).difficulty));
+      const missing = LEVELS.filter((d) => !have.has(d));
+      plan = missing.map((d) => ({ difficulty: d }));
+      suggestName('The Escape Challenge: Easy to Hard');
+      note = 'Games are put in order from Easy (kids 11-13) through Medium (teens) to Hard (adults), so players climb the ladder.'
+        + (missing.length ? ` Missing: ${missing.map((d) => PRESETS[d].audience).join(', ')}. ${missing.length > 1 ? 'They are' : 'It is'} planned as new games below.` : '');
+    } else if (k === 'year') {
+      order = [];
+      YEAR.forEach(([month, t]) => {
+        const g = take((x) => themeOf(x) === t);
+        if (g) order.push(g.id); else plan.push({ themeId: t, month });
+      });
+      suggestName('A Year of Escape Games');
+      note = `One game for every month: ${YEAR.map(([m, t]) => `${m.slice(0, 3)} ${themeLabel(t)}`).join(' · ')}. `
+        + `${order.length} month${order.length === 1 ? '' : 's'} filled from your saved games`
+        + (plan.length ? `; the other ${plan.length} ${plan.length > 1 ? 'are' : 'is'} planned as new games below.` : '.')
+        + ' The Master Code gets one letter per month.';
+    }
+    if (fromNew) {
+      order = keepOrder.filter((id) => byIdOf(id));
+      if (k === 'year') note = note.replace(/0 months filled from your saved games; the other 12 are/, 'All 12 are');
+    }
+    $('bd-type-note').textContent = note;
+    $('bd-type-note').classList.toggle('hidden', !note);
+    if (k !== 'custom') planNew(plan);
+    renderGames();
+  }
+
   // ---------------------------------------------------------------- game list
   function usable(g) {
     if (!g.ready || !g.data || !g.data.story) return 'puzzles not built yet';
@@ -30,23 +168,34 @@
   }
 
   function renderGames() {
+    const k = kind();
+    if (k === 'ladder' || k === 'theme') sortOrder((g) => RANK[g && g.difficulty] ?? 1);
+    if (k === 'year') sortOrder((g) => { const m = monthOf(g); return m < 0 ? 99 : m; });
     const byId = Object.fromEntries(GAMES.map((g) => [g.id, g]));
     const picked = order.map((id) => byId[id]);
-    const rest = GAMES.filter((g) => !order.includes(g.id));
+    const rest = source() === 'new' ? [] : GAMES.filter((g) => !order.includes(g.id));
     const row = (g, k) => {
-      const why = usable(g);
+      let why = usable(g);
+      if (!why && k < 0) {
+        const c = picked.findIndex((x) => codeOf(x) === codeOf(g)), t = picked.findIndex((x) => x.title === g.title);
+        if (c >= 0) why = `same secret code as game ${c + 1}`;
+        else if (t >= 0) why = `same title as game ${t + 1}`;
+      }
       const on = k >= 0;
       const p = PRESETS[g.difficulty] || PRESETS.medium;
       return `<li class="bd-game${on ? ' on' : ''}${why ? ' off' : ''}">
         <label><input type="checkbox" data-pick="${g.id}"${on ? ' checked' : ''}${why ? ' disabled' : ''}>
-          ${on ? `<span class="bd-num">${k + 1}</span>` : ''}<b>${esc(g.title)}</b></label>
+          ${on ? `<span class="bd-num">${k + 1}</span>` : ''}<b>${esc(g.title)}</b>${kind() === 'year' && monthOf(g) >= 0 ? ` <span class="badge">${YEAR[monthOf(g)][0]}</span>` : ''}</label>
         <span class="small muted">${esc(codeOf(g))} · ${esc(p.audience)} · ${g.puzzles} puzzles${why ? ` · <span class="bd-why">${esc(why)}</span>` : ''}</span>
         ${on ? `<span class="bd-move"><button class="icon-btn" data-up="${g.id}" title="Move up"${k === 0 ? ' disabled' : ''}>&uarr;</button><button class="icon-btn" data-down="${g.id}" title="Move down"${k === picked.length - 1 ? ' disabled' : ''}>&darr;</button></span>` : ''}
       </li>`;
     };
-    $('bd-games').innerHTML = GAMES.length
+    $('bd-games').innerHTML = picked.length || rest.length
       ? `<ul class="bd-list">${picked.map((g, k) => row(g, k)).join('')}${rest.map((g) => row(g, -1)).join('')}</ul>`
-      : '<p class="muted">You have no saved games yet. Make a few games first, then come back to bundle them.</p>';
+      : source() === 'new'
+        ? '<p class="muted">Your new games appear here once their puzzles are built, ready to put in order.</p>'
+        : '<p class="muted">You have no saved games yet. Make a few games first, or choose "Make new games with AI" at the top.</p>';
+    suggestMaster();
     renderChecks();
   }
 
@@ -93,7 +242,22 @@
     Object.entries(titles).filter(([, n]) => n > 1).forEach(([t]) => errs.push(`Two games are both called "${t}". Rename one of them in the editor.`));
     if (st.games.length && st.master.length !== st.games.length) errs.push(`The Master Code needs exactly ${st.games.length} letters, one per game (it has ${st.master.length}).`);
     if (st.format === 'zip' && st.games.length + 1 > ETSY_FILES) warns.push(`Etsy allows ${ETSY_FILES} files per listing; this ZIP holds ${st.games.length + 1} PDFs. Upload the ZIP itself, or choose "one PDF with every game".`);
-    if (new Set(st.games.map((g) => g.difficulty)).size > 1) warns.push('The games have different difficulty levels. That suits a difficulty ladder; for a family set, check the ages on each cover.');
+    const k = kind();
+    if (k === 'ladder') {
+      const missing = LEVELS.filter((d) => !st.games.some((g) => g.difficulty === d));
+      if (missing.length) warns.push(`A difficulty ladder needs at least one game of each level. Missing: ${missing.map((d) => PRESETS[d].audience).join(', ')}.`);
+    }
+    if (k === 'year') {
+      if (st.games.length !== YEAR.length) warns.push(`A whole-year set has 12 games, one for every month (${st.games.length} chosen so far).`);
+      const empty = YEAR.filter(([, t]) => !st.games.some((g) => themeOf(g) === t)).map(([m]) => m);
+      if (empty.length && empty.length < 12) warns.push(`No game yet for: ${empty.join(', ')}.`);
+    }
+    if (k === 'theme') {
+      const t = $('bd-type-theme-sel').value;
+      const off = st.games.filter((g) => themeOf(g) !== t);
+      if (off.length) warns.push(`Not ${themeLabel(t)}: ${off.map((g) => g.title).join(', ')}. That's fine for a mixed set; untick them for a pure ${themeLabel(t)} collection.`);
+    }
+    if (k !== 'ladder' && new Set(st.games.map((g) => g.difficulty)).size > 1) warns.push('The games have different difficulty levels. That suits a difficulty ladder; for a family set, check the ages on each cover.');
     return { errs, warns };
   }
 
@@ -109,6 +273,8 @@
     $('bd-run').textContent = n ? `Make the bundle (${n} games)` : 'Make the bundle';
   }
   ['bd-name', 'bd-master'].forEach((id) => $(id).addEventListener('input', renderChecks));
+  $('bd-master').addEventListener('input', () => { delete $('bd-master').dataset.auto; $('bd-master-hint').textContent = ''; });
+  $('bd-master-next').addEventListener('click', () => { suggestMaster(true); renderChecks(); });
   ['bd-format', 'bd-paper', 'bd-print'].forEach((id) => $(id).addEventListener('change', renderChecks));
 
   // ---------------------------------------------------------------- one game, from its saved project
@@ -511,23 +677,56 @@
 
   const themeOptions = (sel) => T.THEMES.map((t) => `<option value="${t.id}"${t.id === sel ? ' selected' : ''}>${esc(t.label)}</option>`).join('');
   const plotOptions = (sel) => T.PLOTS.map((p) => `<option value="${p.id}"${p.id === sel ? ' selected' : ''}>${esc(p.label)}</option>`).join('');
-  $('nb-theme').innerHTML = '<option value="">A different theme per game</option>' + themeOptions('');
+  $('nb-theme').innerHTML = '<option value="">No, I pick a theme for each game</option><optgroup label="Yes, every game is:">' + themeOptions('') + '</optgroup>';
 
   function planRows() {
     const n = +$('nb-count').value, common = $('nb-theme').value;
     const keep = fresh;
     fresh = Array.from({ length: n }, (_, i) => keep[i] || { n: i + 1, themeId: T.THEMES[i % T.THEMES.length].id, plotId: T.PLOTS[i % T.PLOTS.length].id, difficulty: 'medium', status: 'waiting' });
     if (common) fresh.forEach((g) => { g.themeId = common; });
-    $('nb-rows').innerHTML = n ? `<table class="admin-table nb-plan"><thead><tr><th>Game</th>${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `<tr>
-      <td>New game ${g.n}</td>
+    const cols = common ? 3 : 4, lotCount = Math.ceil(n / BB.LOT);
+    const lotHead = (i) => i % BB.LOT || lotCount < 2 ? '' : `<tr class="nb-lot-row"><td colspan="${cols}"><b>Prompt ${i / BB.LOT + 1} of ${lotCount}</b> · new games ${i + 1}${Math.min(i + BB.LOT, n) > i + 1 ? `–${Math.min(i + BB.LOT, n)}` : ''}</td></tr>`;
+    $('nb-rows').innerHTML = n ? `${lotCount > 1 ? `<p class="nb-split"><b>${n} new games → ${lotCount} prompts</b> of up to ${BB.LOT} games each. You paste one prompt at a time into the AI, so every reply stays short and complete.</p>` : ''}<table class="admin-table nb-plan"><thead><tr><th>Game</th>${common ? '' : '<th>Theme</th>'}<th>Story type</th><th>Difficulty</th></tr></thead><tbody>${fresh.map((g, i) => `${lotHead(i)}<tr>
+      <td>New game ${g.n}${g.month ? ` <span class="small muted">· ${g.month}</span>` : ''}</td>
       ${common ? '' : `<td><select data-g="${i}" data-k="themeId">${themeOptions(g.themeId)}</select></td>`}
       <td><select data-g="${i}" data-k="plotId">${plotOptions(g.plotId)}</select></td>
       <td><select data-g="${i}" data-k="difficulty">${['easy', 'medium', 'hard'].map((d) => `<option value="${d}"${d === g.difficulty ? ' selected' : ''}>${PRESETS[d].audience}</option>`).join('')}</select></td>
     </tr>`).join('')}</tbody></table>${common ? '<p class="small muted">Same theme for every game: the AI gives each one its own story, characters and problem.</p>' : ''}` : '';
     $('nb-start').classList.toggle('hidden', !n);
-    $('nb-start').textContent = n > BB.LOT ? `Make the prompts (${Math.ceil(n / BB.LOT)} lots)` : 'Make the prompt';
+    $('nb-start').textContent = n > BB.LOT ? `Make the ${Math.ceil(n / BB.LOT)} prompts` : 'Make the prompt';
   }
   $('nb-count').addEventListener('change', planRows);
+
+  // Kind of bundle -> rows of new games for the AI prompt. Left alone once the prompts are made.
+  function planNew(plan) {
+    if ($('nb-count').disabled) return;
+    const n = Math.min(plan.length, 12);
+    $('nb-count').value = String(n);
+    $('nb-theme').value = '';
+    planRows();
+    plan.slice(0, n).forEach((p, i) => {
+      if (p.themeId) fresh[i].themeId = p.themeId;
+      fresh[i].difficulty = p.difficulty || 'medium';
+      fresh[i].month = p.month || '';
+    });
+    planRows();
+  }
+  document.querySelectorAll('input[name="bd-type"]').forEach((r) => r.addEventListener('change', applyKind));
+
+  function applySource() {
+    const fromNew = source() === 'new';
+    const nb = $('nb-card'), list = $('bd-games-card');
+    if (fromNew) list.before(nb); else list.after(nb);
+    $('nb-optional').classList.toggle('hidden', fromNew);
+    $('nb-lead').classList.toggle('hidden', fromNew);
+    if (fromNew && !$('nb-count').disabled && +$('nb-count').value === 0) { $('nb-count').value = String(MIN_GAMES); planRows(); }
+    document.querySelectorAll('.bd-step').forEach((s, i) => { s.textContent = `${i + 1}. `; });
+    applyKind();
+  }
+  document.querySelectorAll('input[name="bd-src"]').forEach((r) => r.addEventListener('change', applySource));
+  $('bd-type-theme-sel').innerHTML = TH.THEMES.map((t) => `<option value="${t.id}">${esc(t.label)}</option>`).join('');
+  $('bd-type-theme-sel').addEventListener('change', applyKind);
+  $('bd-name').addEventListener('input', () => { delete $('bd-name').dataset.auto; });
   $('nb-theme').addEventListener('change', planRows);
   $('nb-rows').addEventListener('change', (e) => { const s = e.target.closest('[data-g]'); if (s) fresh[+s.dataset.g][s.dataset.k] = s.value; });
 
@@ -557,14 +756,34 @@
   }
   $('nb-start').addEventListener('click', startWork);
 
+  // One card per prompt: its games and where it stands. Click a card to open that prompt.
+  function lotState(l) {
+    if (l.every((g) => ['valid', 'edited', 'building', 'added'].includes(g.status))) return ['ok', 'Done'];
+    if (l.some((g) => g.status === 'error' || g.status === 'cut')) return ['err', 'Needs a fix'];
+    if (l.some((g) => g.status !== 'waiting')) return ['warn', 'In progress'];
+    return ['', 'Not started'];
+  }
+  function renderLots() {
+    $('nb-lots').innerHTML = lots.map((l, i) => {
+      const [kind, label] = lotState(l);
+      return `<button type="button" class="nb-lotcard${i === lot ? ' now' : ''}" data-lot="${i}">
+        <span class="nb-lotcard-head"><b>Prompt ${i + 1}</b><span class="badge ${i === lot && !kind ? 'dark' : kind}">${i === lot && !kind ? 'Now' : label}</span></span>
+        <span class="small muted">New game${l.length > 1 ? 's' : ''} ${l[0].n}${l.length > 1 ? `–${l[l.length - 1].n}` : ''}</span>
+        ${l.map((g) => { const t = T.theme(g.themeId); const [k] = STATUS[g.status]; return `<span class="nb-lotgame"><i class="dot ${k}"></i>${g.n}. ${esc(g.story && g.story.title ? g.story.title : (t ? t.label : ''))}</span>`; }).join('')}
+      </button>`;
+    }).join('');
+  }
+  $('nb-lots').addEventListener('click', (e) => { const c = e.target.closest('[data-lot]'); if (c && +c.dataset.lot !== lot) { lot = +c.dataset.lot; showLot(); } });
+
   function showLot() {
     const l = lots[lot];
-    $('nb-lot-head').textContent = `Lot ${lot + 1} of ${lots.length}`;
-    $('nb-lot-sub').textContent = `New game${l.length > 1 ? 's' : ''} ${l.map((g) => g.n).join(', ')} · paste the prompt into a new AI chat`;
+    $('nb-lot-head').textContent = `Prompt ${lot + 1} of ${lots.length}: new game${l.length > 1 ? 's' : ''} ${l.map((g) => g.n).join(', ')}`;
+    $('nb-lot-sub').textContent = 'Copy it into a new AI chat, then paste the whole reply below.';
     $('nb-prompt').textContent = prompt();
     $('nb-reply').value = '';
     $('nb-help').innerHTML = '';
     renderTable();
+    if (l.some((g) => g.status !== 'waiting')) renderHelp();
   }
 
   function copy(text, btn) {
@@ -614,7 +833,7 @@
     });
     if (!missing.length && !bad.length) {
       html += lot + 1 < lots.length
-        ? `<div class="alert ok">Lot ${lot + 1} is done. <button class="btn primary sm" id="nb-next">Next lot</button></div>`
+        ? `<div class="alert ok">Prompt ${lot + 1} of ${lots.length} is done. <button class="btn primary sm" id="nb-next">Go to prompt ${lot + 2} (new games ${lots[lot + 1].map((g) => g.n).join(', ')})</button></div>`
         : '<div class="alert ok">Every new game is ready. Build the puzzles to add them to the bundle.</div>';
     } else {
       html += '<p class="small muted">Paste the AI\'s answer to a request in the box above and read it again: only the games in it are updated.</p>';
@@ -637,6 +856,7 @@
   });
 
   function renderTable() {
+    renderLots();
     $('nb-table').innerHTML = fresh.map((g) => {
       const [kind, label] = STATUS[g.status];
       const theme = T.theme(g.themeId);
@@ -717,5 +937,5 @@
   // Start: account paper and print style, then the list.
   if (DEFAULTS.paper === 'a4') $('bd-paper').value = 'a4';
   if (DEFAULTS.inkSaver) $('bd-print').value = 'ink';
-  renderGames();
+  applySource();
 })();

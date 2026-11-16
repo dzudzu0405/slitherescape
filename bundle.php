@@ -27,7 +27,7 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
   <div class="page-head">
     <div>
       <h1>Bundle Creator <?php if (!$owned): ?><span class="badge warn">Locked</span><?php endif; ?></h1>
-      <p>Pack 3 to 12 of your games into one product, with a bundle cover, contents and a Master Code that only the whole bundle reveals.</p>
+      <p>Make 3 to 12 new games at once, or pack games you already made, into one product, with a bundle cover, contents and a Master Code that only the whole bundle reveals.</p>
     </div>
     <a class="btn ghost" href="dashboard.php">Back to projects</a>
   </div>
@@ -48,7 +48,29 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
   </div>
 <?php else: ?>
   <div class="card card-pad section">
-    <h3 style="margin-bottom:12px">1. Name and format</h3>
+    <h3 style="margin-bottom:6px">Where do the games come from?</h3>
+    <p class="small muted" style="margin-bottom:12px">Make a whole bundle of brand-new games in one go, or pack games you have already made.</p>
+    <div class="bd-types bd-src">
+      <label class="bd-type"><input type="radio" name="bd-src" value="new" checked><b>Make new games with AI</b><span>Up to 12 brand-new games at once, each with its own story, secret code and questions. The prompt is written for you.</span></label>
+      <label class="bd-type"><input type="radio" name="bd-src" value="saved"><b>Use games I already made</b><span>Pick from your saved projects. No AI prompt needed.</span></label>
+    </div>
+  </div>
+
+  <div class="card card-pad section">
+    <h3 style="margin-bottom:6px">Kind of bundle</h3>
+    <p class="small muted" style="margin-bottom:12px">Pick a ready-made kind and the Builder chooses matching games, puts them in order and plans any missing ones as new games. You can change everything afterwards.</p>
+    <div class="bd-types">
+      <label class="bd-type"><input type="radio" name="bd-type" value="custom" checked><b>My own selection</b><span>Any games, in any order.</span></label>
+      <label class="bd-type"><input type="radio" name="bd-type" value="theme"><b>Seasonal or themed set</b><span>Games that share one theme, like a Christmas collection.</span></label>
+      <label class="bd-type"><input type="radio" name="bd-type" value="ladder"><b>Difficulty ladder</b><span>Easy to Hard: kids 11-13, then teens, then adults.</span></label>
+      <label class="bd-type"><input type="radio" name="bd-type" value="year"><b>A whole year</b><span>12 games, one for every month, holidays included.</span></label>
+    </div>
+    <label class="field hidden" id="bd-type-theme" style="margin-top:12px;max-width:320px"><span>Theme</span><select id="bd-type-theme-sel"></select></label>
+    <div class="alert info hidden" id="bd-type-note" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card card-pad section">
+    <h3 style="margin-bottom:12px"><span class="bd-step"></span>Name and format</h3>
     <div class="row">
       <label class="field"><span>Bundle name</span><input type="text" id="bd-name" maxlength="60" placeholder="e.g. The Winter Escape Collection"></label>
       <label class="field"><span>Format</span>
@@ -69,24 +91,25 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
     </div>
   </div>
 
-  <div class="card card-pad section">
-    <h3 style="margin-bottom:6px">2. Games, in bundle order</h3>
+  <div class="card card-pad section" id="bd-games-card">
+    <h3 style="margin-bottom:6px"><span class="bd-step"></span>Games, in bundle order</h3>
     <p class="small muted" style="margin-bottom:12px">Only games whose puzzles are built can go in. Use the arrows to change the order.</p>
     <div id="bd-games"></div>
   </div>
 
   <div class="card card-pad section" id="nb-card">
-    <h3 style="margin-bottom:6px">New games from your AI <span class="optional">optional</span></h3>
-    <p class="small muted" style="margin-bottom:12px">Need more games for this bundle? Choose a theme for each, copy the prompt into ChatGPT or Claude, and paste the whole reply back. Games go to the AI in lots of <?= 3 ?> so every reply stays complete. Finished games are saved to your projects and added to the list above.</p>
+    <h3 style="margin-bottom:6px"><span class="bd-step"></span>New games from your AI <span class="optional" id="nb-optional">optional</span></h3>
+    <p class="small muted" style="margin-bottom:12px"><span id="nb-lead">Need more games for this bundle?</span> Choose how many games and a theme for each, copy the prompt into ChatGPT or Claude, and paste the whole reply back. Games go to the AI in prompts of <?= 3 ?> so every reply stays complete. Finished games are saved to your projects and added to the bundle list.</p>
     <div class="row">
       <label class="field"><span>How many new games</span>
-        <select id="nb-count"><?php for ($i = 0; $i <= 9; $i++): ?><option value="<?= $i ?>"><?= $i ?: 'None' ?></option><?php endfor; ?></select>
+        <select id="nb-count"><?php for ($i = 0; $i <= 12; $i++): ?><option value="<?= $i ?>"><?= $i ?: 'None' ?></option><?php endfor; ?></select>
       </label>
-      <label class="field"><span>Theme</span><select id="nb-theme"></select></label>
+      <label class="field"><span>Same theme for every game?</span><select id="nb-theme"></select></label>
     </div>
     <div id="nb-rows"></div>
     <button class="btn primary hidden" id="nb-start" type="button">Make the prompt</button>
     <div class="hidden" id="nb-work">
+      <div class="nb-lots" id="nb-lots"></div>
       <div class="nb-lot">
         <div><b id="nb-lot-head"></b><div class="small muted" id="nb-lot-sub"></div></div>
         <button class="btn primary" id="nb-copy" type="button">Copy prompt</button>
@@ -111,12 +134,14 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
   </div>
 
   <div class="card card-pad section">
-    <h3 style="margin-bottom:6px">3. Master Code</h3>
+    <h3 style="margin-bottom:6px"><span class="bd-step"></span>Master Code</h3>
     <p class="small muted" style="margin-bottom:12px">One letter per game, A to Z: game 1 gives the first letter, game 2 the second, and so on. The letters are printed on each game's certificate, so players only collect them by finishing the games.</p>
     <div class="code-input-row">
       <input type="text" id="bd-master" class="big-input mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="e.g. SNOW">
       <span class="code-count" id="bd-master-count"></span>
+      <button class="btn" id="bd-master-next" type="button">Suggest another</button>
     </div>
+    <p class="small muted" id="bd-master-hint" style="margin-top:8px"></p>
   </div>
 
   <div class="card card-pad section">

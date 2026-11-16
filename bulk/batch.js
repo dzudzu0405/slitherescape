@@ -5,7 +5,7 @@
 'use strict';
 (function (root) {
   const Story = root.Story, Themes = root.Themes;
-  const L = Story.LIMITS;
+  const L = Story.AIM;
   const LOT = 3;
   const CHAPTERS = 2;
   const STORY_QS = 12;
@@ -33,11 +33,11 @@
       `=== GAME ${n} ===`,
       'TITLE: ...', 'TAGLINE: ...', 'PROLOGUE: ...', 'MISSION: ...',
       ...Array.from({ length: CHAPTERS }, (_, i) => [`CHAPTER ${i + 1} NAME: ...`, `CHAPTER ${i + 1} INTRO: ...`, `CHAPTER ${i + 1} WORD: ...`]).flat(),
-      'PUZZLE TITLES:', '1. ...', '2. ...', '(one numbered line per letter of the code)',
+      'CODE CHECK: WORD = W-O-R-D (4) | WORD = W-O-R-D (4) | total 8',
+      'PUZZLE TITLES:', '1. [W] ...', '2. [O] ...', '(one line per letter of the code, in order, with that letter in brackets: as many lines as the CODE CHECK total)',
       'FINAL LOCK: ...', 'ENDING: ...', 'CERTIFICATE: ...', 'TEAM NAME: ...',
       'QUESTIONS:', '1. [story] ...?', 'A) ...', 'B) ...', 'C) ...', 'ANSWER: B',
       `(20 questions in this shape; 1-${STORY_QS} [story], ${STORY_QS + 1}-20 [trivia])`,
-      'CODE CHECK: WORD = W-O-R-D (4) | WORD = W-O-R-D (4) | total 8',
       `=== END GAME ${n} ===`
     ].join('\n');
   }
@@ -59,11 +59,13 @@ ${lot.map(gameBrief).join('\n\n')}
 - Every game in this bundle needs its own code and its own title.${avoid.length ? ` Do not reuse any of these: ${avoid.join(', ')}.` : ''}
 
 == WHAT TO WRITE (each game) ==
+- Word counts are checked by a computer and a reply over any maximum is sent back. Count the words of every short field (title, tagline, names, puzzle titles, certificate, team name, questions, options) before you write it.
 - TITLE (max ${L.title.words} words), TAGLINE (max ${L.tagline.words} words).
 - PROLOGUE (${L.prologue.min}-${L.prologue.words} words): the problem and why the code matters, with at least 6 concrete details (names, colors, numbers, objects, places, times) the questions can ask about.
 - MISSION (${L.mission.min}-${L.mission.words} words): solve the puzzles, collect the ${CHAPTERS} words and say the code before something bad happens.
 - For each chapter: NAME (max ${L.chapterName.words} words); INTRO (${L.chapterIntro.min}-${L.chapterIntro.words} words, at least 3 new details); WORD in capitals.
-- PUZZLE TITLES: one per letter of the code, in code order, max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro.
+- CODE CHECK, written straight after the chapter words: spell each word letter by letter and add up the total.
+- PUZZLE TITLES: exactly one per letter of the code, in code order, so exactly as many as the CODE CHECK total (a 9-letter code has 9 titles). Start each with its letter in brackets, like "1. [W] ...". Max ${L.puzzleTitle.words} words each, built from places and objects in that chapter's intro.
 - FINAL LOCK (${L.finalLock.min}-${L.finalLock.words} words): the tense moment just before the code is spoken.
 - ENDING (${L.ending.min}-${L.ending.words} words): read aloud by the Game Host; explains why the code was the answer and congratulates the players.
 - CERTIFICATE (max ${L.certificate.words} words), TEAM NAME (max ${L.teamName.words} words).
@@ -94,7 +96,7 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
 
   function fixPrompt(n, errors) {
     return `Please fix GAME ${n} and send its complete block again (=== GAME ${n} === ... === END GAME ${n} ===), in the same format. Change only what is needed:\n`
-      + errors.map((e) => '- ' + e.ai.replace(/"chapters\[(\d)\]\.(\w+)"/g, (m, i, f) => `CHAPTER ${+i + 1} ${f.toUpperCase()}`).replace(/"puzzleTitles\[(\d+)\]"/g, (m, i) => `PUZZLE TITLE ${+i + 1}`).replace(/"questions\[(\d+)\]"/g, (m, i) => `QUESTION ${+i + 1}`)).join('\n');
+      + errors.map((e) => '- ' + e.ai.replace(/"chapters\[(\d)\]\.(\w+)"/g, (m, i, f) => `CHAPTER ${+i + 1} ${f.toUpperCase()}`).replace(/"puzzleTitles\[(\d+)\]"/g, (m, i) => `PUZZLE TITLE ${+i + 1}`).replace(/Return exactly (\d+) puzzleTitles, one per letter of the code/, 'Write exactly $1 PUZZLE TITLES, one per letter of the code, each starting with its letter in brackets').replace(/"questions\[(\d+)\]"/g, (m, i) => `QUESTION ${+i + 1}`)).join('\n');
   }
 
   // ---------------------------------------------------------------- reader
@@ -134,7 +136,7 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
 
   // Reads one game block into the story shape used by the app.
   function parseGame(body) {
-    const raw = { chapters: [], puzzleTitles: [], questions: [] };
+    const raw = { chapters: [], puzzleTitles: [], questions: [], titleTags: [] };
     let field = null, q = null;
     const add = (f, v) => {
       if (!v) return;
@@ -155,7 +157,11 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
       }
       if (field === '#titles') {
         const m = line.match(/^\d+\s*[.)]\s*(.+)$/);
-        if (m) raw.puzzleTitles.push(m[1].trim());
+        if (m) {
+          const tag = m[1].match(/^[[(]\s*([A-Za-z])\s*[\])]\s*[-–:.]?\s*(.+)$/);
+          raw.puzzleTitles.push(tag ? tag[2].trim() : m[1].trim());
+          raw.titleTags.push(tag ? tag[1].toUpperCase() : '');
+        }
         continue;
       }
       if (field === '#questions') {
@@ -170,7 +176,23 @@ If you run out of space, stop at the end of a complete game block; I will ask yo
     }
     raw.questions.forEach((x) => { x.options = Array.from({ length: Math.max(3, x.options.length) }, (_, i) => x.options[i] || '').filter((o, i) => i < 3 || o); });
     raw.chapters = raw.chapters.filter(Boolean);
-    return Story.normalise(raw);
+    const story = Story.normalise(raw);
+    story.puzzleTitles = lineUp(story.puzzleTitles, raw.titleTags, story.chapters.map((c) => c.word).join(''));
+    return story;
+  }
+
+  // Too many puzzle titles for the code: keep one per letter. With letter tags, the titles whose
+  // tags spell the code in order; without, the first ones. Too few is left for the fix request.
+  function lineUp(titles, tags, code) {
+    const n = code.length;
+    if (!n || titles.length <= n) return titles;
+    const keep = [];
+    if (tags.every(Boolean)) {
+      let j = 0;
+      for (let i = 0; i < titles.length && j < n; i++) if (tags[i] === code[j]) { keep.push(titles[i]); j++; }
+      if (keep.length === n) return keep;
+    }
+    return titles.slice(0, n);
   }
 
   // Checks one game: the usual story checks plus the bundle's own rules.

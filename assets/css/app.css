@@ -733,3 +733,27 @@ main.page > .legal-links { margin-top: 26px; }
   .legal-table td { border: 0; padding: 2px 0; }
   .legal-table td:first-child { font-weight: 600; }
 }
+
+/* Bundle: kind of bundle picker */
+.bd-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.bd-type { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; background: var(--panel); }
+.bd-type input { margin: 0 0 4px; align-self: flex-start; }
+.bd-type span { font-size: 13px; color: var(--muted); }
+.bd-type:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(122, 46, 30, .12); }
+@media (max-width: 760px) { .bd-types { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .bd-types { grid-template-columns: 1fr; } }
+
+/* Bundle: where the games come from */
+.bd-types.bd-src { grid-template-columns: 1fr 1fr; }
+@media (max-width: 460px) { .bd-types.bd-src { grid-template-columns: 1fr; } }
+
+/* New games: prompts (lots) */
+.nb-split { margin: 4px 0 10px; font-size: 14px; }
+.nb-plan .nb-lot-row td { background: var(--panel-2); font-size: 13px; padding-top: 8px; padding-bottom: 8px; }
+.nb-lots { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.nb-lotcard { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card, #fff); cursor: pointer; font: inherit; color: inherit; }
+.nb-lotcard.now { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(122, 46, 30, .12); }
+.nb-lotcard-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nb-lotgame { font-size: 13px; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nb-lotgame .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.nb-lotgame .dot.ok { background: var(--ok); } .nb-lotgame .dot.err { background: var(--err); } .nb-lotgame .dot.warn { background: var(--warn); } .nb-lotgame .dot.dark { background: var(--ink, #3b2a1a); }

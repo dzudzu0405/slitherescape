@@ -22,13 +22,17 @@
     roleName: { words: 4 },
     reward: { words: 12 }
   };
+  // What the prompts ask for: about 80% of each limit and a little over each minimum. AI tools
+  // count words loosely, so asking for less keeps their replies inside the real limits above.
+  const aimMax = (n) => Math.max(1, Math.floor(n * 0.8));
+  const AIM = Object.fromEntries(Object.entries(LIMITS).map(([k, v]) => [k, v.min ? { words: aimMax(v.words), min: Math.ceil(v.min * 1.15) } : { words: aimMax(v.words) }]));
   const ROLES = ['leader', 'scribe', 'hintKeeper', 'timekeeper', 'codebreaker', 'assembler'];
   const STORY_QUESTIONS = 12;
 
   const QUESTION_COUNT = 20;
 
   function wordCount(s) {
-    return String(s || '').trim().split(/\s+/).filter(Boolean).length;
+    return String(s || '').trim().split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
   }
 
   // Split a total letter count into `chapters` word lengths, e.g. 11 / 2 -> [5, 6].
@@ -82,7 +86,7 @@
     if (types) { chapterCount = types.length; puzzleCount = null; }
     const chapters = chapterCount || 2;
     const letters = puzzleCount || null; // null = the AI chooses within AUTO_LETTERS
-    const L = LIMITS;
+    const L = AIM;
     const ordinal = ['first', 'second', 'third'];
 
     const audience = {
@@ -213,6 +217,7 @@ ${brief.join('\n')}
 ${codeRules.map((r) => '- ' + r).join('\n')}
 
 == WHAT TO WRITE ==
+Word counts are checked by a computer and a reply over any maximum is sent back. Count the words of every short field (title, tagline, names, puzzle titles, certificate, team name, questions, options) before you write it.
 1. title (max ${L.title.words} words): catchy and original.
 2. tagline (max ${L.tagline.words} words): one intriguing line for the cover.
 3. prologue (${L.prologue.min}-${L.prologue.words} words): sets up the problem and why the code matters. Plant at least 6 concrete details players can be asked about later: names, colors, numbers, objects, places, times.
@@ -360,7 +365,7 @@ ${skeletonText}${checkExample}
     const over = (field, text, limit, label, min) => {
       const n = wordCount(text);
       if (!text) err(`${label} is missing.`, `The field "${field}" is missing or empty.`);
-      else if (n > limit) err(`${label} has ${n} words; the limit is ${limit}.`, `Shorten "${field}" to at most ${limit} words (currently ${n}).`);
+      else if (n > limit) err(`${label} has ${n} words; the limit is ${limit}.`, `Shorten "${field}" to at most ${aimMax(limit)} words (currently ${n}).`);
       else if (min && n < min) warnings.push(`${label} has only ${n} words (${min}+ fills the page better).`);
     };
 
@@ -435,7 +440,8 @@ ${skeletonText}${checkExample}
       softFields.push([`chapters[${i}].name`, `chapter ${i + 1} name`, c.name], [`chapters[${i}].intro`, `chapter ${i + 1} intro`, c.intro]);
     });
     story.puzzleTitles.forEach((t, i) => hardFields.push([`puzzleTitles[${i}]`, `puzzle ${i + 1} title`, t]));
-    story.questions.forEach((q, i) => hardFields.push([`questions[${i}]`, `question ${i + 1}`, [q.q].concat(q.options).join(' ')]));
+    // Hint questions are only heard when players ask for help, so a code word there is a warning, not a blocker.
+    story.questions.forEach((q, i) => softFields.push([`questions[${i}]`, `question ${i + 1}`, [q.q].concat(q.options).join(' ')]));
     // Narration should stay in the story world; game talk belongs in the mission only.
     const narration = [['the prologue', story.prologue], ['the Final Lock text', story.finalLock]]
       .concat(story.chapters.map((c, i) => [`chapter ${i + 1} intro`, c.intro]));
@@ -460,7 +466,7 @@ ${skeletonText}${checkExample}
     }
     story.puzzleTitles.forEach((t, i) => {
       if (!t) err(`Puzzle ${i + 1} title is empty.`, `puzzleTitles[${i}] is empty.`);
-      else if (wordCount(t) > LIMITS.puzzleTitle.words) err(`Puzzle ${i + 1} title is longer than ${LIMITS.puzzleTitle.words} words.`, `Shorten puzzleTitles[${i}] to at most ${LIMITS.puzzleTitle.words} words.`);
+      else if (wordCount(t) > LIMITS.puzzleTitle.words) err(`Puzzle ${i + 1} title is longer than ${LIMITS.puzzleTitle.words} words.`, `Shorten puzzleTitles[${i}] to at most ${AIM.puzzleTitle.words} words.`);
     });
 
     // Questions.
@@ -470,10 +476,10 @@ ${skeletonText}${checkExample}
     story.questions.forEach((q, i) => {
       const n = i + 1;
       if (!q.q) err(`Question ${n} has no text.`);
-      else if (wordCount(q.q) > LIMITS.question.words) err(`Question ${n} is longer than ${LIMITS.question.words} words.`, `Shorten question ${n} to at most ${LIMITS.question.words} words.`);
+      else if (wordCount(q.q) > LIMITS.question.words) err(`Question ${n} is longer than ${LIMITS.question.words} words.`, `Shorten question ${n} to at most ${AIM.question.words} words.`);
       if (q.options.length !== 3) err(`Question ${n} has ${q.options.length} options; exactly 3 are needed.`, `Question ${n} must have exactly 3 options.`);
       if (q.options.some((o) => !o)) err(`Question ${n} has an empty option.`);
-      if (q.options.some((o) => wordCount(o) > LIMITS.option.words)) err(`Question ${n} has an option that is too long.`, `Shorten the options of question ${n} to at most ${LIMITS.option.words} words each.`);
+      if (q.options.some((o) => wordCount(o) > LIMITS.option.words)) err(`Question ${n} has an option that is too long.`, `Shorten the options of question ${n} to at most ${AIM.option.words} words each.`);
       if (new Set(q.options.map((o) => o.toLowerCase())).size !== q.options.length) err(`Question ${n} has duplicate options.`);
       if (!(q.answer >= 0 && q.answer < q.options.length)) err(`Question ${n} has no valid correct answer.`, `Question ${n} needs "answer" = 0, 1 or 2.`);
     });
@@ -491,5 +497,5 @@ ${skeletonText}${checkExample}
       + errors.map((e) => '- ' + e.ai).join('\n');
   }
 
-  root.Story = { ROLES, isMosaic, titleCount, LIMITS, AUTO_LETTERS, CODE_LETTERS, parseCode, codeError, QUESTION_COUNT, wordCount, suggestWordLengths, buildPrompt, extractJson, normalise, validate, fixRequest };
+  root.Story = { ROLES, isMosaic, titleCount, LIMITS, AIM, AUTO_LETTERS, CODE_LETTERS, parseCode, codeError, QUESTION_COUNT, wordCount, suggestWordLengths, buildPrompt, extractJson, normalise, validate, fixRequest };
 })(typeof self !== 'undefined' ? self : globalThis);
