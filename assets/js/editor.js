@@ -687,7 +687,7 @@
     pages.push(['20 hint questions', 2, true]);
     pages.push([`Cut-out hint cards (${n * 2} cards)`, Math.ceil(n * 2 / 6), true]);
     pages.push(['Answer key', Math.ceil(n / 4) + (s.chapters.some(Story.isMosaic) ? 1 : 0), true]);
-    pages.push(['Certificate (landscape)', 1]);
+    pages.push(['Certificate (turned sideways)', 1]);
     return pages;
   }
 

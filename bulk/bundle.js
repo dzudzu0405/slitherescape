@@ -477,7 +477,8 @@
       };
       const back = (target) => {
         target.push(['Master certificate', () => {
-          const landscape = !b.paper.kdp;
+          // Upright like every other bundle page, so the Start-Here file reads and prints in one direction.
+          const landscape = false;
           const box = b.newPage({ landscape, noFooter: true });
           const cx = b.geo.W / 2, f = b.geo.frame;
           doc.setDrawColor(...C.brown); doc.setLineWidth(0.8);
@@ -493,7 +494,13 @@
           b.text('This certifies that', cx, y + 162, { align: 'center' });
           doc.setDrawColor(...C.brown); doc.line(cx - 210, y + 212, cx + 210, y + 212);
           b.font('Fell', 15, C.ink, 'italic');
-          b.para(`escaped all ${n} games of ${st.name} and cracked the Master Code.`, box.x + 90, y + 244, box.w - 180, { align: 'center' });
+          b.para(`escaped all ${n} games of ${st.name} and cracked the Master Code.`, box.x + 40, y + 244, box.w - 80, { align: 'center' });
+          // Empty boxes: the players write the code they cracked, one letter per game.
+          const size = Math.min(34, (box.w - 80) / (n * 1.18));
+          const my = y + 320;
+          b.font('FellSC', 13, C.brown);
+          b.text('The Master Code', cx, my, { align: 'center' });
+          b.letterBoxes(cx, my + 14, [n], size);
           const fy = box.y + box.h - (landscape ? 30 : 90);
           doc.line(cx - 120, fy, cx + 120, fy);
           b.font('FellSC', 11, C.brown);

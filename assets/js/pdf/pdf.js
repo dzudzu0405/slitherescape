@@ -778,6 +778,16 @@
     const g = this.g, s = g.story, doc = this.doc;
     const landscape = !this.paper.kdp;
     const box = this.newPage({ landscape, noFooter: true });
+    // The landscape design sits turned on an upright page (PDF /Rotate), so the file reads and
+    // prints in one direction; turn the sheet to read it. jsPDF has no API for this, so the key is
+    // written into the page while jsPDF writes that page.
+    if (landscape) {
+      if (!this.turned) {
+        this.turned = new Set();
+        doc.internal.events.subscribe('putPage', (d) => { if (this.turned.has(d.pageNumber)) doc.internal.write('/Rotate 270'); });
+      }
+      this.turned.add(doc.getNumberOfPages());
+    }
     const cx = this.geo.W / 2;
     const f = this.geo.frame;
     doc.setDrawColor(...C.brown); doc.setLineWidth(0.8);
