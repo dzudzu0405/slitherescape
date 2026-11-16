@@ -76,6 +76,7 @@
       reverse: p.reverse ? st.reverse : 0,
       paper: st.paper || DEFAULTS.paper,
       inkSaver: st.ink ? st.ink === 'white' : !!DEFAULTS.inkSaver,
+      style: st.ink || (DEFAULTS.inkSaver ? 'white' : 'aged'),
       motif
     };
   }
@@ -729,7 +730,7 @@
     $('#r-meta').innerHTML = [
       `<span class="badge dark">${p.audience}</span>`, `<span class="badge">${n} puzzles</span>`,
       `<span class="badge">${s.chapters.length === 1 ? 'One picture' : `${s.chapters.length} chapters`}</span>`, `<span class="badge">${lo}–${hi} min</span>`,
-      `<span class="badge">${total} pages · ${paper}</span>`, `<span class="badge">${eff.inkSaver ? 'Ink saver' : 'Aged paper'}</span>`
+      `<span class="badge">${total} pages · ${paper}</span>`, `<span class="badge">${(window.PdfBuilder.STYLES[eff.style] || window.PdfBuilder.STYLES.aged).label}</span>`
     ].join('');
 
     $('#cover-preview').innerHTML = `
@@ -856,6 +857,8 @@
       example: await exampleFor(state.settings.seed),
       paper: eff.paper,
       inkSaver: eff.inkSaver,
+      style: eff.style,
+      themeId: state.themeId,
       motif: eff.motif,
       shop: DEFAULTS.shop,
       audience: p.audience.replace('–', '-'),
@@ -890,7 +893,7 @@
     try {
       const keepSize = v.difficulty === saved.settings.difficulty;
       Object.assign(state.settings, {
-        difficulty: v.difficulty, paper: v.paper, ink: v.inkSaver ? 'white' : 'aged', seed: v.seed,
+        difficulty: v.difficulty, paper: v.paper, ink: v.style, seed: v.seed,
         w: keepSize ? saved.settings.w : null, h: keepSize ? saved.settings.h : null
       });
       state.mosaics = {};
@@ -917,7 +920,7 @@
     buildVariant,
     current: () => (state.story ? {
       projectId: project.id, title: state.story.title, code: codeSpaced(), difficulty: state.settings.difficulty,
-      paper: effective().paper, inkSaver: effective().inkSaver, hasMosaic: state.story.chapters.some(Story.isMosaic)
+      paper: effective().paper, inkSaver: effective().inkSaver, style: effective().style, hasMosaic: state.story.chapters.some(Story.isMosaic)
     } : null),
     slug
   };

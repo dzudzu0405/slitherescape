@@ -49,8 +49,127 @@
     ctx.restore();
   }
 
+  // Manila folder card for the Case File style: flat warm colour, fine fibres, one faint
+  // coffee ring and soft edges. No crumples, so typed-looking pages stay crisp.
+  function manila(w, h, seed) {
+    const r = rng(seed);
+    const s = w / 1000;
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#EAD8A8';
+    ctx.fillRect(0, 0, w, h);
+    blotches(ctx, w, h, 6, r, [205, 178, 118], [246, 234, 196], 0.18);
+    blotches(ctx, w, h, 30, r, [210, 186, 128], [248, 238, 204], 0.08);
+    // Fibres: short faint strokes in every direction.
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 2600; i++) {
+      const x = r() * w, y = r() * h, a = r() * Math.PI, len = (3 + r() * 9) * s;
+      ctx.strokeStyle = r() < 0.5 ? 'rgba(150, 118, 60, 0.10)' : 'rgba(255, 248, 225, 0.18)';
+      ctx.lineWidth = 0.8 * s;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len); ctx.stroke();
+    }
+    // One coffee ring near a corner.
+    const cx = (r() < 0.5 ? 0.18 : 0.82) * w, cy = (r() < 0.5 ? 0.16 : 0.84) * h, rad = (70 + r() * 30) * s;
+    ctx.save();
+    ctx.filter = `blur(${2.2 * s}px)`;
+    ctx.strokeStyle = 'rgba(130, 86, 38, 0.10)';
+    ctx.lineWidth = 6 * s;
+    ctx.setLineDash([rad * 1.6, rad * 0.35]);
+    ctx.beginPath(); ctx.arc(cx, cy, rad, r() * 6, r() * 6 + Math.PI * 1.85); ctx.stroke();
+    ctx.restore();
+    // Soft darker edges.
+    const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.4, w / 2, h / 2, Math.hypot(w, h) * 0.58);
+    vg.addColorStop(0, 'rgba(120, 92, 40, 0)');
+    vg.addColorStop(1, 'rgba(120, 92, 40, 0.22)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+    return cv.toDataURL('image/jpeg', 0.84);
+  }
+
+  // Draws a motif (paths in a 32x32 box, as in the PDF builder) centred at (x, y).
+  function motifPath(ctx, m, x, y, size, rot) {
+    const k = size / 32;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.translate(-size / 2, -size / 2);
+    const run = (cmds, fill) => {
+      ctx.beginPath();
+      for (const c of cmds) {
+        if (c[0] === 'M') ctx.moveTo(c[1] * k, c[2] * k);
+        else if (c[0] === 'L') ctx.lineTo(c[1] * k, c[2] * k);
+        else if (c[0] === 'C') ctx.bezierCurveTo(c[1] * k, c[2] * k, c[3] * k, c[4] * k, c[5] * k, c[6] * k);
+        else if (c[0] === 'Z') ctx.closePath();
+        else if (c[0] === 'O') { ctx.moveTo((c[1] + c[3]) * k, c[2] * k); ctx.arc(c[1] * k, c[2] * k, c[3] * k, 0, Math.PI * 2); }
+      }
+      if (fill) ctx.fill(); else ctx.stroke();
+    };
+    if (m.fill) run(m.fill, true);
+    run(m.stroke, false);
+    ctx.restore();
+  }
+
+  // Seasonal style: a pale wash of the theme colour, soft light and dark patches, and the game's
+  // motif scattered over the page in two sizes, rotated at random, like faint gift wrap.
+  function seasonal(w, h, seed, look) {
+    const r = rng(seed);
+    const s = w / 1000;
+    const [tr, tg, tb] = look.tint || [214, 190, 150];
+    const shade = (t, a) => `rgba(${Math.round(tr * t)}, ${Math.round(tg * t)}, ${Math.round(tb * t)}, ${a})`;
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d');
+    // Pale base: the tint mixed far towards white.
+    const base = [tr, tg, tb].map((v) => Math.round(v * 0.09 + 255 * 0.91));
+    ctx.fillStyle = `rgb(${base.join(',')})`;
+    ctx.fillRect(0, 0, w, h);
+    blotches(ctx, w, h, 5, r, [tr, tg, tb], [255, 255, 255], 0.05);
+    // Scattered motifs on a jittered grid, so they never clump or leave big holes.
+    const shapes = look.motifs || (look.motif ? [look.motif] : []);
+    if (shapes.length) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const step = 118 * s;
+      for (let gy = -0.5; gy * step < h + step; gy++) {
+        for (let gx = -0.5; gx * step < w + step; gx++) {
+          const off = (Math.round(gy) % 2) * step / 2;
+          const x = gx * step + off + (r() - 0.5) * step * 0.5;
+          const y = gy * step + (r() - 0.5) * step * 0.5;
+          const big = r() < 0.45;
+          const size = (big ? 46 + r() * 18 : 22 + r() * 10) * s;
+          ctx.strokeStyle = shade(0.7, big ? 0.22 : 0.17);
+          ctx.fillStyle = shade(0.7, big ? 0.12 : 0.09);
+          ctx.lineWidth = Math.max(1, size / 18);
+          motifPath(ctx, shapes[Math.floor(r() * shapes.length)], x, y, size, (r() - 0.5) * 1.2);
+          // A tiny dot between motifs.
+          if (r() < 0.7) {
+            ctx.beginPath();
+            ctx.arc(x + step * 0.5, y + step * 0.32, (2 + r() * 2) * s, 0, Math.PI * 2);
+            ctx.fillStyle = shade(0.62, 0.14);
+            ctx.fill();
+          }
+        }
+      }
+    }
+    // Light grain and a gentle darker edge in the theme colour.
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) { const n = (r() - 0.5) * 6; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+    ctx.putImageData(img, 0, 0);
+    const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.hypot(w, h) * 0.58);
+    vg.addColorStop(0, shade(0.7, 0));
+    vg.addColorStop(1, shade(0.7, 0.10));
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+    return cv.toDataURL('image/jpeg', 0.86);
+  }
+
   // Returns a JPEG data URL. `w`,`h` in pixels; `seed` makes each page different.
-  function texture(w, h, seed) {
+  // look: { kind: 'aged' | 'seasonal' | 'casefile', tint: [r, g, b], motifs: [...] } (tint, motifs: seasonal).
+  function texture(w, h, seed, look = {}) {
+    if (look.kind === 'casefile') return manila(w, h, seed);
+    if (look.kind === 'seasonal') return seasonal(w, h, seed, look);
     const r = rng(seed);
     const s = w / 1000; // scale factor for line widths
     const cv = document.createElement('canvas');

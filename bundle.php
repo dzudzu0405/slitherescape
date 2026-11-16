@@ -86,7 +86,7 @@ page_head('Bundles', '', ['user' => $user, 'nav' => 'projects']);
         <select id="bd-paper"><option value="letter">Letter</option><option value="a4">A4</option></select>
       </label>
       <label class="field"><span>Print style</span>
-        <select id="bd-print"><option value="aged">Aged paper</option><option value="ink">Ink saver (white)</option></select>
+        <select id="bd-print"><option value="aged">Aged paper</option><option value="white">Ink saver (white)</option><option value="clean">Clean &amp; Bright</option><option value="seasonal">Seasonal pattern</option><option value="casefile">Case File</option></select>
       </label>
     </div>
   </div>

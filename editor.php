@@ -181,8 +181,11 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
           <span>Background</span>
           <select id="adv-ink">
             <option value="">Account default</option>
-            <option value="aged">Aged paper</option>
+<option value="aged">Aged paper</option>
             <option value="white">Ink saver (white)</option>
+            <option value="clean">Clean &amp; Bright (white, theme colors)</option>
+            <option value="seasonal">Seasonal pattern (motifs of the season)</option>
+            <option value="casefile">Case File (manila folder)</option>
           </select>
         </label>
         <div class="field adv-wide">

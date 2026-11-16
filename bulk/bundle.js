@@ -223,7 +223,8 @@
       name: $('bd-name').value.trim(),
       format,
       paper: format === 'kdp' ? 'kdp' : $('bd-paper').value,
-      inkSaver: $('bd-print').value === 'ink',
+      inkSaver: $('bd-print').value === 'white',
+      style: $('bd-print').value,
       master: $('bd-master').value.toUpperCase().replace(/[^A-Z]/g, ''),
       games: order.map((id) => GAMES.find((g) => g.id === id))
     };
@@ -372,7 +373,7 @@
       answerBoards: hasMosaic ? answerBoards(data) : {},
       partyKit: false, kit: {},
       example: await example(set.seed),
-      paper: st.paper, inkSaver: st.inkSaver, motif, shop: DEFAULTS.shop,
+      paper: st.paper, inkSaver: st.inkSaver, style: st.style, themeId: data.themeId, motif, shop: DEFAULTS.shop,
       audience: p.audience, audienceLong: p.long,
       minutes: [p.minutes[0] * slots.length, p.minutes[1] * slots.length],
       seed: set.seed,
@@ -545,8 +546,16 @@
     };
     return {
       story: { title: st.name, chapters: [], questions: [] }, puzzles: [], paper: st.paper, inkSaver: st.inkSaver,
+      // Bundle pages take the colours of the theme most of its games share.
+      style: st.style, themeId: mainTheme(st.games),
       motif, shop: DEFAULTS.shop, seed: 'bundle-' + st.name, customSteps: steps
     };
+  }
+
+  function mainTheme(games) {
+    const count = {};
+    games.forEach((g) => { const t = themeOf(g); if (t) count[t] = (count[t] || 0) + 1; });
+    return Object.keys(count).sort((a, b) => count[b] - count[a])[0] || '';
   }
 
   async function pagesPdf(st, built, motif, which) {
@@ -630,7 +639,7 @@
         parts.title = st.name;
         show(st.games.length + 1, 0, 'Putting the bundle together');
         const one = await merge(parts, paper);
-        files.push({ name: `${base}_${st.paper === 'a4' ? 'A4' : 'Letter'}${st.inkSaver ? '_Ink-Saver' : ''}.pdf`, bytes: one.bytes, pages: one.pages });
+        files.push({ name: `${base}_${st.paper === 'a4' ? 'A4' : 'Letter'}${{ white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', casefile: '_Case-File' }[st.style] || ''}.pdf`, bytes: one.bytes, pages: one.pages });
       } else {
         const back = await pagesPdf(st, built, motif, 'back');
         const start = await merge(Object.assign([{ bytes: front }, { bytes: back }], { title: st.name }), paper);
@@ -977,6 +986,6 @@
 
   // Start: account paper and print style, then the list.
   if (DEFAULTS.paper === 'a4') $('bd-paper').value = 'a4';
-  if (DEFAULTS.inkSaver) $('bd-print').value = 'ink';
+  if (DEFAULTS.inkSaver) $('bd-print').value = 'white';
   applySource();
 })();

@@ -4,7 +4,9 @@
 (function () {
   const DIFFS = [['easy', 'Easy', 'EAS', 'Kids 11–13'], ['medium', 'Medium', 'MED', 'Teens 14–17'], ['hard', 'Hard', 'HRD', 'Adults']];
   const PAPERS = [['letter', 'Letter', 'LTR'], ['a4', 'A4', 'A4'], ['kdp', 'KDP 8.5×11', 'KDP']];
-  const PRINTS = [['aged', 'Aged paper', false], ['ink', 'Ink saver (white)', true]];
+  // Print styles from the PDF builder: [id, label, file-name part].
+  const PRINT_FILE = { aged: '', white: '_Ink-Saver', clean: '_Clean', seasonal: '_Seasonal', casefile: '_Case-File' };
+  const PRINTS = window.PdfBuilder.STYLE_ORDER.map((id) => [id, window.PdfBuilder.STYLES[id].label, PRINT_FILE[id] || '_' + id]);
   const FILE_PAPER = { letter: 'Letter', a4: 'A4', kdp: 'KDP-8.5x11' };
 
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -27,11 +29,11 @@
         if (!chosen('bv-paper').includes(p[0])) continue;
         for (const pr of PRINTS) {
           if (!chosen('bv-print').includes(pr[0])) continue;
-          list.push({ difficulty: d[0], diffLabel: d[1], paper: p[0], paperLabel: p[1], inkSaver: pr[2], printLabel: pr[1], prefix: `${d[2]}-${p[2]}` });
+          list.push({ difficulty: d[0], diffLabel: d[1], paper: p[0], paperLabel: p[1], style: pr[0], fileStyle: pr[2], printLabel: pr[1], prefix: `${d[2]}-${p[2]}` });
         }
       }
     }
-    // Numbered per difficulty+paper, so aged and ink-saver copies of one size get 01 and 02.
+    // Numbered per difficulty+paper, so each print style of one size gets its own number (01, 02, ...).
     const counts = {};
     list.forEach((v) => { counts[v.prefix] = (counts[v.prefix] || 0) + 1; v.code = `${v.prefix}-${String(counts[v.prefix]).padStart(2, '0')}`; });
     return list;
@@ -54,7 +56,7 @@
       <div class="bv-groups">
         <div><h4>Difficulty</h4>${DIFFS.map((d) => check('bv-diff', d[0], `${d[1]} · ${d[3]}`, d[0] === game.difficulty)).join('')}</div>
         <div><h4>Paper</h4>${PAPERS.map((p) => check('bv-paper', p[0], p[1], p[0] === game.paper)).join('')}</div>
-        <div><h4>Print style</h4>${PRINTS.map((p) => check('bv-print', p[0], p[1], p[2] === game.inkSaver)).join('')}</div>
+        <div><h4>Print style</h4>${PRINTS.map((p) => check('bv-print', p[0], p[1], p[0] === game.style)).join('')}</div>
       </div>
       <p class="small muted bv-note">The story and the 20 questions stay the same. Each variant gets new puzzles, its own answer key and a variant code on every page.${game.hasMosaic ? ' Mosaic pictures keep their size; difficulty changes the clues and whether squares are printed on the pieces.' : ''}</p>
       <div id="bv-summary"></div>
@@ -105,7 +107,7 @@
       };
       try {
         const out = await window.EditorBulk.buildVariant({ ...v, seed: seed() }, (f, text) => show(f, text));
-        const name = `${base}_${v.diffLabel}_${FILE_PAPER[v.paper]}${v.inkSaver ? '_Ink-Saver' : ''}_${v.code}.pdf`;
+        const name = `${base}_${v.diffLabel}_${FILE_PAPER[v.paper]}${v.fileStyle}_${v.code}.pdf`;
         zip.file(name, out.doc.output('arraybuffer'));
         done.push({ v, name, pages: out.pages, puzzles: out.puzzles });
       } catch (e) {

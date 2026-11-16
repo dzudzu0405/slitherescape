@@ -16,6 +16,49 @@
     ink: [59, 36, 18], brown: [122, 82, 48], tan: [201, 168, 119], shade: [217, 191, 140],
     red: [122, 46, 30], paper: [238, 221, 186], panel: [246, 236, 214], white: [255, 255, 255]
   };
+  const BASE_C = JSON.parse(JSON.stringify(C));
+
+  // ------------------------------------------------------------------ print styles
+  // Each theme's accent colour, used by the coloured styles.
+  const ACCENTS = {
+    christmas: [158, 32, 44], halloween: [196, 92, 22], easter: [118, 88, 168], valentine: [178, 40, 82],
+    thanksgiving: [168, 92, 30], newyear: [34, 58, 118], pirates: [28, 74, 104], egypt: [168, 118, 32],
+    space: [44, 56, 128], jungle: [42, 104, 54], ocean: [20, 104, 132], dinosaurs: [92, 112, 40],
+    school: [32, 84, 152], lab: [22, 122, 122], museum: [112, 62, 42], detective: [62, 62, 74],
+    castle: [112, 32, 44], wizard: [86, 44, 124]
+  };
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v * (1 - t) + b[i] * t));
+  const WHITE = [255, 255, 255];
+  // texture: the background drawn by Paper.texture (null = plain white page); frame: page border.
+  const STYLES = {
+    aged: { label: 'Aged paper', texture: 'aged', frame: 'classic' },
+    white: { label: 'Ink saver (white)', texture: null, frame: 'classic', inkSaver: true },
+    clean: {
+      label: 'Clean & Bright', texture: null, frame: 'clean',
+      palette: (a) => ({ ink: [36, 38, 48], brown: mix(a, [30, 30, 40], 0.3), tan: mix(a, WHITE, 0.5), shade: mix(a, WHITE, 0.74), red: a, paper: WHITE, panel: mix(a, WHITE, 0.93) })
+    },
+    seasonal: {
+      // No theme colours: the season shows only in the motifs scattered over a plain ivory page.
+      label: 'Seasonal pattern', texture: 'seasonal', frame: 'classic', panelOpacity: 0.9,
+      palette: () => ({ paper: [250, 246, 236], panel: [255, 253, 248] })
+    },
+    casefile: {
+      label: 'Case File', texture: 'casefile', frame: 'case',
+      palette: () => ({ ink: [32, 32, 36], brown: [78, 74, 66], tan: [168, 154, 118], shade: [214, 198, 152], red: [170, 34, 30], paper: [234, 216, 168], panel: [247, 239, 214] })
+    }
+  };
+  const STYLE_ORDER = ['aged', 'white', 'clean', 'seasonal', 'casefile'];
+  // Older games only know inkSaver; their style follows from it.
+  const styleId = (game) => (STYLES[game.style] ? game.style : game.inkSaver ? 'white' : 'aged');
+  const accentOf = (game) => ACCENTS[game.themeId] || BASE_C.red;
+  // Puts the style's colours into C, which every page (and the PRO pages) draws with.
+  function applyStyle(game) {
+    const st = STYLES[styleId(game)];
+    Object.keys(BASE_C).forEach((k) => { C[k] = BASE_C[k].slice(); });
+    if (st.palette) Object.assign(C, st.palette(accentOf(game)));
+    return st;
+  }
+
   const NUMBER_WORDS = ['One', 'Two', 'Three', 'Four', 'Five'];
   const FONT_FILES = [
     ['IMFellEnglish-Regular.ttf', 'Fell', 'normal'],
@@ -50,6 +93,83 @@
     moon: { stroke: [['M', 20, 4.5], ['C', 13, 4, 6, 9.5, 6, 17], ['C', 6, 24, 12, 29, 19, 29], ['C', 23, 29, 26.5, 27, 28.5, 24], ['C', 21, 25.5, 14.5, 20, 14.5, 13], ['C', 14.5, 9.5, 17, 6, 20, 4.5], ['Z']] },
     key: { stroke: [['O', 10, 16, 5.5], ['M', 15.5, 16], ['L', 28, 16], ['M', 24, 16], ['L', 24, 20], ['M', 28, 16], ['L', 28, 21]] }
   };
+
+
+  // ------------------------------------------------------------------ seasonal patterns
+  // Line drawings in the same 32x32 box as MOTIFS, mixed per theme on Seasonal pattern pages.
+  const ell = (cx, cy, rx, ry) => {
+    const k = 0.5523;
+    return [['M', cx + rx, cy], ['C', cx + rx, cy + k * ry, cx + k * rx, cy + ry, cx, cy + ry], ['C', cx - k * rx, cy + ry, cx - rx, cy + k * ry, cx - rx, cy],
+      ['C', cx - rx, cy - k * ry, cx - k * rx, cy - ry, cx, cy - ry], ['C', cx + k * rx, cy - ry, cx + rx, cy - k * ry, cx + rx, cy], ['Z']];
+  };
+  const starAt = (cx, cy, r) => {
+    const p = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+      p.push([i ? 'L' : 'M', cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
+    }
+    return p.concat([['Z']]);
+  };
+  const burst = () => {
+    const p = [];
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      p.push(['M', 16 + Math.cos(a) * 4, 16 + Math.sin(a) * 4], ['L', 16 + Math.cos(a) * (i % 2 ? 10 : 13), 16 + Math.sin(a) * (i % 2 ? 10 : 13)]);
+    }
+    return p;
+  };
+  const SHAPES = {
+    snowflake: MOTIFS.snowflake, star: MOTIFS.star, heart: MOTIFS.heart, compass: MOTIFS.compass,
+    leaf: MOTIFS.leaf, moon: MOTIFS.moon, key: MOTIFS.key,
+    pumpkin: { stroke: ell(16, 18, 11, 9).concat([['M', 16, 9], ['C', 11, 12, 11, 24, 16, 27], ['M', 16, 9], ['C', 21, 12, 21, 24, 16, 27], ['M', 16, 9], ['L', 16, 5], ['L', 19, 4]]) },
+    bat: { stroke: [['M', 16, 12], ['C', 13, 8, 8, 8, 3, 10], ['C', 6, 12, 6, 15, 5, 17], ['C', 8, 15, 10, 16, 11, 19], ['C', 13, 17, 15, 17, 16, 20],
+      ['C', 17, 17, 19, 17, 21, 19], ['C', 22, 16, 24, 15, 27, 17], ['C', 26, 15, 26, 12, 29, 10], ['C', 24, 8, 19, 8, 16, 12], ['Z']] },
+    tree: { stroke: [['M', 16, 3], ['L', 24, 14], ['L', 20, 14], ['L', 27, 24], ['L', 5, 24], ['L', 12, 14], ['L', 8, 14], ['Z'], ['M', 14, 24], ['L', 14, 29], ['L', 18, 29], ['L', 18, 24]] },
+    ornament: { stroke: [['O', 16, 19, 9], ['M', 13, 10], ['L', 19, 10], ['L', 19, 7.5], ['L', 13, 7.5], ['Z'], ['O', 16, 5.5, 2], ['M', 7.5, 19], ['C', 12, 22.5, 20, 22.5, 24.5, 19]] },
+    gift: { stroke: [['M', 5, 13], ['L', 27, 13], ['L', 27, 28], ['L', 5, 28], ['Z'], ['M', 16, 13], ['L', 16, 28], ['M', 16, 13], ['C', 10, 5, 6, 11, 16, 13], ['M', 16, 13], ['C', 22, 5, 26, 11, 16, 13]] },
+    egg: { stroke: ell(16, 17, 8.5, 11.5).concat([['M', 7.8, 17], ['L', 11, 14], ['L', 14, 17], ['L', 17, 14], ['L', 20, 17], ['L', 23, 14], ['L', 24.3, 15.6]]) },
+    flower: { stroke: [['O', 16, 9.5, 4.5], ['O', 22.2, 14, 4.5], ['O', 19.8, 21.3, 4.5], ['O', 12.2, 21.3, 4.5], ['O', 9.8, 14, 4.5]], fill: [['O', 16, 16, 2.6]] },
+    arrow: { stroke: [['M', 5, 27], ['L', 27, 5], ['M', 27, 5], ['L', 20, 6.5], ['M', 27, 5], ['L', 25.5, 12], ['M', 5, 27], ['L', 4, 22], ['M', 5, 27], ['L', 10, 28], ['M', 8, 24], ['L', 7, 19], ['M', 8, 24], ['L', 13, 25]] },
+    envelope: { stroke: [['M', 4, 9], ['L', 28, 9], ['L', 28, 24], ['L', 4, 24], ['Z'], ['M', 4, 9], ['L', 16, 18], ['L', 28, 9]] },
+    acorn: { stroke: ell(16, 20, 7, 8).concat([['M', 8, 15], ['C', 8, 9, 24, 9, 24, 15], ['Z'], ['M', 16, 10], ['L', 17, 6]]) },
+    burst: { stroke: burst() },
+    sparkle: { stroke: [['M', 16, 3], ['C', 17, 13, 19, 15, 29, 16], ['C', 19, 17, 17, 19, 16, 29], ['C', 15, 19, 13, 17, 3, 16], ['C', 13, 15, 15, 13, 16, 3], ['Z']] },
+    wave: { stroke: [['M', 3, 13], ['C', 7, 7, 11, 7, 13, 11], ['C', 15, 15, 19, 15, 21, 11], ['C', 23, 7, 27, 7, 29, 11],
+      ['M', 3, 21], ['C', 7, 15, 11, 15, 13, 19], ['C', 15, 23, 19, 23, 21, 19], ['C', 23, 15, 27, 15, 29, 19]] },
+    anchor: { stroke: [['O', 16, 6, 2.5], ['M', 16, 8.5], ['L', 16, 28], ['M', 10, 13], ['L', 22, 13], ['M', 5, 20], ['C', 6, 27, 12, 28, 16, 28], ['C', 20, 28, 26, 27, 27, 20], ['M', 5, 20], ['L', 3, 23], ['M', 27, 20], ['L', 29, 23]] },
+    pyramid: { stroke: [['M', 3, 27], ['L', 16, 6], ['L', 29, 27], ['Z'], ['M', 16, 6], ['L', 19, 27], ['M', 8.5, 19], ['L', 23.5, 19]] },
+    ankh: { stroke: ell(16, 9, 5, 6).concat([['M', 16, 15], ['L', 16, 29], ['M', 8, 17.5], ['L', 24, 17.5]]) },
+    eye: { stroke: [['M', 3, 16], ['C', 9, 8, 23, 8, 29, 16], ['C', 23, 24, 9, 24, 3, 16], ['Z'], ['O', 16, 16, 4]], fill: [['O', 16, 16, 1.8]] },
+    planet: { stroke: [['O', 16, 16, 7]].concat(ell(16, 16, 14, 3.6)) },
+    fish: { stroke: [['M', 5, 16], ['C', 9, 9, 19, 9, 23, 16], ['C', 19, 23, 9, 23, 5, 16], ['Z'], ['M', 23, 16], ['L', 29, 10], ['L', 29, 22], ['Z']], fill: [['O', 10, 15, 1.2]] },
+    bubbles: { stroke: [['O', 12, 20, 5], ['O', 21, 11, 3.5], ['O', 23, 22, 2.2]] },
+    footprint: { stroke: ell(16, 23, 4.5, 4).concat([['M', 16, 20], ['L', 8, 8], ['M', 16, 19], ['L', 16, 4], ['M', 16, 20], ['L', 24, 8]]) },
+    bone: { stroke: [['O', 7, 12, 3], ['O', 7, 20, 3], ['O', 25, 12, 3], ['O', 25, 20, 3], ['M', 9.5, 13.5], ['L', 22.5, 13.5], ['M', 9.5, 18.5], ['L', 22.5, 18.5]] },
+    book: { stroke: [['M', 16, 9], ['C', 12, 6, 7, 6, 4, 8], ['L', 4, 25], ['C', 7, 23, 12, 23, 16, 26], ['C', 20, 23, 25, 23, 28, 25], ['L', 28, 8], ['C', 25, 6, 20, 6, 16, 9], ['Z'], ['M', 16, 9], ['L', 16, 26]] },
+    pencil: { stroke: [['M', 6, 26], ['L', 8, 20], ['L', 22, 6], ['L', 26, 10], ['L', 12, 24], ['Z'], ['M', 8, 20], ['L', 12, 24], ['M', 19, 9], ['L', 23, 13]] },
+    apple: { stroke: [['M', 16, 10], ['C', 10, 6, 4, 10, 6, 18], ['C', 8, 26, 13, 28, 16, 26], ['C', 19, 28, 24, 26, 26, 18], ['C', 28, 10, 22, 6, 16, 10], ['Z'],
+      ['M', 16, 10], ['L', 17, 5], ['M', 17, 6], ['C', 19, 3, 23, 3, 24, 5], ['C', 22, 7, 19, 7, 17, 6], ['Z']] },
+    flask: { stroke: [['M', 12, 4], ['L', 20, 4], ['M', 14, 4], ['L', 14, 13], ['L', 6, 27], ['L', 26, 27], ['L', 18, 13], ['L', 18, 4], ['M', 9.2, 21], ['L', 22.8, 21]], fill: [['O', 15, 24, 1.2], ['O', 19, 23.5, 0.9]] },
+    testtube: { stroke: [['M', 12, 5], ['L', 12, 24], ['C', 12, 30, 20, 30, 20, 24], ['L', 20, 5], ['M', 10, 5], ['L', 22, 5], ['M', 12, 16], ['L', 20, 16]] },
+    frame: { stroke: [['M', 5, 6], ['L', 27, 6], ['L', 27, 26], ['L', 5, 26], ['Z'], ['M', 9, 10], ['L', 23, 10], ['L', 23, 22], ['L', 9, 22], ['Z'], ['M', 9, 22], ['L', 14, 15], ['L', 18, 19], ['L', 20, 17], ['L', 23, 21]] },
+    column: { stroke: [['M', 7, 5], ['L', 25, 5], ['M', 9, 9], ['L', 23, 9], ['M', 11, 9], ['L', 11, 25], ['M', 16, 9], ['L', 16, 25], ['M', 21, 9], ['L', 21, 25], ['M', 9, 25], ['L', 23, 25], ['M', 7, 28], ['L', 25, 28]] },
+    magnifier: { stroke: [['O', 13, 13, 8], ['M', 19, 19], ['L', 28, 28]] },
+    crown: { stroke: [['M', 5, 24], ['L', 4, 10], ['L', 10, 16], ['L', 16, 7], ['L', 22, 16], ['L', 28, 10], ['L', 27, 24], ['Z'], ['M', 5, 28], ['L', 27, 28]] },
+    shield: { stroke: [['M', 16, 4], ['L', 27, 8], ['C', 27, 18, 23, 25, 16, 29], ['C', 9, 25, 5, 18, 5, 8], ['Z'], ['M', 16, 4], ['L', 16, 29], ['M', 5.5, 14], ['L', 26.5, 14]] },
+    wand: { stroke: [['M', 5, 27], ['L', 19, 13]].concat(starAt(23, 9, 6.5)) },
+    paw: { stroke: [['O', 16, 21, 5.5], ['O', 8.5, 13, 2.6], ['O', 13.5, 8.5, 2.6], ['O', 18.5, 8.5, 2.6], ['O', 23.5, 13, 2.6]] }
+  };
+  // The mix of drawings for each theme's Seasonal pattern pages.
+  const PATTERNS = {
+    christmas: ['snowflake', 'tree', 'ornament', 'gift'], halloween: ['moon', 'bat', 'pumpkin', 'star'],
+    easter: ['egg', 'flower', 'leaf'], valentine: ['heart', 'arrow', 'envelope'], thanksgiving: ['leaf', 'acorn', 'pumpkin'],
+    newyear: ['star', 'burst', 'sparkle'], pirates: ['anchor', 'compass', 'wave'], egypt: ['pyramid', 'ankh', 'eye'],
+    space: ['star', 'planet', 'moon', 'sparkle'], jungle: ['leaf', 'paw', 'flower'], ocean: ['wave', 'fish', 'bubbles'],
+    dinosaurs: ['footprint', 'bone', 'leaf'], school: ['book', 'pencil', 'apple'], lab: ['flask', 'testtube', 'bubbles'],
+    museum: ['frame', 'column', 'key'], detective: ['magnifier', 'key', 'envelope'], castle: ['crown', 'shield', 'key'],
+    wizard: ['star', 'moon', 'sparkle', 'wand']
+  };
+  const patternOf = (game) => (PATTERNS[game.themeId] || [game.motif in MOTIFS ? game.motif : 'key']).map((n) => SHAPES[n]);
 
   const isMosaic = (c) => !!c && c.type === 'mosaic';
 
@@ -110,6 +230,7 @@
     this.doc = doc;
     this.paper = PAPERS[game.paper] || PAPERS.letter;
     this.textures = textures;
+    this.style = STYLES[styleId(game)];
     this.pageNo = 0;
     this.cmaps = {};
     // Canva export: text is recorded instead of drawn, so it can become editable text boxes.
@@ -209,7 +330,7 @@
     this.pageNo++;
     const geo = this.geometry(landscape);
     this.geo = geo;
-    if (!this.g.inkSaver) {
+    if ((landscape ? this.textures.landscape : this.textures.portrait).length) {
       const list = landscape ? this.textures.landscape : this.textures.portrait;
       const tex = list[(this.pageNo - 1) % list.length];
       doc.addImage(tex.data, 'JPEG', 0, 0, geo.W, geo.H, tex.alias, 'FAST');
@@ -236,6 +357,39 @@
   // ------------------------------------------------------------------ ornaments
   B.frame = function (f) {
     const doc = this.doc;
+    const kind = this.style ? this.style.frame : 'classic';
+    if (kind === 'clean') {
+      // Rounded double border in the theme colour, with small dots at the corners.
+      doc.setDrawColor(...C.red);
+      doc.setLineWidth(1.8);
+      doc.roundedRect(f.x, f.y, f.w, f.h, 12, 12);
+      doc.setDrawColor(...C.tan);
+      doc.setLineWidth(0.7);
+      doc.roundedRect(f.x + 5, f.y + 5, f.w - 10, f.h - 10, 8, 8);
+      doc.setFillColor(...C.red);
+      [[f.x + 12, f.y + 12], [f.x + f.w - 12, f.y + 12], [f.x + 12, f.y + f.h - 12], [f.x + f.w - 12, f.y + f.h - 12]].forEach(([x, y]) => doc.circle(x, y, 1.8, 'F'));
+      return;
+    }
+    if (kind === 'case') {
+      // A file folder: thin border, heavy corner brackets and a red stamp at the top right.
+      doc.setDrawColor(...C.brown);
+      doc.setLineWidth(0.7);
+      doc.rect(f.x, f.y, f.w, f.h);
+      doc.setDrawColor(...C.ink);
+      doc.setLineWidth(2.4);
+      const k = 20;
+      [[f.x, f.y, 1, 1], [f.x + f.w, f.y, -1, 1], [f.x, f.y + f.h, 1, -1], [f.x + f.w, f.y + f.h, -1, -1]].forEach(([x, y, dx, dy]) => {
+        doc.line(x, y, x + k * dx, y);
+        doc.line(x, y, x, y + k * dy);
+      });
+      const sw = 86, sh = 19, sx = f.x + f.w - sw - 14, sy = f.y + 7;
+      doc.setDrawColor(...C.red);
+      doc.setLineWidth(1.1);
+      doc.rect(sx, sy, sw, sh);
+      this.font('FellSC', 12, C.red);
+      this.text('Case File', sx + sw / 2, sy + 13.4, { align: 'center' });
+      return;
+    }
     doc.setDrawColor(...C.brown);
     doc.setLineWidth(1.3);
     doc.rect(f.x, f.y, f.w, f.h);
@@ -300,7 +454,7 @@
   B.panel = function (x, y, w, h) {
     if (this.g.inkSaver) return;
     const doc = this.doc;
-    doc.setGState(new doc.GState({ opacity: 0.62 }));
+    doc.setGState(new doc.GState({ opacity: (this.style && this.style.panelOpacity) || 0.62 }));
     doc.setFillColor(...C.panel);
     doc.roundedRect(x, y, w, h, 6, 6, 'F');
     doc.setGState(new doc.GState({ opacity: 1 }));
@@ -855,15 +1009,18 @@
     progress(0.02, 'Loading fonts');
     const fonts = await loadFonts(opts.fontBase || 'assets/fonts/');
 
+    const style = applyStyle(game);
     const textures = { portrait: [], landscape: [] };
-    if (!game.inkSaver) {
-      progress(0.06, 'Ageing the paper');
+    if (style.texture) {
+      progress(0.06, 'Preparing the paper');
       const px = 900;
+      // Seasonal: a neutral warm grey-brown for the motifs, whatever the theme.
+      const look = { kind: style.texture, tint: [150, 124, 92], motifs: patternOf(game) };
       for (let k = 0; k < 4; k++) {
-        textures.portrait.push({ data: root.Paper.texture(px, Math.round(px * paper.h / paper.w), 1000 + k * 77 + game.seed.length), alias: 'paper' + k });
+        textures.portrait.push({ data: root.Paper.texture(px, Math.round(px * paper.h / paper.w), 1000 + k * 77 + game.seed.length, look), alias: 'paper' + k });
         await tick();
       }
-      textures.landscape.push({ data: root.Paper.texture(Math.round(px * paper.h / paper.w), px, 4242), alias: 'paperL' });
+      textures.landscape.push({ data: root.Paper.texture(Math.round(px * paper.h / paper.w), px, 4242, look), alias: 'paperL' });
     }
 
     let result = await render(game, fonts, textures, paper, jsPDF, 2, progress, tick);
@@ -938,5 +1095,5 @@
     return { doc, guideUsed: b.guideUsed };
   }
 
-  root.PdfBuilder = { build, PAPERS, shuffleAnswers, Builder, C, NUMBER_WORDS, loadFonts };
+  root.PdfBuilder = { build, PAPERS, shuffleAnswers, Builder, C, NUMBER_WORDS, loadFonts, STYLES, STYLE_ORDER, styleId, patternOf };
 })(typeof self !== 'undefined' ? self : globalThis);
