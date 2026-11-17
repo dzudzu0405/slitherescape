@@ -557,6 +557,25 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   /* WarriorPlus disclaimer: W+ injects its own faint colours; keep it readable on the dark footer */
   .wplus_spdisclaimer, .wplus_spdisclaimer *{color:#E8DCC4 !important; opacity:1 !important;}
   .wplus_spdisclaimer b, .wplus_spdisclaimer strong{color:#F3E9D2 !important;}
+
+  /* ---------- sample game: page-flip book ---------- */
+  .sample-meta{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 10px; margin-top:18px;}
+  .sample-meta span{font-size:13px; font-weight:700; color:var(--ink-dim); background:var(--card); border:1.5px solid var(--line-strong); border-radius:999px; padding:4px 12px;}
+  .book-wrap{max-width:1000px; margin:0 auto; padding:10px 0 4px;}
+  .book{margin:0 auto; filter:drop-shadow(0 18px 26px rgba(59,36,18,.32));}
+  .book .page{background:#F1E3C2;}
+  .book .page img{display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; user-select:none;}
+  .book-bar{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:24px;}
+  .book-bar .bk-nav{width:46px; height:46px; border-radius:50%; border:2.5px solid var(--ink); background:var(--card); color:var(--ink); font-size:24px; line-height:1; cursor:pointer; box-shadow:0 3px 0 var(--hard);}
+  .book-bar .bk-nav:hover{background:var(--wash);}
+  .book-bar .bk-nav:disabled{opacity:.35; cursor:default;}
+  .book-label{min-width:220px; text-align:center; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .book-label small{display:block; font-weight:600; font-size:12.5px; color:var(--brown);}
+  .book-jump{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:20px;}
+  .book-jump button{font:inherit; font-size:13px; font-weight:700; color:var(--ink-dim); background:var(--card); border:1.5px solid var(--line-strong); border-radius:999px; padding:5px 13px; cursor:pointer;}
+  .book-jump button:hover, .book-jump button.on{border-color:var(--ink); color:var(--ink); background:var(--wash);}
+  .sample-note{margin-top:18px; font-size:13.5px; color:var(--brown); text-align:center;}
+  @media (max-width:720px){ .book-label{min-width:0;} .book-bar{gap:10px;} }
 </style>
 </head>
 <body>
@@ -585,7 +604,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <h1>Solve the loop. <em>Read the letter.</em> Crack the code.</h1>
       <p class="hero-sub">SlitherEscape Studio assembles a complete printable escape game &mdash; a story, 8 to 15 verified Loop the Loop puzzles (Slitherlink-style), hint cards, a host guide and an answer key &mdash; and exports it as a print-ready PDF you can sell. Every solved loop forms a letter. The letters spell the secret code.</p>
       <div class="hero-cta">
-        <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a>
+        <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Studio &mdash; $17</a>
         <span class="btn-sub" style="text-align:left;">Unlimited games &middot; no watermark &middot; commercial licence included</span>
       </div>
       <div class="trust-row">
@@ -593,6 +612,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
         <span>Every puzzle has exactly one solution</span>
         <span>A4, Letter &amp; KDP 8.5&times;11</span>
         <span>18 story themes</span>
+        <span>5 paper styles</span>
         <span>Your shop name on every page</span>
         <span>Ages 11&ndash;17 and adults</span>
       </div>
@@ -633,7 +653,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
         </ul>
       </div>
       <div class="card new">
-        <h3>With the Builder</h3>
+        <h3>With SlitherEscape Studio</h3>
         <ul>
           <li>Puzzles are generated, then checked by two independent solvers</li>
           <li>All 26 letters are drawn for you, in more than one shape</li>
@@ -696,7 +716,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <div class="section-head center">
       <span class="eyebrow">How it works</span>
       <h2>Five steps from blank page to <em>listing-ready PDF</em>.</h2>
-      <p class="lead">There is no AI inside the Builder and no chatbot to babysit. It writes the story prompt, you run it in whichever AI you already use, and the Builder checks what comes back.</p>
+      <p class="lead">There is no AI inside the app and no chatbot to babysit. It writes the story prompt, you run it in whichever AI you already use, and the app checks what comes back.</p>
     </div>
 
     <div class="panel" aria-label="What a project looks like, step by step">
@@ -705,9 +725,9 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     </div>
 
     <div class="steps">
-      <div class="card step"><span class="n">1</span><h3>Set it up</h3><p>Pick one of 18 themes, a difficulty, 8&ndash;15 puzzles and 2&ndash;3 chapters. Enter your shop name once.</p></div>
-      <div class="card step"><span class="n">2</span><h3>Copy the prompt</h3><p>The Builder writes a ready-made story prompt for your chosen theme. Paste it into ChatGPT, Claude or any AI you use.</p><div class="tip">Prefer no AI? Ready-made story templates are included.</div></div>
-      <div class="card step"><span class="n">3</span><h3>Paste it back</h3><p>The Builder checks the code, letter count, lengths and the 20 hint questions &mdash; and tells you exactly what to fix. Edit any paragraph by hand.</p></div>
+      <div class="card step"><span class="n">1</span><h3>Set it up</h3><p>Pick who it&rsquo;s for, one of 18 themes, one of 8 story types and one of 5 paper styles. Puzzles and chapters are set for you, or choose 8&ndash;15 puzzles and 2&ndash;3 chapters yourself. Enter your shop name once.</p></div>
+      <div class="card step"><span class="n">2</span><h3>Copy the prompt</h3><p>The app writes a ready-made story prompt for your theme and story type. Leave the secret code empty and the AI picks one that fits. Paste it into ChatGPT, Claude or any AI you use.</p><div class="tip">Prefer no AI? Ready-made story templates are included.</div></div>
+      <div class="card step"><span class="n">3</span><h3>Paste it back</h3><p>The app checks the code, letter count, lengths and the 20 hint questions &mdash; and tells you exactly what to fix. Edit any paragraph by hand.</p></div>
       <div class="card step"><span class="n">4</span><h3>Generate</h3><p>Puzzles are generated in your browser, with a progress bar, and each one is verified before it goes in.</p></div>
       <div class="card step"><span class="n">5</span><h3>Export</h3><p>Download a print-ready PDF in A4, Letter or KDP 8.5&times;11. Save the project to remake it later.</p></div>
     </div>
@@ -748,6 +768,69 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="card"><h3>Group play</h3><p>Everyone works the same game. The host shares the puzzles out between players, who fill in one shared Code Sheet. Works for 2&ndash;6 players.</p></div>
       <div class="card"><h3>Team play</h3><p>Each team gets its own copy. The first team to open the Final Lock wins, and each hint adds an optional two-minute penalty. Same pages, different hand-out.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ============ SAMPLE GAME ============ -->
+<section class="twist reveal" id="sample">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">A real game, page by page</span>
+      <h2>This is what you <em>export</em>.</h2>
+      <p class="lead"><b>The Midnight Frost</b> was made in SlitherEscape Studio exactly the way you would make one: a theme, a story prompt, one click to export. Nothing was retouched. Drag a corner or use the arrows to turn the pages.</p>
+      <div class="sample-meta"><span>Christmas</span><span>Teens 14&ndash;17</span><span>10 puzzles</span><span>2 chapters</span><span>50&ndash;80 minutes</span><span>29 pages &middot; US Letter</span><span>Aged paper</span></div>
+    </div>
+    <div class="book-wrap">
+      <div class="book" id="book">
+        <div class="page"><img src="sample/frost-01.jpg" alt="The Midnight Frost, page 1: Cover" width="900" height="1165"></div>
+        <div class="page"><img src="sample/frost-02.jpg" alt="The Midnight Frost, page 2: Prologue" width="900" height="1165"></div>
+        <div class="page"><img src="sample/frost-03.jpg" alt="The Midnight Frost, page 3: How to Play" width="900" height="1165"></div>
+        <div class="page"><img src="sample/frost-04.jpg" alt="The Midnight Frost, page 4: Code Sheet" width="900" height="1165"></div>
+        <div class="page"><img src="sample/frost-05.jpg" alt="The Midnight Frost, page 5: Chapter One" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-06.jpg" alt="The Midnight Frost, page 6: Puzzle 1" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-07.jpg" alt="The Midnight Frost, page 7: Puzzle 2" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-08.jpg" alt="The Midnight Frost, page 8: Puzzle 3" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-09.jpg" alt="The Midnight Frost, page 9: Puzzle 4" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-10.jpg" alt="The Midnight Frost, page 10: Puzzle 5" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-11.jpg" alt="The Midnight Frost, page 11: Chapter Two" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-12.jpg" alt="The Midnight Frost, page 12: Puzzle 6" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-13.jpg" alt="The Midnight Frost, page 13: Puzzle 7" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-14.jpg" alt="The Midnight Frost, page 14: Puzzle 8" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-15.jpg" alt="The Midnight Frost, page 15: Puzzle 9" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-16.jpg" alt="The Midnight Frost, page 16: Puzzle 10" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-17.jpg" alt="The Midnight Frost, page 17: Final Lock" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-18.jpg" alt="The Midnight Frost, page 18: Host guide" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-19.jpg" alt="The Midnight Frost, page 19: Read-aloud ending" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-20.jpg" alt="The Midnight Frost, page 20: Hint questions" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-21.jpg" alt="The Midnight Frost, page 21: Hint questions" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-22.jpg" alt="The Midnight Frost, page 22: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-23.jpg" alt="The Midnight Frost, page 23: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-24.jpg" alt="The Midnight Frost, page 24: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-25.jpg" alt="The Midnight Frost, page 25: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-26.jpg" alt="The Midnight Frost, page 26: Answer key" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-27.jpg" alt="The Midnight Frost, page 27: Answer key" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-28.jpg" alt="The Midnight Frost, page 28: Answer key" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/frost-29-p.jpg" alt="The Midnight Frost, page 29: Certificate" width="900" height="1165" loading="lazy"></div>
+      </div>
+    </div>
+    <div class="book-bar">
+      <button type="button" class="bk-nav" id="bkPrev" aria-label="Previous page">&lsaquo;</button>
+      <div class="book-label" id="bkLabel" aria-live="polite">Cover<small>Page 1 of 29</small></div>
+      <button type="button" class="bk-nav" id="bkNext" aria-label="Next page">&rsaquo;</button>
+    </div>
+    <div class="book-jump" id="bkJump">
+      <button type="button" data-page="1">Cover</button>
+      <button type="button" data-page="3">How to Play</button>
+      <button type="button" data-page="4">Code Sheet</button>
+      <button type="button" data-page="6">Puzzle</button>
+      <button type="button" data-page="17">Final Lock</button>
+      <button type="button" data-page="18">Host guide</button>
+      <button type="button" data-page="20">Hint questions</button>
+      <button type="button" data-page="22">Hint cards</button>
+      <button type="button" data-page="26">Answer key</button>
+      <button type="button" data-page="29">Certificate</button>
+    </div>
+    <p class="sample-note">Pages 18&ndash;29 are for the host only. The footer carries the seller&rsquo;s shop name: here, &ldquo;Your Shop Name&rdquo;.</p>
   </div>
 </section>
 
@@ -821,7 +904,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <div class="section-head center">
       <span class="eyebrow">Checked before it reaches your PDF</span>
       <h2>A puzzle nobody can solve is <em>a refund request</em>.</h2>
-      <p class="lead">Before an export is allowed, the Builder verifies every page that depends on the maths.</p>
+      <p class="lead">Before an export is allowed, the app verifies every page that depends on the maths.</p>
     </div>
 
     <div class="checks">
@@ -842,7 +925,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <ul>
         <li><span><b>White-label.</b> The footer carries only your shop name, the game title and the page number. No branding from us anywhere on the page.</span></li>
         <li><span><b>Three paper sizes.</b> A4 and US Letter for Etsy, and KDP 8.5&times;11 with bleed and a gutter margin for print-on-demand books.</span></li>
-        <li><span><b>An aged-paper look.</b> Warm brown tones, double borders, diamond ornaments and a round stamp on the certificate. An ink-saver option gives printers a white background.</span></li>
+        <li><span><b>Five paper styles.</b> Aged paper, Ink saver, Clean &amp; Bright, Seasonal pattern and Detective Notebook. Each comes with its own fonts and borders, so one game can look like an old parchment, a bright classroom handout or a detective&rsquo;s case notes. Ink saver keeps the background white for home printers.</span></li>
         <li><span><b>A commercial licence.</b> Sell the PDFs you export on Etsy, Amazon KDP and other marketplaces. Fonts, textures and ornaments in the pages are licensed for commercial use.</span></li>
         <li><span><b>Save and remake.</b> Projects are saved so you can reopen, edit and re-export, or duplicate one with a new seed for a different puzzle set.</span></li>
       </ul>
@@ -905,7 +988,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 <section class="twist reveal" id="offer">
   <div class="wrap">
     <div class="section-head center">
-      <span class="eyebrow">Get the Builder</span>
+      <span class="eyebrow">Get the Studio</span>
       <h2>One plan. <em>Everything above.</em></h2>
     </div>
 
@@ -915,7 +998,8 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="per">Launch price</div>
       <ul>
         <li>Games of 8&ndash;15 puzzles in 2&ndash;3 chapters, with Easy, Medium and Hard presets &mdash; or set your own sizes</li>
-        <li>18 story themes and a ready-made story prompt for each</li>
+        <li>18 story themes and 8 story types, with a ready-made story prompt</li>
+        <li>5 paper styles, each with its own fonts: Aged paper, Ink saver, Clean &amp; Bright, Seasonal pattern and Detective Notebook</li>
         <li>Every puzzle verified: one solution, solvable by logic</li>
         <li>The full print set &mdash; cover to certificate &mdash; in A4, Letter or KDP 8.5&times;11</li>
         <li>Hint cards, 20 hint questions and a host guide in every game</li>
@@ -938,17 +1022,19 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     </div>
     <div class="faq">
       <details><summary>Do I need an AI subscription?</summary>
-        <div class="a">The Builder never calls an AI service itself. It writes the story prompt for you; you paste it into whichever AI chat you already use, then paste the reply back and the Builder checks it. If you would rather not use AI, ready-made story templates are included.</div></details>
+        <div class="a">The app never calls an AI service itself. It writes the story prompt for you; you paste it into whichever AI chat you already use, then paste the reply back and the app checks it. If you would rather not use AI, ready-made story templates are included.</div></details>
       <details><summary>Can I really sell the games?</summary>
-        <div class="a">Yes. The PDFs you export are yours to sell on Etsy, Amazon KDP and other marketplaces, and the fonts, textures and ornaments in them are licensed for commercial use. What is not included is reselling the Builder itself. You are also responsible for the story text the AI writes for you &mdash; the prompt tells the AI to write original content and avoid copyrighted characters and names, but it is worth a read before you list.</div></details>
+        <div class="a">Yes. The PDFs you export are yours to sell on Etsy, Amazon KDP and other marketplaces, and the fonts, textures and ornaments in them are licensed for commercial use. What is not included is reselling the app itself. You are also responsible for the story text the AI writes for you &mdash; the prompt tells the AI to write original content and avoid copyrighted characters and names, but it is worth a read before you list.</div></details>
       <details><summary>Who actually plays these?</summary>
         <div class="a">Students aged 11&ndash;17 and adults, in a hosted game for 2&ndash;6 players &mdash; one person runs the hints and the Final Lock. Games are for printing, not for playing on screen.</div></details>
       <details><summary>What if my players have never done a Loop the Loop puzzle?</summary>
         <div class="a">Every game prints a How to Play page with the full rules and a small worked example, shown unsolved and solved. Easy uses only the basic rules.</div></details>
       <details><summary>How do I know a puzzle really has one answer?</summary>
         <div class="a">Each puzzle is checked by a second solver that counts solutions, and the export is blocked unless every puzzle in the game passes. A puzzle with more than one solution is discarded and a new one is generated.</div></details>
+      <details><summary>Can I change how the pages look?</summary>
+        <div class="a">Yes. Pick one of five paper styles when you create the game: Aged paper, Ink saver, Clean &amp; Bright, Seasonal pattern and Detective Notebook. Each has its own fonts and borders, and Seasonal pattern scatters faint motifs that match your theme&rsquo;s season. You can switch style and export again at any time.</div></details>
       <details><summary>Which paper sizes can I export?</summary>
-        <div class="a">A4 and US Letter for Etsy-style downloads, and KDP 8.5&times;11 with bleed and a gutter margin. The certificate is always landscape.</div></details>
+        <div class="a">A4 and US Letter for Etsy-style downloads, and KDP 8.5&times;11 with bleed and a gutter margin. The certificate is always a landscape design.</div></details>
       <details><summary>Do I need to install anything?</summary>
         <div class="a">No. It is a web app: puzzles are generated and the PDF is built in your browser, so you only need a modern browser and a printer or a KDP account to use the result.</div></details>
     </div>
@@ -962,7 +1048,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <h2>Your next listing is <em>one code</em> away.</h2>
     <p class="lead">Pick a theme, run the prompt, press export. A story, up to fifteen verified puzzles and a full host kit &mdash; ready to print and ready to sell.</p>
     <div class="hero-cta">
-      <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a>
+      <a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Studio &mdash; $17</a>
       <div class="btn-sub">Unlimited games &middot; no watermark &middot; commercial licence</div>
     </div>
 
@@ -972,7 +1058,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     </div>
 
     <div class="ps">
-      <p><b>P.S.</b> A game is only the first listing. Change the theme and the seed and the same Builder gives you a Halloween game, a detective game and a Valentine&rsquo;s game that share nothing but the engine.</p>
+      <p><b>P.S.</b> A game is only the first listing. Change the theme and the seed and the same app gives you a Halloween game, a detective game and a Valentine&rsquo;s game that share nothing but the engine.</p>
     </div>
   </div>
 </section>
@@ -1001,7 +1087,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   </div>
 </footer>
 
-<div class="sticky-cta"><a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Builder &mdash; $17</a></div>
+<div class="sticky-cta"><a class="btn" href="https://warriorplus.com/o2/buy/lzgr7c/y73b2q/n8mjs4">Get the Studio &mdash; $17</a></div>
 
 <script>
 /* Shared motion + sound layer for the SlitherEscape funnel pages. Pure progressive enhancement. */
@@ -1282,5 +1368,47 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 </script>
 <!-- WarriorPlus Sales Page Code -->
 <script type="text/javascript" src="https://warriorplus.com/o2/js/y73b2q" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+<script>
+/* ---------- sample game: page-flip book ---------- */
+(function(){
+  var el = document.getElementById('book'); if (!el) return;
+  var N = 29, NAMES = {"1":"Cover","2":"Prologue","3":"How to Play","4":"Code Sheet","5":"Chapter One","6":"Puzzle 1","7":"Puzzle 2","8":"Puzzle 3","9":"Puzzle 4","10":"Puzzle 5","11":"Chapter Two","12":"Puzzle 6","13":"Puzzle 7","14":"Puzzle 8","15":"Puzzle 9","16":"Puzzle 10","17":"Final Lock","18":"Host guide","19":"Read-aloud ending","20":"Hint questions","21":"Hint questions","22":"Hint cards","23":"Hint cards","24":"Hint cards","25":"Hint cards","26":"Answer key","27":"Answer key","28":"Answer key","29":"Certificate"};
+  var label = document.getElementById('bkLabel'), prev = document.getElementById('bkPrev'), next = document.getElementById('bkNext');
+  var jumps = [].slice.call(document.querySelectorAll('#bkJump button'));
+  if (!window.St || !St.PageFlip){
+    /* Library blocked: show the pages as a plain scrolling row. */
+    el.style.cssText = 'display:flex;gap:12px;overflow-x:auto;';
+    [].forEach.call(el.children, function(p){ p.style.cssText = 'flex:none;width:260px;'; });
+    document.querySelector('.book-bar').style.display = 'none'; document.getElementById('bkJump').style.display = 'none';
+    return;
+  }
+  var book = new St.PageFlip(el, {
+    width: 450, height: 583, size: 'stretch', minWidth: 240, maxWidth: 500, minHeight: 311, maxHeight: 647,
+    showCover: true, maxShadowOpacity: 0.45, mobileScrollSupport: true, flippingTime: 800, usePortrait: true
+  });
+  book.loadFromHTML(el.querySelectorAll('.page'));
+  function update(i){
+    var shown = [i + 1];
+    if (book.getOrientation && book.getOrientation() === 'landscape' && i > 0 && i < N - 1) shown = (i % 2) ? [i + 1, i + 2] : [i, i + 1];
+    shown = shown.filter(function(n){ return n >= 1 && n <= N; });
+    var names = shown.map(function(n){ return NAMES[n]; }).filter(function(v, k, a){ return a.indexOf(v) === k; });
+    label.innerHTML = names.join(' &middot; ') + '<small>' + (shown.length > 1 ? 'Pages ' + shown[0] + '&ndash;' + shown[1] : 'Page ' + shown[0]) + ' of ' + N + (shown[0] >= 18 ? ' &middot; host only' : '') + '</small>';
+    prev.disabled = i === 0; next.disabled = shown[shown.length - 1] >= N;
+    jumps.forEach(function(b){ b.classList.toggle('on', shown.indexOf(+b.getAttribute('data-page')) >= 0); });
+  }
+  book.on('flip', function(e){ update(e.data); });
+  book.on('changeOrientation', function(){ update(book.getCurrentPageIndex()); });
+  prev.addEventListener('click', function(){ book.flipPrev(); });
+  next.addEventListener('click', function(){ book.flipNext(); });
+  jumps.forEach(function(b){ b.addEventListener('click', function(){ book.flip(+b.getAttribute('data-page') - 1); }); });
+  document.addEventListener('keydown', function(e){
+    var r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    if (e.target.closest && e.target.closest('input,textarea,select')) return;
+    if (e.key === 'ArrowRight') book.flipNext(); else if (e.key === 'ArrowLeft') book.flipPrev();
+  });
+  update(0);
+})();
+</script>
 </body>
 </html>
