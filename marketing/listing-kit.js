@@ -1564,18 +1564,32 @@
     return (tags[THEME.id] || [th ? `${th} game` : 'mystery game']).slice();
   }
 
+  // Short, natural words for each theme in titles, tags and hashtags ("Pirates & Treasure" -> "Pirate").
+  const THEME_WORD = {
+    christmas: 'Christmas', halloween: 'Halloween', easter: 'Easter', valentine: "Valentine's", thanksgiving: 'Thanksgiving',
+    newyear: "New Year's Eve", pirates: 'Pirate', egypt: 'Ancient Egypt', space: 'Space', jungle: 'Jungle', ocean: 'Under the Sea',
+    dinosaurs: 'Dinosaur', school: 'School', lab: 'Science', museum: 'Museum Heist', detective: 'Detective', castle: 'Medieval', wizard: 'Wizard',
+  };
+  const themeWord = () => THEME_WORD[THEME.id] || '';
+  // "Pirate Party Game", "Classroom Escape Game" (school), "Mystery Party Game" (no theme).
+  const themeGame = () => (THEME.id === 'school' ? 'Classroom Escape Game' : `${themeWord() || 'Mystery'} Party Game`);
+  const plainAudience = () => GAME.audience.toLowerCase().replace('–', '-');
+  const minutesNum = () => parseInt(String(GAME.minutes || '').split(/[–-]/)[1] || GAME.minutes || '60', 10);
+
   function etsyText() {
-    const age = ageKey(), th = themeName();
-    const title = clip([`${GAME.title} Printable Escape Room Game for ${AGE_WORDS[age]}`, th ? `${th} Party Activity` : 'Party Activity',
-      `${GAME.puzzles} Logic Puzzles`, 'Instant Download PDF'].join(' | '), 140);
+    const age = ageKey();
+    // Etsy search weighs the start of a title: the words buyers type come first, the game's own name after.
+    const title = clip([`Printable Escape Room Game for ${AGE_WORDS[age]}`, themeGame(), GAME.title, `${GAME.puzzles} Logic Puzzles`, 'Instant Download'].join(', '), 140);
     const ageTags = { kids: ['kids escape room', 'kids party game', 'classroom activity'], teens: ['teen escape room', 'teen party game', 'classroom activity'],
       adults: ['adult escape room', 'adult party game', 'team building game'] }[age];
     const tags = [...new Set(['escape room game', 'printable escape', 'escape room kit', 'logic puzzle game', ...themeTags(), ...ageTags,
-      'family game night', 'puzzle hunt', 'instant download', 'slitherlink'].map((x) => x.slice(0, 20)))].slice(0, 13);
+      'family game night', 'puzzle hunt', 'instant download', 'printable game'].map((x) => x.slice(0, 20).trim()))].slice(0, 13);
     const desc = [
-      GAME.tagline ? `"${GAME.tagline}"` : '',
+      // The first lines show in search previews: say what it is before the story.
+      `Printable escape room game for ${plainAudience()}: solve ${GAME.puzzles} logic puzzles, ${pictureOnly() ? 'build the hidden picture' : 'collect the letters'} and crack the secret code. Print at home and play today.`,
       '',
-      `${GAME.title} is a printable escape room game for ${GAME.audience.toLowerCase()}. ${GAME.mission || ''}`.trim(),
+      GAME.tagline ? `"${GAME.tagline}"` : '',
+      GAME.mission || '',
       '',
       'HOW IT WORKS',
       ...howItWorks().map((x, i) => `${i + 1}. ${x}`),
@@ -1586,38 +1600,40 @@
       'DETAILS',
       ...details().map((x) => `• ${x}`),
       '• Every puzzle is checked by computer: exactly one solution, no guessing',
+      '• Prints on US Letter; for A4, choose "Fit to page" in the print settings',
       '',
       'This is a digital download. No physical item will be shipped.',
       'For personal use. Please do not share or resell the files.',
-    ].join('\n');
-    return [`TITLE (${title.length}/140)`, title, '', 'TAGS (13, each up to 20 characters)', tags.join(', '), '', 'DESCRIPTION', desc].join('\n');
+    ].filter((x, i, a) => !(x === '' && a[i - 1] === '')).join('\n');
+    return [`TITLE (${title.length}/140)`, title, '', `TAGS (${tags.length}/13, each up to 20 characters)`, tags.join(', '), '', 'DESCRIPTION', desc].join('\n');
   }
 
   function pinterestText() {
-    const t = GAME.title, th = themeName();
-    const base = `Printable escape room game for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, one secret code, a story to solve and a host guide. Print at home and play${GAME.minutes ? ` in about ${GAME.minutes} minutes` : ''}.`;
+    const t = GAME.title, tw = themeWord();
+    const steps = pictureOnly() ? 'Solve the logic puzzles, shade the pieces and build the hidden picture.' : 'Solve the logic puzzles, shade the letters and crack the secret code.';
+    const base = `Printable escape room game for ${plainAudience()}: ${GAME.puzzles} logic puzzles, a story to solve, hint cards and a host guide. Print at home and play${GAME.minutes ? ` in about ${GAME.minutes} minutes` : ''}.`;
     const pins = [
-      [`${t}: Printable Escape Room Game`, `${base} Instant download PDF.`],
-      [`How a Printable Escape Room Works${th ? ` (${th})` : ''}`, `Solve the logic puzzles, shade the shapes and crack the code. ${base}`],
+      [`${t}: Printable Escape Room Game for ${AGE_WORDS[ageKey()]}`, `${base} Instant download PDF.`],
+      [`How a Printable Escape Room Works${tw ? ` (${tw} Theme)` : ''}`, `${steps} ${base}`],
       ['Everything You Need to Host an Escape Room Party', `Story pages, Code Sheet, hint cards, answer key and a certificate. ${base}`],
-      [`${th ? th + ' ' : ''}Party Game Idea for ${AGE_WORDS[ageKey()]}`, `A no-prep ${th ? th.toLowerCase() + ' ' : ''}activity for parties, classrooms and game nights. ${base}`],
-      [`${GAME.minutes || 'An Hour of'} Minutes of Puzzle Fun`, `Teams race to escape. ${base}`],
+      [`${themeGame()} Idea for ${AGE_WORDS[ageKey()]}`, `A no-prep ${tw ? tw.toLowerCase() + ' ' : ''}activity for parties, classrooms and game nights. ${base}`],
+      [`Printable Escape Room: ${GAME.minutes || '60'} Minutes of Puzzle Fun`, `Teams race to escape. ${base}`],
     ];
     return pins.map(([title, desc], i) => `PIN ${i + 1} (pin-${i + 1}.jpg)\nTitle (${clip(title, 100).length}/100): ${clip(title, 100)}\nDescription: ${clip(desc, 500)}`).join('\n\n')
-      + '\n\nBoard ideas: Escape Room Games · Party Games · ' + (th ? `${th} Ideas · ` : '') + 'Printable Activities';
+      + `\n\nBoard ideas: Escape Room Games · Party Games${tw ? ` · ${tw} Party Ideas` : ''} · Printable Activities`
+      + '\nLink each pin to your listing (Etsy, Shopify or TpT page).';
   }
 
   function instagramText() {
-    const th = themeName().replace(/[^A-Za-z]/g, '');
-    const tags = ['#escaperoom', '#printableescaperoom', '#escapegame', '#puzzlegame', '#logicpuzzle', '#slitherlink', '#partygame', '#gamenight',
-      '#familygamenight', '#printables', '#instantdownload', '#escaperoomathome', '#puzzlehunt', '#partyideas', '#classroomgames'];
-    if (th) tags.push(`#${th.toLowerCase()}party`, `#${th.toLowerCase()}games`);
-    tags.push({ kids: '#kidsactivities', teens: '#teenparty', adults: '#adultgamenight' }[ageKey()]);
+    const tw = themeWord().toLowerCase().replace(/[^a-z]/g, '');
+    // Instagram favours a few relevant hashtags over long lists: five to use, more to rotate.
+    const main = ['#escaperoom', '#printableescaperoom', THEME.id === 'school' ? '#classroomgames' : tw ? `#${tw}party` : '#partygame', { kids: '#kidsactivities', teens: '#teenparty', adults: '#gamenight' }[ageKey()], '#puzzlegame'];
+    const spare = ['#escapegame', '#logicpuzzle', '#partyideas', '#familygamenight', '#printables', '#classroomgames', '#puzzlehunt', '#escaperoomathome'].filter((t) => !main.includes(t));
     const caption = [
       `${GAME.title} 🔐`,
       GAME.tagline || '',
       '',
-      `A printable escape room for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, one secret code${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}.`,
+      `A printable escape room for ${plainAudience()}: ${GAME.puzzles} logic puzzles, one secret code${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}.`,
       'Print it, gather your team and race to the Final Lock.',
       '',
       'Swipe to look inside 👉',
@@ -1628,36 +1644,41 @@
       ['reel-flip-through.mp4 (12 s)', `Take a look inside ${GAME.title} 👀 Story, puzzles, Code Sheet and a certificate for the winners. Instant download: link in bio.`],
       ['reel-how-it-works.mp4 (15 s)', `How a paper escape room works: solve, shade, ${pictureOnly() ? 'build the picture' : 'crack the code'}. ${GAME.audience}${GAME.minutes ? `, about ${GAME.minutes} minutes` : ''}. Link in bio.`],
     ];
-    return ['CAROUSEL CAPTION', caption, '', 'HASHTAGS', [...new Set(tags)].join(' '), '',
-      'REELS (1080x1920, also for TikTok and YouTube Shorts)', ...reels.map(([file, cap]) => `• ${file}\n  Caption: ${cap}`), '',
+    return ['CAROUSEL CAPTION', caption, '', 'HASHTAGS (use these 5)', main.join(' '), '', 'MORE TO ROTATE ON OTHER POSTS', spare.join(' '), '',
+      'REELS (1080x1920, also for TikTok and YouTube Shorts)', ...reels.map(([file, cap]) => `• ${file}\n  Caption: ${cap}\n  Hashtags: ${main.slice(0, 3).join(' ')}`), '',
       'TIPS',
-      '• Add a trending sound inside Instagram when you post a reel: sounds added in the app help it get shown; the videos have no music on purpose.',
+      '• Add a trending sound inside Instagram when you post a reel: the videos have no music on purpose.',
       '• Choose reel-cover.jpg as the cover so your profile grid looks tidy.',
       '• Post the three reels on different days, and the carousel (slide-1.jpg to slide-8.jpg, 1080x1350) in between.'].join('\n');
   }
 
   function shopifyText() {
-    const th = themeName();
+    const tw = themeWord();
     const title = `${GAME.title} - Printable Escape Room Game`;
     const li = (xs) => `<ul>\n${xs.map((x) => `  <li>${x}</li>`).join('\n')}\n</ul>`;
     const html = [
+      `<p><strong>Printable escape room game for ${plainAudience()}.</strong> Solve ${GAME.puzzles} logic puzzles, ${pictureOnly() ? 'build the hidden picture' : 'collect the letters'} and crack the secret code. Print at home and play today.</p>`,
       GAME.tagline ? `<p><em>${GAME.tagline}</em></p>` : '',
-      `<p><strong>${GAME.title}</strong> is a printable escape room game for ${GAME.audience.toLowerCase()}. ${GAME.mission || ''}</p>`,
+      GAME.mission ? `<p>${GAME.mission}</p>` : '',
       '<h3>How it works</h3>', `<ol>\n${howItWorks().map((x) => `  <li>${x}</li>`).join('\n')}\n</ol>`,
       "<h3>What's included</h3>", li(includedList()),
       '<h3>Details</h3>', li(details()),
-      '<p>This is a digital download: no physical item will be shipped.</p>',
+      '<p>This is a digital download: no physical item will be shipped. You will get a download link right after checkout.</p>',
     ].filter(Boolean).join('\n');
     const seoTitle = clip(`${GAME.title} | Printable Escape Room Game for ${AGE_WORDS[ageKey()]}`, 70);
-    const meta = clip(`Printable escape room for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, a story, hints and a host guide. Print at home. Instant download.`, 160);
-    return ['PRODUCT TITLE', title, '', 'PRODUCT TYPE', 'Digital download / Printable game', '', 'TAGS',
-      ['escape room', 'printable game', 'party game', 'logic puzzles', th, AGE_WORDS[ageKey()].toLowerCase()].filter(Boolean).join(', '),
-      '', `SEO TITLE (${seoTitle.length}/70)`, seoTitle, '', `META DESCRIPTION (${meta.length}/160)`, meta, '', 'DESCRIPTION (paste in the HTML view)', html].join('\n');
+    const meta = clip(`Printable escape room for ${plainAudience()}: ${GAME.puzzles} logic puzzles, a story, hints and a host guide. Print at home. Instant download.`, 160);
+    return ['PRODUCT TITLE', title, '', 'PRODUCT TYPE', 'Printable game (digital download)', '', 'TAGS',
+      ['escape room', 'printable game', 'party game', 'logic puzzles', 'instant download', tw && tw.toLowerCase(), AGE_WORDS[ageKey()].toLowerCase()].filter(Boolean).join(', '),
+      '', `SEO TITLE (${seoTitle.length}/70)`, seoTitle, '', `META DESCRIPTION (${meta.length}/160)`, meta, '',
+      'SHIPPING', 'Untick "This is a physical product" and attach the PDF with a digital downloads app.', '',
+      'DESCRIPTION (paste in the HTML view)', html].join('\n');
   }
 
   function tptText() {
-    const age = ageKey(), th = themeName();
-    const title = clip(`${th ? th + ' ' : ''}Escape Room: ${GAME.title} | Logic Puzzles ${GRADES[age].replace('Grades ', 'Gr. ')}`, 80);
+    const age = ageKey(), tw = themeWord();
+    const title = clip(`${tw ? tw + ' ' : ''}Escape Room: ${GAME.title} | Logic Puzzles ${GRADES[age].replace('Grades ', 'Gr. ')}`, 80);
+    const long = minutesNum() > 60;
+    const holiday = ['christmas', 'halloween', 'easter', 'valentine', 'thanksgiving', 'newyear'].includes(THEME.id);
     const desc = [
       `Engage your students with a no-prep printable escape room! ${GAME.title} turns logic puzzles into a story-driven challenge for ${GRADES[age].toLowerCase()}.`,
       '',
@@ -1666,7 +1687,9 @@
       '• Builds logical reasoning, perseverance and teamwork',
       '• Hint questions check reading comprehension of the story',
       '• Works for small groups, whole class or competing teams',
-      `• About ${GAME.minutes || '60'} minutes: great for brain breaks, early finishers, sub plans and the days before a holiday`,
+      long
+        ? `• About ${GAME.minutes} minutes: plan one long lesson or two class periods. Great for end-of-term days, clubs, sub plans${holiday ? ' and the days before a holiday' : ''}`
+        : `• About ${GAME.minutes || '45'} minutes: fits one lesson. Great for review days, clubs, sub plans${holiday ? ' and the days before a holiday' : ''}`,
       '',
       'HOW IT WORKS',
       ...howItWorks().map((x, i) => `${i + 1}. ${x}`),
@@ -1676,13 +1699,14 @@
       '',
       'Please see the PREVIEW file for sample pages.',
     ].join('\n');
-    return [`TITLE (${title.length}/80)`, title, '', 'GRADE LEVELS', GRADES[age], '', 'SUBJECTS', 'Critical Thinking, Math, Problem Solving' + (th ? `, ${['christmas', 'halloween', 'easter', 'valentine', 'thanksgiving', 'newyear'].includes(THEME.id) ? 'Holidays/Seasonal' : 'Reading'}` : ''),
+    const subjects = ['Critical Thinking', 'Math', 'Reading'].concat(holiday ? ['Holidays/Seasonal'] : []);
+    return [`TITLE (${title.length}/80)`, title, '', 'GRADE LEVELS', GRADES[age], '', 'SUBJECTS (pick from TpT\'s list)', subjects.join(', '),
       '', 'RESOURCE TYPE', 'Games, Activities, Printables', '', 'DESCRIPTION', desc, '',
       'FILES', 'thumbnail-1.jpg to thumbnail-4.jpg (square, 1500x1500). preview.pdf: sample pages marked PREVIEW (no answers).'].join('\n');
   }
 
   function kdpText() {
-    const age = ageKey(), th = themeName();
+    const age = ageKey(), tw = themeWord();
     const audienceLong = { kids: 'Kids Ages 11-13', teens: 'Teens Ages 14-17', adults: 'Adults' }[age];
     const subtitle = `An Escape Room Puzzle Book for ${audienceLong}: ${GAME.puzzles} Slitherlink Logic Puzzles, One Secret Code`;
     const html = [
@@ -1690,18 +1714,26 @@
       `<p><b>${GAME.title}</b> is an escape room in a book. ${GAME.mission || ''}</p>`,
       '<p><b>How it works</b></p>', `<ol>${howItWorks().map((x) => `<li>${x}</li>`).join('')}</ol>`,
       "<p><b>Inside this book</b></p>", `<ul>${includedList().map((x) => `<li>${x}</li>`).join('')}</ul>`,
-      `<p>For ${GAME.audience.toLowerCase()}${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}. Perfect for game nights, parties and classrooms.</p>`,
+      `<p>For ${plainAudience()}${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}. Perfect for game nights, parties and classrooms.</p>`,
     ].filter(Boolean).join('\n');
+    // The title and subtitle are already searched: the seven boxes add new words instead.
+    const who = { kids: 'kids', teens: 'teens', adults: 'adults' }[age];
     const keywords = [
-      'escape room book', 'escape room puzzle book', `escape room for ${AGE_WORDS[age].toLowerCase()}`, 'slitherlink puzzle book',
-      'logic puzzle book', th ? `${th.toLowerCase()} activity book` : 'mystery puzzle book', 'party game book',
+      `logic puzzles for ${who}`,
+      tw ? `${tw.toLowerCase().replace("'s", 's')} activity book for ${who}` : `mystery activity book for ${who}`,
+      'brain teaser games for groups',
+      `puzzle book gift for ${who}`,
+      'party game for game night',
+      'loop puzzles and codes',
+      'classroom team building activity',
     ].map((k) => k.slice(0, 50));
     const cats = age === 'adults'
       ? ['Games & Activities > Puzzles', 'Games & Activities > Logic & Brain Teasers', 'Games & Activities > Group Games']
       : ['Juvenile Nonfiction > Games & Activities > Puzzles', 'Juvenile Nonfiction > Games & Activities > General', 'Games & Activities > Logic & Brain Teasers'];
     const note = /KDP/.test(GAME.paper) ? '' : `\nNOTE: this PDF is ${GAME.paper}. For Amazon, export the KDP 8.5x11 version from the editor and make the kit from that PDF: the cover's spine width depends on its page count.`;
     const thin = GAME.pageCount < 24 ? `\nNOTE: KDP paperbacks need at least 24 pages (this PDF has ${GAME.pageCount}). Use a bundle to reach 24.` : '';
-    return ['BOOK TITLE', GAME.title, '', 'SUBTITLE', subtitle, '', 'DESCRIPTION (KDP accepts this HTML)', html, '', 'KEYWORDS (7 boxes)', ...keywords.map((k, i) => `${i + 1}. ${k}`), '',
+    return ['BOOK TITLE (must match the cover)', GAME.title, '', `SUBTITLE (${subtitle.length + GAME.title.length}/200 with the title)`, subtitle, '',
+      'DESCRIPTION (KDP accepts this HTML)', html, '', 'KEYWORDS (7 boxes, up to 50 characters each)', ...keywords.map((k, i) => `${i + 1}. ${k}`), '',
       'SUGGESTED CATEGORIES (choose the closest in KDP)', ...cats.map((c) => `• ${c}`), '',
       'COVER', `cover.pdf: full paperback cover, 8.5x11 trim, white paper, ${GAME.pageCount} pages, bleed included. Leave the lower right of the back cover free: Amazon prints the barcode there.`,
       'A+ CONTENT', 'a-plus-1.jpg to a-plus-3.jpg (970x600).' + note + thin].join('\n');
