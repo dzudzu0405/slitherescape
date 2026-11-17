@@ -576,6 +576,18 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   .book-jump button:hover, .book-jump button.on{border-color:var(--ink); color:var(--ink); background:var(--wash);}
   .sample-note{margin-top:18px; font-size:13.5px; color:var(--brown); text-align:center;}
   @media (max-width:720px){ .book-label{min-width:0;} .book-bar{gap:10px;} }
+  /* ---------- demo video ---------- */
+  #watch[hidden]{display:none;}
+  .video-box{position:relative; max-width:900px; margin:0 auto; aspect-ratio:16/9; border:2.5px solid var(--ink); border-radius:4px; box-shadow:6px 6px 0 var(--hard); overflow:hidden; background:#1c1108;}
+  .video-box iframe, .video-box video{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .video-play{position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; cursor:pointer; background:#1c1108 center/cover no-repeat;}
+  .video-play::before{content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(28,17,8,.15), rgba(28,17,8,.55));}
+  .video-play .vp-btn{position:absolute; left:50%; top:50%; width:96px; height:96px; margin:-48px 0 0 -48px; border-radius:50%; background:var(--red); border:3px solid #FBF4E2; box-shadow:0 8px 0 var(--hard); transition:transform .2s;}
+  .video-play .vp-btn::after{content:''; position:absolute; left:38px; top:28px; border-style:solid; border-width:20px 0 20px 30px; border-color:transparent transparent transparent #FBF4E2;}
+  .video-play:hover .vp-btn{transform:scale(1.07);}
+  .video-play .vp-label{position:absolute; left:0; right:0; bottom:22px; text-align:center; color:#FBF4E2; font-family:var(--serif); font-size:24px; text-shadow:0 2px 8px rgba(0,0,0,.6);}
+  .video-play .vp-label small{display:block; font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; opacity:.85;}
+  @media (max-width:720px){ .video-play .vp-btn{width:72px; height:72px; margin:-36px 0 0 -36px;} .video-play .vp-btn::after{left:28px; top:20px; border-width:16px 0 16px 24px;} .video-play .vp-label{font-size:18px; bottom:12px;} }
 </style>
 </head>
 <body>
@@ -630,6 +642,24 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     </div>
   </div>
 </header>
+
+<!-- ============ DEMO VIDEO ============ -->
+<!-- Paste the YouTube video ID into data-youtube (or a file path into data-mp4). Empty = section hidden. -->
+<section class="reveal" id="watch" hidden>
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Watch it work</span>
+      <h2>From blank page to <em>finished PDF</em>.</h2>
+      <p class="lead">A real game made from start to finish: pick a theme, paste the prompt into your AI, download the PDF.</p>
+    </div>
+    <div class="video-box" id="demoVideo" data-youtube="" data-mp4="" data-title="SlitherEscape Studio demo">
+      <button type="button" class="video-play" style="background-image:url('sample/demo-poster.jpg')" aria-label="Play the demo video">
+        <span class="vp-btn" aria-hidden="true"></span>
+        <span class="vp-label"><small>Demo &middot; about 3 minutes</small>See a game made from scratch</span>
+      </button>
+    </div>
+  </div>
+</section>
 
 <!-- ============ PROBLEM ============ -->
 <section class="reveal" id="why">
@@ -1408,6 +1438,29 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     if (e.key === 'ArrowRight') book.flipNext(); else if (e.key === 'ArrowLeft') book.flipPrev();
   });
   update(0);
+})();
+</script>
+<script>
+/* ---------- demo video: loads only when played ---------- */
+(function(){
+  var box = document.getElementById('demoVideo'); if (!box) return;
+  var yt = (box.getAttribute('data-youtube') || '').trim(), mp4 = (box.getAttribute('data-mp4') || '').trim();
+  if (!yt && !mp4) return;
+  document.getElementById('watch').hidden = false;
+  box.querySelector('.video-play').addEventListener('click', function(){
+    var el;
+    if (yt) {
+      el = document.createElement('iframe');
+      el.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(yt) + '?autoplay=1&rel=0&modestbranding=1';
+      el.title = box.getAttribute('data-title') || 'Demo video';
+      el.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      el.allowFullscreen = true;
+    } else {
+      el = document.createElement('video');
+      el.src = mp4; el.controls = true; el.autoplay = true; el.playsInline = true;
+    }
+    box.innerHTML = ''; box.appendChild(el);
+  });
 })();
 </script>
 </body>
