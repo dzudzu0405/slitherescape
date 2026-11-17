@@ -549,6 +549,15 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 .tbl tr:last-child td{border-bottom:0;}
 .tbl td:first-child{font-weight:700; color:var(--ink);}
 .tbl td.hi{color:var(--red); font-weight:700;}
+.tbl.save td:nth-child(2){color:var(--ink-dim);}
+.tbl.save tfoot td{background:var(--paper-2); border-top:2.5px solid var(--ink); border-bottom:0; font-size:15.5px;}
+.tbl.save tfoot td.hi{font-size:17px;}
+.save-sum{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px;}
+.save-sum .card{text-align:center; padding:20px 16px;}
+.save-sum b{display:block; font-family:var(--num); font-size:30px; line-height:1.1; color:var(--red);}
+.save-sum span{display:block; margin-top:6px; font-size:14px; color:var(--ink-dim);}
+.save-note{margin-top:16px; font-size:13px; color:var(--brown); text-align:center;}
+@media (max-width:720px){ .save-sum{grid-template-columns:1fr;} .tbl.save th, .tbl.save td{padding:11px 12px; font-size:13.5px;} }
 
 .stagger-note{font-size:14px; color:var(--brown); text-align:center; margin-top:22px;}
 
@@ -751,7 +760,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="card"><h3>Teachers Pay Teachers</h3><p style="margin-top:4px;font-size:13px;color:var(--ink-dim);">4 thumbnails, 1500 &times; 1500 px</p><ul class="tick dim" style="margin-top:12px;font-size:14.5px;"><li>A PREVIEW PDF of sample pages, stamped and with no answers</li><li>Title, grades, subjects and a description written for teachers</li></ul></div>
       <div class="card"><h3>Shopify</h3><p style="margin-top:4px;font-size:13px;color:var(--ink-dim);">8 product images, 2048 &times; 2048 px</p><ul class="tick dim" style="margin-top:12px;font-size:14.5px;"><li>Square product images for your store</li><li>Product title, tags, SEO title, meta description and an HTML description</li></ul></div>
     </div>
-    <p class="stagger-note">Every kit also includes a <b>PowerPoint file you can edit in Canva</b>: the headlines, text boxes, cards and buttons are separate pieces, so you can change any word without redrawing the image. Or press <b>Download all (ZIP)</b> for every image, video and text file at once.</p>
+    <p class="stagger-note">Every kit also includes a <b>PowerPoint file you can edit in Canva</b>: the headlines, text boxes, cards and buttons are separate pieces, so you can change any word without redrawing the image. Turn on <b>Add my brand</b> and your logo and colours go on every image and video. Or press <b>Download all (ZIP)</b> for every image, video and text file at once.</p>
   </div>
 </section>
 
@@ -801,6 +810,38 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   </div>
 </section>
 
+<!-- ============ WHAT IT SAVES ============ -->
+<section class="reveal" id="saves" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">What it saves you</span>
+      <h2>Hours per game. <em>Every game.</em></h2>
+      <p class="lead">What a seller usually does by hand for each new listing, next to what Marketing Studio does for you.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl save">
+        <thead><tr><th>For each game</th><th>By hand, or hired out</th><th>With Marketing Studio</th></tr></thead>
+        <tbody>
+          <tr><td>15 Etsy listing images and a listing video</td><td>2&ndash;3 hours in Canva, or $20&ndash;50 to hire a designer</td><td class="hi">Made in a few minutes, from your own pages</td></tr>
+          <tr><td>The same pictures resized for Pinterest, Instagram, Shopify and TpT</td><td>1&ndash;2 hours of re-sizing and re-arranging</td><td class="hi">Each marketplace&rsquo;s sizes, in the same run</td></tr>
+          <tr><td>Three vertical reels for Instagram, TikTok and Shorts</td><td>1&ndash;2 hours of video editing, if you know how</td><td class="hi">Made in your browser, about a minute each</td></tr>
+          <tr><td>A KDP paperback cover with spine and bleed</td><td>$15&ndash;50 to hire, or an upload KDP rejects</td><td class="hi">Spine sized from your page count, bleed included</td></tr>
+          <tr><td>Titles, tags, descriptions and keywords for six marketplaces</td><td>30&ndash;60 minutes of writing and counting characters</td><td class="hi">Written for each marketplace&rsquo;s limits: copy and paste</td></tr>
+          <tr><td>Your logo and colours on every picture</td><td>Added by hand to every image</td><td class="hi">Set once, applied to everything</td></tr>
+          <tr><td>Checking no answer shows in your photos</td><td>Easy to miss, and it spoils the game</td><td class="hi">Answer and host pages are never used</td></tr>
+        </tbody>
+        <tfoot><tr><td>Per game</td><td>About 5&ndash;8 hours, or $35&ndash;100+ hired out</td><td class="hi">A few minutes</td></tr></tfoot>
+      </table>
+    </div>
+    <div class="save-sum">
+      <div class="card"><b>10 games</b><span>about 50&ndash;80 hours of design work done for you</span></div>
+      <div class="card"><b>$350+</b><span>what hiring out 10 listings would cost, at the low end</span></div>
+      <div class="card"><b>$56.95</b><span>once, for every game, variant and bundle you make</span></div>
+    </div>
+    <p class="save-note">Times and prices are typical estimates for one game, not a promise; your own will vary.</p>
+  </div>
+</section>
+
 <!-- ============ BUY ============ -->
 <section class="twist reveal" id="offer">
   <div class="wrap-narrow center">
@@ -812,6 +853,7 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
         <li><b>15 listing images</b> &mdash; 2000&nbsp;&times;&nbsp;1600&nbsp;px, on nine dark and light backdrops matched to your theme</li>
         <li><b>4 videos</b> &mdash; a 10-second page-flip video and three vertical reels, made in your browser</li>
         <li><b>Listing text</b> &mdash; titles, tags, descriptions and keywords written for each marketplace</li>
+        <li><b>Your brand</b> &mdash; your logo and shop colours on every image and video, saved once</li>
         <li><b>Editable in Canva</b> &mdash; a PowerPoint file per kit, plus one ZIP with everything</li>
         <li><b>No spoilers</b> &mdash; answer pages and host question pages never appear</li>
         <li><b>Every game, variant and bundle</b> &mdash; made from the PDF you export</li>
