@@ -300,7 +300,7 @@
   function heading(ctx, A, main, sub) {
     ctx.drawImage(A.bg, 0, 0, W, H);
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.7)';
+    ctx.shadowColor = THEME.textShadow;
     ctx.shadowBlur = 16;
     fitText(ctx, main, W / 2, 140, W - 140, 104, 900, HEAD, THEME.ink, 1);
     ctx.restore();
@@ -398,7 +398,75 @@
     },
   };
 
-  function makeBackground(material, tint) {
+  // Light backgrounds are drawn in their own colours (no theme tint) and need dark text.
+  const LIGHT = {
+    oak(x, r) {
+      let top = 0;
+      while (top < H) {
+        const h = 260 + r() * 120;
+        const t = r() * 16; const g = [222 + t, 198 + t, 160 + t].map(Math.round);
+        x.fillStyle = `rgb(${g.join(',')})`;
+        x.fillRect(0, top, W, h);
+        for (let i = 0; i < 26; i++) {
+          x.strokeStyle = `rgba(150, 110, 60, ${0.05 + r() * 0.08})`;
+          x.lineWidth = 1 + r() * 3;
+          const y = top + r() * h;
+          x.beginPath(); x.moveTo(0, y); x.bezierCurveTo(W * 0.3, y + (r() - 0.5) * 30, W * 0.7, y + (r() - 0.5) * 30, W, y + (r() - 0.5) * 20); x.stroke();
+        }
+        x.fillStyle = 'rgba(110, 76, 40, .35)';
+        x.fillRect(0, top + h - 3, W, 4);
+        top += h;
+      }
+    },
+    marble(x, r) {
+      x.fillStyle = '#f4f2ee';
+      x.fillRect(0, 0, W, H);
+      for (let i = 0; i < 14; i++) {
+        let px = r() * W, py = r() * H, a = r() * Math.PI * 2;
+        x.strokeStyle = `rgba(120, 120, 128, ${0.08 + r() * 0.14})`;
+        x.lineWidth = 1 + r() * 4;
+        x.beginPath(); x.moveTo(px, py);
+        for (let k = 0; k < 30; k++) { a += (r() - 0.5) * 0.6; px += Math.cos(a) * 40; py += Math.sin(a) * 40; x.lineTo(px, py); }
+        x.stroke();
+      }
+    },
+    kraft(x, r) {
+      x.fillStyle = '#c9a57a';
+      x.fillRect(0, 0, W, H);
+      for (let i = 0; i < 9000; i++) {
+        x.fillStyle = r() < 0.5 ? 'rgba(120, 84, 44, .18)' : 'rgba(240, 220, 190, .18)';
+        x.fillRect(r() * W, r() * H, 1 + r() * 5, 1 + r() * 1.5);
+      }
+    },
+    pattern(x, r, motif, tint) {
+      x.fillStyle = '#f7f1e6';
+      x.fillRect(0, 0, W, H);
+      const step = 190;
+      for (let gy = 0; gy * step < H + step; gy++) {
+        for (let gx = 0; gx * step < W + step; gx++) {
+          const cx = gx * step + (gy % 2) * step / 2 + (r() - 0.5) * 50, cy = gy * step + (r() - 0.5) * 50;
+          x.save(); x.globalAlpha = 0.24;
+          drawMotif(x, motif, cx, cy, 60 + r() * 40, tint);
+          x.restore();
+        }
+      }
+    },
+  };
+  const isLight = (material) => !!LIGHT[material];
+
+  function makeBackground(material, tint, motif, accent) {
+    if (isLight(material)) {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const x = c.getContext('2d');
+      LIGHT[material](x, rng(7), motif, accent);
+      const v = x.createRadialGradient(W / 2, H / 2, H * 0.4, W / 2, H / 2, H * 0.95);
+      v.addColorStop(0, 'rgba(0,0,0,0)');
+      v.addColorStop(1, 'rgba(60,40,20,.18)');
+      x.fillStyle = v;
+      x.fillRect(0, 0, W, H);
+      return c;
+    }
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
     const x = c.getContext('2d', { willReadFrequently: true });
@@ -496,14 +564,14 @@
     ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = THEME.gold;
+    ctx.strokeStyle = THEME.sealGold;
     ctx.lineWidth = 5;
     ctx.beginPath();
     ctx.arc(0, 0, r - 16, 0, Math.PI * 2);
     ctx.stroke();
-    fitText(ctx, String(GAME.puzzles), 0, -r * 0.04, r * 1.2, r * 0.82, 900, HEAD, THEME.ink);
-    fitText(ctx, 'PUZZLES', 0, r * 0.26, r * 1.4, r * 0.25, 800, HEAD, THEME.gold, 3);
-    fitText(ctx, '+ HOST KIT', 0, r * 0.52, r * 1.3, r * 0.17, 800, HEAD, THEME.ink, 2);
+    fitText(ctx, String(GAME.puzzles), 0, -r * 0.04, r * 1.2, r * 0.82, 900, HEAD, THEME.sealInk);
+    fitText(ctx, 'PUZZLES', 0, r * 0.26, r * 1.4, r * 0.25, 800, HEAD, THEME.sealGold, 3);
+    fitText(ctx, '+ HOST KIT', 0, r * 0.52, r * 1.3, r * 0.17, 800, HEAD, THEME.sealInk, 2);
     ctx.restore();
   }
 
@@ -642,7 +710,7 @@
     const kicker = ['A SLITHERLINK ESCAPE GAME', GAME.audience.toUpperCase()].filter(Boolean).join('  ·  ');
     fitText(ctx, kicker, W / 2, 122, W - 160, 50, 800, HEAD, THEME.accentInk, 4);
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.7)';
+    ctx.shadowColor = THEME.textShadow;
     ctx.shadowBlur = 16;
     const { lines } = A.title;
     if (lines.length === 1) fitText(ctx, lines[0], W / 2, 292, W - 120, 124, 900, HEAD, THEME.ink, 1);
@@ -701,7 +769,7 @@
     ctx.drawImage(A.bg, 0, 0, W, H);
     drawMotif(ctx, THEME.motif, W / 2, 400, 380, THEME.gold);
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.7)';
+    ctx.shadowColor = THEME.textShadow;
     ctx.shadowBlur = 16;
     fitText(ctx, 'INSTANT DOWNLOAD', W / 2, 760, W - 240, 150, 900, HEAD, THEME.ink, 2);
     ctx.restore();
@@ -714,7 +782,7 @@
       ctx.fillStyle = THEME.accent;
       roundRect(ctx, x, 1120, w, 200, 14);
       ctx.fill();
-      fitText(ctx, String(i + 1), x + w / 2, 1200, w, 64, 900, HEAD, THEME.gold);
+      fitText(ctx, String(i + 1), x + w / 2, 1200, w, 64, 900, HEAD, THEME.sealGold);
       fitText(ctx, s, x + w / 2, 1280, w - 40, 54, 800, HEAD, THEME.accentInk, 2);
     });
   }
@@ -969,7 +1037,7 @@
     ctx.drawImage(A.bg, 0, 0, W, H);
     drawMotif(ctx, THEME.motif, W / 2, 310, 220, THEME.gold);
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.7)';
+    ctx.shadowColor = THEME.textShadow;
     ctx.shadowBlur = 16;
     fitText(ctx, 'PERFECT FOR', W / 2, 570, W - 240, 130, 900, HEAD, THEME.ink, 2);
     ctx.restore();
@@ -1139,7 +1207,10 @@
       document.fonts.load(`400 100px "IM Fell Italic"`),
     ]);
     GAME = game;
-    THEME = { ...BASE_COLORS, ...visual };
+    THEME = { ...BASE_COLORS, ...visual, textShadow: 'rgba(0,0,0,.7)' };
+    // The puzzle seal is always light-on-red, whatever the background.
+    THEME.sealInk = THEME.ink; THEME.sealGold = THEME.gold;
+    if (isLight(visual.material)) Object.assign(THEME, { ink: '#2b1d12', gold: visual.accent, textShadow: 'rgba(255,255,255,0)' });
     USED_PAGES = [];
     const first = (kind) => {
       const p = game.pages.find((x) => x.kind === kind);
@@ -1159,7 +1230,7 @@
       puzzleLabels,
       usedPages: USED_PAGES,
       puzzle, loop: traceLoop(puzzle),
-      bg: makeBackground(visual.material, visual.tint),
+      bg: makeBackground(visual.material, visual.tint, THEME.motif, visual.accent),
       layer: layer.getContext('2d'),
       title: titleLayout(probe),
     };
@@ -1286,9 +1357,10 @@
   }
 
   root.ListingKit = {
+    lightMaterials: Object.keys(LIGHT),
     analyzePdf, resolveVisual, createAssets, renderImage, encodeVideo,
     videoFrame(A, t) { const c = document.createElement('canvas'); c.width = W; c.height = H; drawVideoFrame(c.getContext('2d'), A, t); return c; },
     VIDEO_SECONDS: VIDEO.seconds,
-    imageNames: Object.keys(IMAGES), materials: Object.keys(MATERIALS), SAFE_KINDS, VISUALS,
+    imageNames: Object.keys(IMAGES), materials: Object.keys(MATERIALS).concat(Object.keys(LIGHT)), SAFE_KINDS, VISUALS,
   };
 })(window);

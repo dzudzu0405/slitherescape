@@ -26,17 +26,55 @@
     return fig;
   }
 
+  // Files made in this run, for "Download all (ZIP)": [{ name, blob }].
+  let made = [], zipBase = 'listing', videoPending = false;
+
+  function showZip() {
+    const n = made.length, hasVideo = made.some((f) => /\.mp4$/.test(f.name));
+    $('mk-zip-row').classList.toggle('hidden', !n);
+    $('mk-zip-label').textContent = `Download all (ZIP${n ? `, ${n} files` : ''})`;
+    $('mk-zip-note').textContent = videoPending ? 'The video is still being made; it joins the ZIP when it is ready.'
+      : hasVideo ? `${n - 1} images and the page-flip video` : `${n} images`;
+  }
+
+  $('mk-zip').addEventListener('click', async () => {
+    if (!made.length) return;
+    const btn = $('mk-zip'), label = $('mk-zip-label').textContent;
+    btn.disabled = true;
+    $('mk-zip-label').textContent = 'Packing the ZIP…';
+    try {
+      const zip = new JSZip();
+      // Images are JPEG and the video MP4, already compressed: store them as they are.
+      made.forEach((f) => zip.file(f.name, f.blob, { compression: 'STORE' }));
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${zipBase}-listing.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    } finally {
+      btn.disabled = false;
+      $('mk-zip-label').textContent = label;
+    }
+  });
+
   async function run() {
     const file = $('mk-pdf').files[0];
     if (!file) { status('Choose the PDF you exported from the editor first.'); return; }
     $('mk-run').disabled = true;
     $('mk-out').textContent = '';
+    made = [];
+    videoPending = false;
+    showZip();
     try {
       status('Reading the PDF…');
       const game = await K.analyzePdf(new Uint8Array(await file.arrayBuffer()));
       const visual = K.resolveVisual({ themeId: $('mk-theme').value, customText: $('mk-custom').value, title: game.title, material: $('mk-material').value });
       const A = await K.createAssets(game, visual, window.DEMO_PUZZLE);
       const base = slug(game.title);
+      zipBase = base;
       for (const [i, name] of K.imageNames.entries()) {
         status(`Drawing image ${i + 1} of ${K.imageNames.length}…`);
         const c = K.renderImage(name, A);
@@ -49,14 +87,20 @@
         img.src = url;
         img.alt = label(name);
         card(`${base}-${name}.jpg`, label(name), img, url);
+        made.push({ name: `${base}-${name}.jpg`, blob });
         await new Promise((r) => setTimeout(r));
       }
+      videoPending = $('mk-video').checked;
+      showZip();
       if ($('mk-video').checked) {
         const blob = await K.encodeVideo(A, (f) => status(`Images are ready below. Making the page-flip video… ${Math.round(f * 100)}% (about a minute; keep this tab open)`));
         const url = URL.createObjectURL(blob);
         const v = document.createElement('video');
         Object.assign(v, { src: url, controls: true, loop: true, muted: true, playsInline: true });
         const fig = card(`${base}-page-flip.mp4`, 'Page-flip video (MP4)', v, url, true);
+        made.push({ name: `${base}-page-flip.mp4`, blob });
+        videoPending = false;
+        showZip();
         fig.classList.add('mk-video');
         fig.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -64,6 +108,8 @@
     } catch (e) {
       status('Could not make the listing: ' + e.message);
     } finally {
+      videoPending = false;
+      showZip();
       $('mk-run').disabled = false;
     }
   }

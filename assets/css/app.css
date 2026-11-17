@@ -767,3 +767,7 @@ main.page > .legal-links { margin-top: 26px; }
 .btn.listing .listing-text small { font-size: 12px; opacity: .8; font-weight: 400; }
 .btn.listing .listing-go { font-size: 18px; margin-left: 4px; transition: transform .15s; }
 .btn.listing:hover .listing-go { transform: translateX(3px); }
+
+/* Marketing: Download all (ZIP) */
+.mk-zip { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 4px 0 18px; }
+.mk-zip .btn svg { width: 18px; height: 18px; }

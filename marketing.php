@@ -77,13 +77,20 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
     <button class="btn primary lg" id="mk-run" type="button">Make listing images</button>
   </div>
   <div class="alert info hidden" id="mk-status"></div>
+  <div class="mk-zip hidden" id="mk-zip-row">
+    <button class="btn primary lg" id="mk-zip" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+      <span id="mk-zip-label">Download all (ZIP)</span>
+    </button>
+    <span class="small muted" id="mk-zip-note"></span>
+  </div>
   <div class="mk-grid" id="mk-out"></div>
 <?php endif; ?>
 </main>
 <script>window.MARKETING = <?= json_encode(['themeId' => $themeId], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; window.LISTING_KIT_VENDOR = 'assets/vendor/pdfjs/';</script>
 <?php
 if ($owned) {
-    foreach (['assets/vendor/mp4-muxer.min.js', 'assets/js/themes.js'] as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
+    foreach (['assets/vendor/mp4-muxer.min.js', 'assets/vendor/jszip.min.js', 'assets/js/themes.js'] as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
     foreach (['demo', 'kit'] as $f) echo '<script src="marketing.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
     page_foot(['assets/js/handoff.js', 'assets/js/marketing.js']);
 } else {
