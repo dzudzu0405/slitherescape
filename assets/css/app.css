@@ -771,3 +771,26 @@ main.page > .legal-links { margin-top: 26px; }
 /* Marketing: Download all (ZIP) */
 .mk-zip { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 4px 0 18px; }
 .mk-zip .btn svg { width: 18px; height: 18px; }
+
+/* Marketing: platform picker and kit cards */
+.mk-platforms { display: flex; flex-wrap: wrap; gap: 8px 10px; margin-top: 6px; }
+.mk-platform { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1.5px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 14px; background: var(--card, #fff); }
+.mk-platform:has(input:checked) { border-color: var(--accent); background: #FFF8EC; }
+.mk-kits { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.mk-kit { display: flex; flex-direction: column; gap: 10px; }
+.mk-kit-head { display: flex; flex-direction: column; gap: 2px; }
+.mk-kit-head h3 { margin: 0; }
+.mk-kit-strip { display: flex; gap: 6px; overflow: hidden; }
+.mk-kit-strip img { height: 86px; width: auto; border-radius: 6px; border: 1px solid var(--line); flex: none; }
+.mk-kit-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.mk-gallery-head { margin: 8px 0 10px; }
+
+/* Marketing: one full section per platform kit */
+.mk-section { margin: 28px 0 10px; scroll-margin-top: 80px; }
+.mk-section > h2 { margin: 0 0 12px; font-size: 24px; }
+.mk-reel { max-width: 320px; }
+.mk-pdf { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; aspect-ratio: 4 / 3; background: var(--panel-2); color: var(--ink-2); text-decoration: none; }
+.mk-pdf-icon { display: inline-block; padding: 14px 18px; border-radius: 8px; background: var(--accent); color: #FFF6EA; font-weight: 700; letter-spacing: .08em; }
+.mk-text { margin-top: 14px; padding: 12px 16px; }
+.mk-text summary { cursor: pointer; font-weight: 600; }
+.mk-text pre { white-space: pre-wrap; font-size: 13px; line-height: 1.5; margin: 10px 0 0; max-height: 520px; overflow: auto; }

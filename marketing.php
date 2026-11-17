@@ -43,7 +43,7 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
   <div class="page-head">
     <div>
       <h1>Marketing Studio <?php if (!$owned): ?><span class="badge warn">Locked</span><?php endif; ?></h1>
-      <p>Turn an exported game PDF into listing images and a page-flip video for Etsy, Amazon and Pinterest.</p>
+      <p>Turn an exported game PDF into ready-to-use listing kits for Etsy, Pinterest, Instagram, Shopify, Teachers Pay Teachers and Amazon KDP.</p>
     </div>
   </div>
 
@@ -53,6 +53,7 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
     <ul class="mk-features">
       <li><b>15 listing images</b> in your game's own style: cover mockup, what's included, how it works, the secret code, hints, ways to play, certificate and more.</li>
       <li><b>Page-flip video</b> (MP4) that shows the pages of your game, ready for Etsy and Pinterest.</li>
+      <li><b>Listing kits for 6 platforms:</b> Etsy, Pinterest, Instagram (with a Reels video), Shopify, Teachers Pay Teachers (with a preview PDF) and Amazon KDP (with a print-ready cover). Each comes with images in the right sizes and ready-to-paste listing text.</li>
       <li><b>No spoilers:</b> answer pages and the host's question pages never appear in your listing.</li>
       <li>Works with every game, variant and bundle you make, right in your browser.</li>
     </ul>
@@ -73,8 +74,12 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
       <label class="field"><span>Your own theme words <span class="optional">optional</span></span><input type="text" id="mk-custom" placeholder="e.g. a haunted carnival"></label>
       <label class="field"><span>Background</span><select id="mk-material"><option value="">Automatic</option></select></label>
     </div>
-    <label class="toggle small" style="margin:4px 0 16px"><input type="checkbox" id="mk-video" checked><span class="track"></span> Also make the page-flip video (about a minute, uses a lot of processor)</label>
-    <button class="btn primary lg" id="mk-run" type="button">Make listing images</button>
+    <div class="field" style="margin:6px 0 12px">
+      <div class="field-label">Listing kits for <span class="small muted">(each gets its own image sizes and ready-to-paste text)</span></div>
+      <div class="mk-platforms" id="mk-platforms"></div>
+    </div>
+    <label class="toggle small" style="margin:4px 0 16px"><input type="checkbox" id="mk-video" checked><span class="track"></span> Also make the videos: page-flip for Etsy, vertical for Instagram Reels (about a minute each)</label>
+    <button class="btn primary lg" id="mk-run" type="button">Make listing kits</button>
   </div>
   <div class="alert info hidden" id="mk-status"></div>
   <div class="mk-zip hidden" id="mk-zip-row">
@@ -84,7 +89,8 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
     </button>
     <span class="small muted" id="mk-zip-note"></span>
   </div>
-  <div class="mk-grid" id="mk-out"></div>
+  <div class="mk-kits" id="mk-kits"></div>
+  <div id="mk-out"></div>
 <?php endif; ?>
 </main>
 <script>window.MARKETING = <?= json_encode(['themeId' => $themeId], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; window.LISTING_KIT_VENDOR = 'assets/vendor/pdfjs/';</script>

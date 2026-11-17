@@ -126,6 +126,7 @@
   async function analyzePdf(data) {
     const pdfjs = await import(new URL((root.LISTING_KIT_VENDOR || 'vendor/') + 'pdf.min.mjs', document.baseURI).href);
     pdfjs.GlobalWorkerOptions.workerSrc = new URL((root.LISTING_KIT_VENDOR || 'vendor/') + 'pdf.worker.min.mjs', document.baseURI).href;
+    const bytes = data.slice();
     const doc = await pdfjs.getDocument({ data }).promise;
     const pages = [];
     let facts = null, secretCode = null;
@@ -147,7 +148,7 @@
       else if (p.kind === 'pieces' && chapterTypes.length) chapterTypes[chapterTypes.length - 1] = 'picture';
     });
     const view = pages[0].page.getViewport({ scale: 1 });
-    const paper = Math.abs(view.width - 612) < 3 ? 'US LETTER' : Math.abs(view.width - 595) < 3 ? 'A4' : 'READY TO PRINT';
+    const paper = Math.abs(view.width - 612) < 3 ? 'US LETTER' : Math.abs(view.width - 595) < 3 ? 'A4' : Math.abs(view.width - 621) < 3 ? 'KDP 8.5x11' : 'READY TO PRINT';
     const counts = {};
     pages.forEach((p) => { counts[p.kind] = (counts[p.kind] || 0) + 1; });
     const prologue = pages.find((p) => p.kind === 'prologue');
@@ -161,12 +162,12 @@
       hasPictures: chapterTypes.includes('picture'),
       hasLetters: !chapterTypes.length || chapterTypes.includes('letter'),
       pageCount: pages.length,
-      paper, pages, counts, secretCode,
+      paper, pages, counts, secretCode, bytes,
     };
   }
 
-  async function renderPdfPage(entry) {
-    const vp = entry.page.getViewport({ scale: 150 / 72, rotation: 0 });
+  async function renderPdfPage(entry, dpi = 150) {
+    const vp = entry.page.getViewport({ scale: dpi / 72, rotation: 0 });
     const c = document.createElement('canvas');
     c.width = Math.floor(vp.width);
     c.height = Math.floor(vp.height);
@@ -1286,8 +1287,8 @@
   // One full encode with one encoder setting. Frames are handed over as plain RGBA pixels read back
   // from a CPU canvas, and at most a few are queued at a time: GPU-backed canvas frames and long
   // queues made some encoders return a chunk or two and then stop answering without any error.
-  async function encodeWith(A, config, onProgress) {
-    const { fps, seconds, width, height } = VIDEO;
+  async function encodeWith(A, config, onProgress, spec = VIDEO) {
+    const { fps, seconds, width, height } = spec;
     const canvas = document.createElement('canvas');
     canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
@@ -1308,8 +1309,8 @@
       for (let i = 0; i < total; i++) {
         if (failure) throw failure;
         ctx.save();
-        ctx.scale(width / W, height / H);
-        drawVideoFrame(ctx, A, i / fps);
+        if (spec.draw) spec.draw(ctx, A, i / fps);
+        else { ctx.scale(width / W, height / H); drawVideoFrame(ctx, A, i / fps); }
         ctx.restore();
         const pixels = ctx.getImageData(0, 0, width, height).data;
         const frame = new VideoFrame(pixels, {
@@ -1334,9 +1335,9 @@
     }
   }
 
-  async function encodeVideo(A, onProgress) {
+  async function encodeVideo(A, onProgress, spec = VIDEO) {
     if (!('VideoEncoder' in window)) throw new Error('This browser cannot make videos (no WebCodecs). Please use a recent Chrome or Edge.');
-    const { fps, width, height } = VIDEO;
+    const { fps, width, height } = spec;
     const base = { codec: 'avc1.640028', width, height, bitrate: 5_000_000, framerate: fps };
     // Software first (most predictable), then whatever the browser picks, then hardware.
     const configs = [];
@@ -1347,7 +1348,7 @@
     if (!configs.length) throw new Error('This browser has no H.264 video encoder. Please use a recent Chrome or Edge.');
     for (const config of configs) {
       try {
-        return await encodeWith(A, config, onProgress);
+        return await encodeWith(A, config, onProgress, spec);
       } catch (e) {
         if (!(e instanceof EncoderStalled)) throw e;
         // This encoder stopped answering: start over with the next one.
@@ -1356,7 +1357,653 @@
     throw new Error('The video encoder in this browser stopped responding. Please update Chrome or Edge, or turn off the video and make the images only.');
   }
 
+  // Platform kits --------------------------------------------------------------------------------
+  // Every platform gets its own image sizes and ready-to-paste listing text, built from the same
+  // scenes as the Etsy images. Text never contains the secret code.
+
+  const newCanvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const canvasBlob = (c, type = 'image/jpeg', q = 0.9) => new Promise((res) => c.toBlob(res, type, q));
+  const pictureOnly = () => GAME.hasPictures && !GAME.hasLetters;
+  const ageKey = () => (/kid/i.test(GAME.audience) ? 'kids' : /adult/i.test(GAME.audience) ? 'adults' : 'teens');
+  const themeName = () => { const t = THEME.id && root.Themes && root.Themes.theme(THEME.id); return t ? t.label : ''; };
+  const GRADES = { kids: 'Grades 5-7', teens: 'Grades 8-12', adults: 'Grades 11-12 and Adults' };
+  const AGE_WORDS = { kids: 'Kids', teens: 'Teens', adults: 'Adults' };
+  // Cuts at a word boundary and drops a dangling separator.
+  const clip = (s, n) => (s.length <= n ? s : s.slice(0, n + 1).replace(/\s+\S*$/, '').replace(/[\s|,·:–-]+$/, ''));
+
+  // Text in a band above or below a scene: up to two centred lines, shrunk to fit.
+  function bandText(ctx, text, cx, y0, bandH, maxW, fill, weight, family, maxPx) {
+    if (!text || bandH < 20) return;
+    let px = Math.min(maxPx, bandH * 0.42);
+    setFont(ctx, weight, px, family);
+    let lines = wrapLines(ctx, text, maxW);
+    while ((lines.length > 2 || (lines.length === 2 && px * 2.3 > bandH)) && px > 18) {
+      px -= 2;
+      setFont(ctx, weight, px, family);
+      lines = wrapLines(ctx, text, maxW);
+    }
+    const lh = px * 1.15, total = lines.length * lh;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = fill;
+    lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, cx, y0 + (bandH - total) / 2 + px * 0.85 + i * lh));
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  }
+
+  // A 2000x1600 scene placed on the theme background at another size, with a headline band above and
+  // a short line below. Wide formats (Amazon A+) get the scene alone.
+  function framed(A, scene, w, h, top, bottom) {
+    const c = newCanvas(w, h), x = c.getContext('2d');
+    const s = Math.max(w / W, h / H);
+    x.drawImage(A.bg, (w - W * s) / 2, (h - H * s) / 2, W * s, H * s);
+    const pad = Math.round(Math.min(w, h) * 0.045);
+    const bands = (top ? 1 : 0) + (bottom ? 1 : 0);
+    let sw = w - pad * 2, sh = sw * H / W;
+    const minBand = h * 0.085;
+    if (h - sh - pad * 2 < bands * minBand) { sh = h - pad * 2 - bands * minBand; sw = sh * W / H; }
+    const free = Math.max(0, h - sh - pad * 2);
+    const topH = top ? (bottom ? free * 0.6 : free) : (bottom ? 0 : free / 2);
+    const botH = bottom ? free - topH : 0;
+    const sx = (w - sw) / 2, sy = pad + topH, r = pad * 0.35;
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,.45)';
+    x.shadowBlur = pad * 0.6;
+    x.shadowOffsetY = pad * 0.2;
+    roundRect(x, sx, sy, sw, sh, r);
+    x.fillStyle = '#000';
+    x.fill();
+    x.restore();
+    x.save();
+    roundRect(x, sx, sy, sw, sh, r);
+    x.clip();
+    x.drawImage(scene, sx, sy, sw, sh);
+    x.restore();
+    x.strokeStyle = THEME.gold;
+    x.lineWidth = Math.max(2, pad * 0.07);
+    roundRect(x, sx, sy, sw, sh, r);
+    x.stroke();
+    x.save();
+    x.shadowColor = THEME.textShadow;
+    x.shadowBlur = 12;
+    bandText(x, top, w / 2, pad * 0.5, topH + pad * 0.3, w - pad * 2, THEME.ink, 900, HEAD, w * 0.075);
+    x.restore();
+    bandText(x, bottom, w / 2, sy + sh + pad * 0.2, botH + pad * 0.6, w - pad * 2, THEME.gold, 400, SC, w * 0.05);
+    return c;
+  }
+
+  function frameOf(A, name, w, h, top, bottom) {
+    const scene = renderImage(name, A);
+    const c = framed(A, scene, w, h, top, bottom);
+    scene.width = scene.height = 0;
+    return c;
+  }
+
+  // Which scenes each platform uses, at which size, with which words.
+  function imageSpecs(platform) {
+    const t = GAME.title, a = GAME.audience, p = GAME.puzzles, age = ageKey();
+    const how = pictureOnly() ? 'SOLVE · SHADE · BUILD THE PICTURE' : 'SOLVE · SHADE · CRACK THE CODE';
+    const forWho = { kids: 'A CLASSROOM & PARTY ESCAPE GAME', teens: 'FOR CLASSROOMS, PARTIES & GAME NIGHTS', adults: 'FOR GAME NIGHTS & TEAM BUILDING' }[age];
+    switch (platform) {
+      case 'pinterest': return { size: [1000, 1500], prefix: 'pin', list: [
+        ['01-hero', 'PRINTABLE ESCAPE ROOM GAME', `${a} · ${p} puzzles · Instant download`],
+        ['04-how-it-works', how, t],
+        ['02-included', 'EVERYTHING YOU NEED TO HOST', `${GAME.pageCount}-page printable PDF`],
+        ['13-occasions', forWho, t],
+        ['14-at-a-glance', `${GAME.minutes} MINUTES OF PUZZLE FUN`, 'Print at home · Instant download'],
+      ] };
+      case 'instagram': return { size: [1080, 1350], prefix: 'slide', list: [
+        ['01-hero', t, 'Swipe to look inside'],
+        ['03-story', null, '2 / 8'], ['04-how-it-works', null, '3 / 8'], ['05-secret-code', null, '4 / 8'],
+        ['06-earn-hints', null, '5 / 8'], ['02-included', null, '6 / 8'], ['14-at-a-glance', null, '7 / 8'],
+        ['15-instant-download', null, 'Link in bio'],
+      ] };
+      case 'shopify': return { size: [2048, 2048], prefix: 'product', list: [
+        ['01-hero', t, 'Printable escape game · Instant download'],
+        ['02-included', 'WHAT YOU GET', `${GAME.pageCount}-page printable PDF`],
+        ['04-how-it-works', 'HOW IT WORKS', 'No apps, no prep: print and play'],
+        ['08-puzzle-grid', `${p} LOGIC PUZZLES`, 'Every puzzle has exactly one solution'],
+        ['06-earn-hints', 'HINTS THAT KEEP IT FAIR', 'Two hints for every puzzle'],
+        ['12-certificate', 'A CERTIFICATE FOR THE WINNERS', 'Name, date, time and hints'],
+        ['14-at-a-glance', 'AT A GLANCE', a],
+        ['15-instant-download', 'INSTANT DOWNLOAD', 'Buy · Download · Print · Play'],
+      ] };
+      case 'tpt': return { size: [1500, 1500], prefix: 'thumbnail', list: [
+        ['01-hero', 'PRINTABLE ESCAPE ROOM', `${GRADES[age]} · ${p} logic puzzles`],
+        ['04-how-it-works', 'LOGIC + READING + TEAMWORK', 'No prep: print and play'],
+        ['02-included', "WHAT'S INCLUDED", `${GAME.pageCount} pages · answer key included`],
+        ['14-at-a-glance', 'AT A GLANCE', t],
+      ] };
+      case 'kdp': return { size: [970, 600], prefix: 'a-plus', list: [
+        ['04-how-it-works', null, null], ['02-included', null, null], ['14-at-a-glance', null, null],
+      ] };
+      default: return null;
+    }
+  }
+
+  // Listing text ---------------------------------------------------------------------------------
+
+  function includedList() {
+    return [
+      `${GAME.puzzles} Slitherlink logic puzzles${GAME.hasPictures ? ' (picture chapters included)' : ''}`,
+      'Story and mission pages',
+      'How to Play page with a worked example',
+      'Code Sheet and Final Lock',
+      ...(GAME.hasPictures ? ['Picture pieces with an Assembly Board'] : []),
+      'Step-by-step Game Host guide',
+      '20 hint questions about the story and theme',
+      `${GAME.puzzles * 2} cut-out hint cards`,
+      'Full answer key',
+      'Certificate of completion',
+    ];
+  }
+
+  function howItWorks() {
+    return pictureOnly()
+      ? ['Solve each logic puzzle by drawing one closed loop.', 'Shade the inside: it is a piece of a picture.', 'Glue the pieces on the board and name the picture.', 'Say the name at the Final Lock to escape!']
+      : ['Solve each logic puzzle by drawing one closed loop.', 'Shade the inside: a capital letter appears.', 'Collect the letters on the Code Sheet.', 'Say the secret code at the Final Lock to escape!'];
+  }
+
+  function details() {
+    return [
+      `Players: ${GAME.audience}`,
+      GAME.minutes ? `Playing time: about ${GAME.minutes} minutes` : '',
+      GAME.players ? `Group size: ${GAME.players.toLowerCase()}` : '',
+      `Format: ${GAME.pageCount}-page PDF, ${{ "US LETTER": "US Letter", "READY TO PRINT": "print-ready" }[GAME.paper] || GAME.paper}`,
+    ].filter(Boolean);
+  }
+
+  function themeTags() {
+    const th = themeName().toLowerCase().replace(/&/g, 'and');
+    const tags = { christmas: ['christmas game', 'xmas party game'], halloween: ['halloween game', 'spooky party game'], easter: ['easter game', 'easter activity'],
+      valentine: ['valentines game', 'valentine activity'], thanksgiving: ['thanksgiving game', 'fall party game'], newyear: ['new years eve game', 'nye party game'],
+      pirates: ['pirate party game', 'treasure hunt game'], egypt: ['ancient egypt game', 'egypt activity'], space: ['space party game', 'outer space game'],
+      jungle: ['jungle party game', 'safari game'], ocean: ['under the sea game', 'ocean party game'], dinosaurs: ['dinosaur party game', 'dino activity'],
+      school: ['back to school game', 'classroom game'], lab: ['science party game', 'stem activity'], museum: ['museum heist game', 'mystery game'],
+      detective: ['detective game', 'mystery party game'], castle: ['medieval party game', 'knight party game'], wizard: ['wizard party game', 'magic party game'] };
+    return (tags[THEME.id] || [th ? `${th} game` : 'mystery game']).slice();
+  }
+
+  function etsyText() {
+    const age = ageKey(), th = themeName();
+    const title = clip([`${GAME.title} Printable Escape Room Game for ${AGE_WORDS[age]}`, th ? `${th} Party Activity` : 'Party Activity',
+      `${GAME.puzzles} Logic Puzzles`, 'Instant Download PDF'].join(' | '), 140);
+    const ageTags = { kids: ['kids escape room', 'kids party game', 'classroom activity'], teens: ['teen escape room', 'teen party game', 'classroom activity'],
+      adults: ['adult escape room', 'adult party game', 'team building game'] }[age];
+    const tags = [...new Set(['escape room game', 'printable escape', 'escape room kit', 'logic puzzle game', ...themeTags(), ...ageTags,
+      'family game night', 'puzzle hunt', 'instant download', 'slitherlink'].map((x) => x.slice(0, 20)))].slice(0, 13);
+    const desc = [
+      GAME.tagline ? `"${GAME.tagline}"` : '',
+      '',
+      `${GAME.title} is a printable escape room game for ${GAME.audience.toLowerCase()}. ${GAME.mission || ''}`.trim(),
+      '',
+      'HOW IT WORKS',
+      ...howItWorks().map((x, i) => `${i + 1}. ${x}`),
+      '',
+      "WHAT'S INCLUDED",
+      ...includedList().map((x) => `• ${x}`),
+      '',
+      'DETAILS',
+      ...details().map((x) => `• ${x}`),
+      '• Every puzzle is checked by computer: exactly one solution, no guessing',
+      '',
+      'This is a digital download. No physical item will be shipped.',
+      'For personal use. Please do not share or resell the files.',
+    ].join('\n');
+    return [`TITLE (${title.length}/140)`, title, '', 'TAGS (13, each up to 20 characters)', tags.join(', '), '', 'DESCRIPTION', desc].join('\n');
+  }
+
+  function pinterestText() {
+    const t = GAME.title, th = themeName();
+    const base = `Printable escape room game for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, one secret code, a story to solve and a host guide. Print at home and play${GAME.minutes ? ` in about ${GAME.minutes} minutes` : ''}.`;
+    const pins = [
+      [`${t}: Printable Escape Room Game`, `${base} Instant download PDF.`],
+      [`How a Printable Escape Room Works${th ? ` (${th})` : ''}`, `Solve the logic puzzles, shade the shapes and crack the code. ${base}`],
+      ['Everything You Need to Host an Escape Room Party', `Story pages, Code Sheet, hint cards, answer key and a certificate. ${base}`],
+      [`${th ? th + ' ' : ''}Party Game Idea for ${AGE_WORDS[ageKey()]}`, `A no-prep ${th ? th.toLowerCase() + ' ' : ''}activity for parties, classrooms and game nights. ${base}`],
+      [`${GAME.minutes || 'An Hour of'} Minutes of Puzzle Fun`, `Teams race to escape. ${base}`],
+    ];
+    return pins.map(([title, desc], i) => `PIN ${i + 1} (pin-${i + 1}.jpg)\nTitle (${clip(title, 100).length}/100): ${clip(title, 100)}\nDescription: ${clip(desc, 500)}`).join('\n\n')
+      + '\n\nBoard ideas: Escape Room Games · Party Games · ' + (th ? `${th} Ideas · ` : '') + 'Printable Activities';
+  }
+
+  function instagramText() {
+    const th = themeName().replace(/[^A-Za-z]/g, '');
+    const tags = ['#escaperoom', '#printableescaperoom', '#escapegame', '#puzzlegame', '#logicpuzzle', '#slitherlink', '#partygame', '#gamenight',
+      '#familygamenight', '#printables', '#instantdownload', '#escaperoomathome', '#puzzlehunt', '#partyideas', '#classroomgames'];
+    if (th) tags.push(`#${th.toLowerCase()}party`, `#${th.toLowerCase()}games`);
+    tags.push({ kids: '#kidsactivities', teens: '#teenparty', adults: '#adultgamenight' }[ageKey()]);
+    const caption = [
+      `${GAME.title} 🔐`,
+      GAME.tagline || '',
+      '',
+      `A printable escape room for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, one secret code${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}.`,
+      'Print it, gather your team and race to the Final Lock.',
+      '',
+      'Swipe to look inside 👉',
+      'Instant download: link in bio.',
+    ].join('\n');
+    const reels = [
+      ['reel-teaser.mp4 (11 s)', `${hook().charAt(0) + hook().slice(1).toLowerCase()} 🔐 A printable escape room with ${GAME.puzzles} logic puzzles. Link in bio.`],
+      ['reel-flip-through.mp4 (12 s)', `Take a look inside ${GAME.title} 👀 Story, puzzles, Code Sheet and a certificate for the winners. Instant download: link in bio.`],
+      ['reel-how-it-works.mp4 (15 s)', `How a paper escape room works: solve, shade, ${pictureOnly() ? 'build the picture' : 'crack the code'}. ${GAME.audience}${GAME.minutes ? `, about ${GAME.minutes} minutes` : ''}. Link in bio.`],
+    ];
+    return ['CAROUSEL CAPTION', caption, '', 'HASHTAGS', [...new Set(tags)].join(' '), '',
+      'REELS (1080x1920, also for TikTok and YouTube Shorts)', ...reels.map(([file, cap]) => `• ${file}\n  Caption: ${cap}`), '',
+      'TIPS',
+      '• Add a trending sound inside Instagram when you post a reel: sounds added in the app help it get shown; the videos have no music on purpose.',
+      '• Choose reel-cover.jpg as the cover so your profile grid looks tidy.',
+      '• Post the three reels on different days, and the carousel (slide-1.jpg to slide-8.jpg, 1080x1350) in between.'].join('\n');
+  }
+
+  function shopifyText() {
+    const th = themeName();
+    const title = `${GAME.title} - Printable Escape Room Game`;
+    const li = (xs) => `<ul>\n${xs.map((x) => `  <li>${x}</li>`).join('\n')}\n</ul>`;
+    const html = [
+      GAME.tagline ? `<p><em>${GAME.tagline}</em></p>` : '',
+      `<p><strong>${GAME.title}</strong> is a printable escape room game for ${GAME.audience.toLowerCase()}. ${GAME.mission || ''}</p>`,
+      '<h3>How it works</h3>', `<ol>\n${howItWorks().map((x) => `  <li>${x}</li>`).join('\n')}\n</ol>`,
+      "<h3>What's included</h3>", li(includedList()),
+      '<h3>Details</h3>', li(details()),
+      '<p>This is a digital download: no physical item will be shipped.</p>',
+    ].filter(Boolean).join('\n');
+    const seoTitle = clip(`${GAME.title} | Printable Escape Room Game for ${AGE_WORDS[ageKey()]}`, 70);
+    const meta = clip(`Printable escape room for ${GAME.audience.toLowerCase()}: ${GAME.puzzles} logic puzzles, a story, hints and a host guide. Print at home. Instant download.`, 160);
+    return ['PRODUCT TITLE', title, '', 'PRODUCT TYPE', 'Digital download / Printable game', '', 'TAGS',
+      ['escape room', 'printable game', 'party game', 'logic puzzles', th, AGE_WORDS[ageKey()].toLowerCase()].filter(Boolean).join(', '),
+      '', `SEO TITLE (${seoTitle.length}/70)`, seoTitle, '', `META DESCRIPTION (${meta.length}/160)`, meta, '', 'DESCRIPTION (paste in the HTML view)', html].join('\n');
+  }
+
+  function tptText() {
+    const age = ageKey(), th = themeName();
+    const title = clip(`${th ? th + ' ' : ''}Escape Room: ${GAME.title} | Logic Puzzles ${GRADES[age].replace('Grades ', 'Gr. ')}`, 80);
+    const desc = [
+      `Engage your students with a no-prep printable escape room! ${GAME.title} turns logic puzzles into a story-driven challenge for ${GRADES[age].toLowerCase()}.`,
+      '',
+      'WHY TEACHERS LOVE IT',
+      '• No prep: print and play',
+      '• Builds logical reasoning, perseverance and teamwork',
+      '• Hint questions check reading comprehension of the story',
+      '• Works for small groups, whole class or competing teams',
+      `• About ${GAME.minutes || '60'} minutes: great for brain breaks, early finishers, sub plans and the days before a holiday`,
+      '',
+      'HOW IT WORKS',
+      ...howItWorks().map((x, i) => `${i + 1}. ${x}`),
+      '',
+      "WHAT'S INCLUDED",
+      ...includedList().map((x) => `• ${x}`),
+      '',
+      'Please see the PREVIEW file for sample pages.',
+    ].join('\n');
+    return [`TITLE (${title.length}/80)`, title, '', 'GRADE LEVELS', GRADES[age], '', 'SUBJECTS', 'Critical Thinking, Math, Problem Solving' + (th ? `, ${['christmas', 'halloween', 'easter', 'valentine', 'thanksgiving', 'newyear'].includes(THEME.id) ? 'Holidays/Seasonal' : 'Reading'}` : ''),
+      '', 'RESOURCE TYPE', 'Games, Activities, Printables', '', 'DESCRIPTION', desc, '',
+      'FILES', 'thumbnail-1.jpg to thumbnail-4.jpg (square, 1500x1500). preview.pdf: sample pages marked PREVIEW (no answers).'].join('\n');
+  }
+
+  function kdpText() {
+    const age = ageKey(), th = themeName();
+    const audienceLong = { kids: 'Kids Ages 11-13', teens: 'Teens Ages 14-17', adults: 'Adults' }[age];
+    const subtitle = `An Escape Room Puzzle Book for ${audienceLong}: ${GAME.puzzles} Slitherlink Logic Puzzles, One Secret Code`;
+    const html = [
+      GAME.tagline ? `<p><i>${GAME.tagline}</i></p>` : '',
+      `<p><b>${GAME.title}</b> is an escape room in a book. ${GAME.mission || ''}</p>`,
+      '<p><b>How it works</b></p>', `<ol>${howItWorks().map((x) => `<li>${x}</li>`).join('')}</ol>`,
+      "<p><b>Inside this book</b></p>", `<ul>${includedList().map((x) => `<li>${x}</li>`).join('')}</ul>`,
+      `<p>For ${GAME.audience.toLowerCase()}${GAME.minutes ? `, about ${GAME.minutes} minutes of play` : ''}. Perfect for game nights, parties and classrooms.</p>`,
+    ].filter(Boolean).join('\n');
+    const keywords = [
+      'escape room book', 'escape room puzzle book', `escape room for ${AGE_WORDS[age].toLowerCase()}`, 'slitherlink puzzle book',
+      'logic puzzle book', th ? `${th.toLowerCase()} activity book` : 'mystery puzzle book', 'party game book',
+    ].map((k) => k.slice(0, 50));
+    const cats = age === 'adults'
+      ? ['Games & Activities > Puzzles', 'Games & Activities > Logic & Brain Teasers', 'Games & Activities > Group Games']
+      : ['Juvenile Nonfiction > Games & Activities > Puzzles', 'Juvenile Nonfiction > Games & Activities > General', 'Games & Activities > Logic & Brain Teasers'];
+    const note = /KDP/.test(GAME.paper) ? '' : `\nNOTE: this PDF is ${GAME.paper}. For Amazon, export the KDP 8.5x11 version from the editor and make the kit from that PDF: the cover's spine width depends on its page count.`;
+    const thin = GAME.pageCount < 24 ? `\nNOTE: KDP paperbacks need at least 24 pages (this PDF has ${GAME.pageCount}). Use a bundle to reach 24.` : '';
+    return ['BOOK TITLE', GAME.title, '', 'SUBTITLE', subtitle, '', 'DESCRIPTION (KDP accepts this HTML)', html, '', 'KEYWORDS (7 boxes)', ...keywords.map((k, i) => `${i + 1}. ${k}`), '',
+      'SUGGESTED CATEGORIES (choose the closest in KDP)', ...cats.map((c) => `• ${c}`), '',
+      'COVER', `cover.pdf: full paperback cover, 8.5x11 trim, white paper, ${GAME.pageCount} pages, bleed included. Leave the lower right of the back cover free: Amazon prints the barcode there.`,
+      'A+ CONTENT', 'a-plus-1.jpg to a-plus-3.jpg (970x600).' + note + thin].join('\n');
+  }
+
+  const TEXTS = { etsy: etsyText, pinterest: pinterestText, instagram: instagramText, shopify: shopifyText, tpt: tptText, kdp: kdpText };
+
+  // Platform files --------------------------------------------------------------------------------
+
+  const PLATFORMS = [
+    ['etsy', 'Etsy'], ['pinterest', 'Pinterest'], ['instagram', 'Instagram'], ['shopify', 'Shopify'], ['tpt', 'Teachers Pay Teachers'], ['kdp', 'Amazon KDP'],
+  ];
+
+  async function loadScript(src) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = new URL(src, document.baseURI).href;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Could not load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+  async function pdfLib() {
+    if (!root.PDFLib) await loadScript('assets/vendor/pdf-lib.min.js');
+    return root.PDFLib;
+  }
+
+  // TpT preview: the player pages people want to see, each stamped PREVIEW. No host pages, no answers.
+  async function tptPreview(game) {
+    const { PDFDocument, StandardFonts, rgb, degrees } = await pdfLib();
+    const src = await PDFDocument.load(game.bytes);
+    const want = ['cover', 'prologue', 'howTo', 'codeSheet'].map((k) => game.pages.find((p) => p.kind === k))
+      .concat(game.pages.filter((p) => p.kind === 'puzzle' || p.kind === 'pieces').slice(0, 2))
+      .concat([game.pages.find((p) => p.kind === 'certificate')]).filter(Boolean);
+    const out = await PDFDocument.create();
+    const font = await out.embedFont(StandardFonts.HelveticaBold);
+    const pages = await out.copyPages(src, want.map((p) => p.number - 1));
+    pages.forEach((pg) => {
+      out.addPage(pg);
+      const { width, height } = pg.getSize();
+      const size = Math.min(width, height) / 6;
+      const tw = font.widthOfTextAtSize('PREVIEW', size);
+      pg.drawText('PREVIEW', { x: width / 2 - tw / 2 * 0.72, y: height / 2 - tw / 2 * 0.69, size, font, color: rgb(0.6, 0.12, 0.1), opacity: 0.22, rotate: degrees(45) });
+      pg.drawText('Preview pages. The full game includes every puzzle, hint cards, the Host Guide and the answer key.',
+        { x: 30, y: 12, size: 8, font, color: rgb(0.45, 0.2, 0.1), opacity: 0.9 });
+    });
+    out.setTitle(`${game.title} - Preview`);
+    return new Blob([await out.save()], { type: 'application/pdf' });
+  }
+
+  // KDP paperback cover: back cover, spine and front cover on one page with 0.125" bleed, 8.5x11 trim,
+  // white paper (0.002252" per page). The front is the game's own cover page; spine text only from 79 pages.
+  async function kdpCover(A, game) {
+    const DPI = 300, IN = (x) => Math.round(x * DPI);
+    const pages = Math.max(game.pageCount, 24);
+    const spine = pages * 0.002252, bleed = 0.125;
+    const wIn = bleed * 2 + 8.5 * 2 + spine, hIn = 11 + bleed * 2;
+    const c = newCanvas(IN(wIn), IN(hIn)), x = c.getContext('2d');
+    const s = Math.max(c.width / W, c.height / H);
+    x.drawImage(A.bg, (c.width - W * s) / 2, (c.height - H * s) / 2, W * s, H * s);
+    // Front: the cover page, stretched over the right panel and its bleed.
+    const coverEntry = game.pages.find((p) => p.kind === 'cover');
+    const { canvas: front } = await renderPdfPage(coverEntry, DPI);
+    const fx = IN(bleed + 8.5 + spine);
+    x.drawImage(front, fx, 0, c.width - fx, c.height);
+    front.width = front.height = 0;
+    // Spine.
+    if (pages >= 79) {
+      x.save();
+      x.translate(IN(bleed + 8.5 + spine / 2), c.height / 2);
+      x.rotate(Math.PI / 2);
+      fitText(x, GAME.title.toUpperCase(), 0, IN(spine) * 0.3, IN(9), IN(spine) * 0.6, 800, HEAD, THEME.ink, 2);
+      x.restore();
+    }
+    // Back: blurb, what's inside and facts, kept 0.5" inside the trim; the barcode corner stays free.
+    const bx = IN(bleed + 0.6), bw = IN(8.5 - 1.2), cx = bx + bw / 2;
+    x.save();
+    x.shadowColor = THEME.textShadow;
+    x.shadowBlur = 14;
+    fitText(x, GAME.title.toUpperCase(), cx, IN(bleed + 1.3), bw, IN(0.5), 900, HEAD, THEME.ink, 2);
+    x.restore();
+    let y = IN(bleed + 1.9);
+    if (GAME.tagline) y = drawWrapped(x, `“${GAME.tagline}”`, cx, y, bw, IN(0.26), 400, ITALIC, THEME.gold, 2) + IN(0.25);
+    if (GAME.mission) y = drawWrapped(x, GAME.mission, cx, y, bw * 0.92, IN(0.2), 400, ITALIC, THEME.ink, 6) + IN(0.35);
+    fitText(x, 'INSIDE THIS BOOK', cx, y, bw, IN(0.24), 800, HEAD, THEME.gold, 3);
+    y += IN(0.35);
+    x.textAlign = 'left';
+    setFont(x, 400, IN(0.19), SC);
+    x.fillStyle = THEME.ink;
+    includedList().forEach((item) => { x.fillText(`•  ${item}`, bx + IN(0.6), y); y += IN(0.3); });
+    y += IN(0.25);
+    const facts = [GAME.audience.toUpperCase(), GAME.minutes ? `${GAME.minutes} MINUTES` : '', GAME.players].filter(Boolean).join('   ·   ');
+    fitText(x, facts, cx, y, bw, IN(0.2), 800, HEAD, THEME.ink, 2);
+    const blob = await canvasBlob(c, 'image/jpeg', 0.92);
+    c.width = c.height = 0;
+    const { PDFDocument } = await pdfLib();
+    const doc = await PDFDocument.create();
+    const img = await doc.embedJpg(await blob.arrayBuffer());
+    const page = doc.addPage([wIn * 72, hIn * 72]);
+    page.drawImage(img, { x: 0, y: 0, width: wIn * 72, height: hIn * 72 });
+    doc.setTitle(`${game.title} - KDP cover`);
+    return { blob: new Blob([await doc.save()], { type: 'application/pdf' }), wIn, hIn, spine, pages };
+  }
+
+  // Makes the files of one platform: [{ name, blob }]. Etsy reuses the 15 images and the video made
+  // by the page; 'video' is that Etsy video blob (or null).
+  async function buildPlatform(platform, A, game, opts = {}) {
+    const files = [];
+    const add = (name, blob) => files.push({ name, blob });
+    const say = opts.onStep || (() => {});
+    if (platform === 'etsy') {
+      (opts.etsyImages || []).forEach((f) => add(f.name, f.blob));
+      if (opts.etsyVideo) add('video.mp4', opts.etsyVideo);
+    }
+    const spec = imageSpecs(platform);
+    if (spec) {
+      for (const [i, [scene, top, bottom]] of spec.list.entries()) {
+        say(`${scene.replace(/^\d+-/, '')} (${i + 1} of ${spec.list.length})`);
+        const c = frameOf(A, scene, spec.size[0], spec.size[1], top, bottom);
+        add(`${spec.prefix}-${i + 1}.jpg`, await canvasBlob(c, 'image/jpeg', 0.9));
+        c.width = c.height = 0;
+        await new Promise((r) => setTimeout(r));
+      }
+    }
+    if (platform === 'instagram') {
+      say('Reel cover');
+      const cover = reelCover(A);
+      add('reel-cover.jpg', await canvasBlob(cover, 'image/jpeg', 0.9));
+      cover.width = cover.height = 0;
+      if (opts.withVideo) {
+        for (const [name, secs, fn] of REELS) {
+          add(`${name}.mp4`, await encodeVideo(A, (f) => say(`${name.replace('reel-', '').replace(/-/g, ' ')} reel ${Math.round(f * 100)}%`), reelSpec(secs, fn)));
+        }
+      }
+    }
+    if (platform === 'tpt') { say('preview PDF'); add('preview.pdf', await tptPreview(game)); }
+    if (platform === 'kdp') { say('paperback cover'); add('cover.pdf', (await kdpCover(A, game)).blob); }
+    add(`${platform}-listing.txt`, new Blob([TEXTS[platform]()], { type: 'text/plain;charset=utf-8' }));
+    return files;
+  }
+
+  // Vertical reels (Instagram Reels, TikTok, YouTube Shorts) -------------------------------------
+  // Drawn natively at 1080x1920. Words stay inside the safe area: clear of the caption strip at the
+  // bottom and the like/comment buttons on the right. Each reel ends on a frame close to its first,
+  // so it loops cleanly.
+  const RW = 1080, RH = 1920, SAFE = { left: 70, right: 920, top: 230, bottom: 1560 };
+  const safeW = SAFE.right - SAFE.left, safeX = (SAFE.left + SAFE.right) / 2;
+
+  function reelBg(ctx, A) {
+    const s = Math.max(RW / W, RH / H);
+    ctx.drawImage(A.bg, (RW - W * s) / 2, (RH - H * s) / 2, W * s, H * s);
+  }
+
+  // Big words with the theme's glow; up to three lines.
+  function reelWords(ctx, text, y, px, fill, alpha) {
+    if (!text || alpha <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = clamp01(alpha);
+    ctx.shadowColor = THEME.textShadow;
+    ctx.shadowBlur = 18;
+    let size = px;
+    setFont(ctx, 900, size, HEAD);
+    let lines = wrapLines(ctx, text, safeW);
+    while (lines.length > 3 && size > 30) { size -= 4; setFont(ctx, 900, size, HEAD); lines = wrapLines(ctx, text, safeW); }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = fill || THEME.ink;
+    lines.forEach((l, i) => ctx.fillText(l, safeX, y + i * size * 1.12));
+    ctx.restore();
+  }
+
+  function reelLabel(ctx, text, y, alpha) {
+    if (!text || alpha <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = clamp01(alpha);
+    fitText(ctx, text, safeX, y, safeW, 46, 400, SC, THEME.gold, 3);
+    ctx.restore();
+  }
+
+  // Scenes with a fade in and out: [start, end, draw(ctx, A, local t)].
+  function playScenes(ctx, A, t, scenes) {
+    reelBg(ctx, A);
+    for (const [a, b, draw] of scenes) {
+      if (t < a - 0.01 || t > b + 0.01) continue;
+      const alpha = Math.min(span(t, a, a + 0.35), 1 - span(t, b - 0.35, b));
+      if (alpha <= 0) continue;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      draw(ctx, A, t - a, alpha);
+      ctx.restore();
+    }
+  }
+
+  const hook = () => (pictureOnly() ? 'CAN YOU BUILD THE PICTURE?' : 'CAN YOU CRACK THIS CODE?');
+
+  // The demo puzzle centred at width w; o as in drawPuzzle.
+  function reelPuzzle(ctx, A, cy, w, o) {
+    const p = A.puzzle, cell = Math.floor(w / p.W);
+    drawPuzzle(ctx, p, A.loop, RW / 2 - (p.W * cell) / 2, cy - (p.H * cell) / 2, cell, o);
+    return (p.H * cell) / 2;
+  }
+
+  // The reveal under the puzzle: a letter in the code boxes, or a piece on the board.
+  function reelReveal(ctx, A, y, pop) {
+    if (pictureOnly()) drawBoard(ctx, RW / 2, y + 125, 230, 3, pop);
+    else drawLetterBoxes(ctx, RW / 2, y, 120, 5, 2, A.puzzle.letter, pop);
+  }
+
+  function reelCta(ctx, A, k) {
+    reelWords(ctx, GAME.title.toUpperCase(), 360, 78, THEME.ink, k);
+    ctx.save();
+    ctx.globalAlpha = clamp01(k);
+    drawPage(ctx, A.images.cover, RW / 2, 900, 520, -3);
+    drawSeal(ctx, RW / 2 + 250, 1130, 120, 0.9);
+    ctx.restore();
+    const facts = [GAME.audience.toUpperCase(), GAME.minutes ? `${GAME.minutes} MINUTES` : ''].filter(Boolean).join('  ·  ');
+    reelLabel(ctx, facts, 1330, k);
+    ctx.save();
+    ctx.globalAlpha = clamp01(k);
+    ctx.fillStyle = THEME.accent;
+    roundRect(ctx, safeX - 330, 1380, 660, 120, 16);
+    ctx.fill();
+    fitText(ctx, 'INSTANT DOWNLOAD', safeX, 1438, 600, 54, 900, HEAD, THEME.sealInk, 2);
+    fitText(ctx, 'LINK IN BIO', safeX, 1484, 600, 34, 800, HEAD, THEME.sealGold, 4);
+    ctx.restore();
+  }
+
+  // 11 s teaser: hook, the loop draws itself, the reveal, three real pages, the call to action.
+  function reelTeaser(ctx, A, t) {
+    const P = A.images;
+    const peek = [[P.cover, 'A STORY TO SOLVE'], [P.codeSheet, 'A CODE TO CRACK'], [P.certificate, 'A CERTIFICATE TO WIN']].filter(([img]) => img);
+    const scenes = [
+      [0, 6.6, (c, a, s) => {
+        reelWords(c, hook(), 330, 92, THEME.ink, 1);
+        const half = reelPuzzle(c, A, 900, 640, { loop: easeInOut(span(s, 1.0, 4.6)), shade: span(s, 4.6, 5.2) });
+        reelReveal(c, A, 900 + half + 50, easeOut(span(s, 5.2, 5.8)));
+      }],
+    ];
+    peek.forEach(([img, label], i) => {
+      const a = 6.4 + i * 0.9;
+      scenes.push([a, a + 1.25, (c, a2, s) => {
+        const slide = 1 - easeOut(span(s, 0, 0.4));
+        reelLabel(c, label, 330, 1);
+        drawPage(c, img, RW / 2 + slide * 500, 930, img.width > img.height ? 900 : 760, (i % 2 ? 2.5 : -2.5) + slide * 8);
+      }]);
+    });
+    scenes.push([6.4 + peek.length * 0.9, 11, (c, a2) => reelCta(c, a2, 1)]);
+    playScenes(ctx, A, t, scenes);
+  }
+
+  // 12 s flip-through: the real pages, one after another, then the call to action.
+  function reelFlip(ctx, A, t) {
+    const P = A.images;
+    const pages = [
+      [P.cover, 'THE COVER'], [P.prologue, 'THE STORY'], [P.howTo, 'HOW TO PLAY'], [P.codeSheet, 'THE CODE SHEET'],
+      [P.puzzles[0], `${GAME.puzzles} LOGIC PUZZLES`], [P.puzzles[1] || P.puzzles[0], `${GAME.puzzles} LOGIC PUZZLES`],
+      [P.finalLock, 'THE FINAL LOCK'], [P.certificate, 'A CERTIFICATE TO WIN'],
+    ].filter(([img]) => img);
+    const step = 1.05, start = 1.4;
+    const scenes = [[0, 1.8, (c) => {
+      reelWords(c, 'AN ESCAPE ROOM… ON PAPER', 700, 104, THEME.ink, 1);
+      reelLabel(c, 'Print it. Solve it. Escape.', 1080, 1);
+    }]];
+    pages.forEach(([img, label], i) => {
+      const a = start + i * step;
+      scenes.push([a, a + step + 0.35, (c, A2, s) => {
+        const slide = 1 - easeOut(span(s, 0, 0.45));
+        const w = img.width > img.height ? 900 : 760;
+        reelLabel(c, label, 330, 1);
+        drawPage(c, img, RW / 2 + slide * 500, 930, w, (i % 2 ? 2.5 : -2.5) + slide * 8);
+      }]);
+    });
+    const end = start + pages.length * step;
+    scenes.push([end, 12, (c, a2) => reelCta(c, a2, 1)]);
+    playScenes(ctx, A, t, scenes);
+  }
+
+  // 15 s how-it-works: three steps, the numbers, the call to action.
+  function reelHow(ctx, A, t) {
+    const last = pictureOnly() ? '3. BUILD THE PICTURE' : '3. CRACK THE CODE';
+    playScenes(ctx, A, t, [
+      [0, 2.2, (c) => {
+        reelWords(c, 'HOW IT WORKS', 700, 120, THEME.ink, 1);
+        reelLabel(c, GAME.title, 1010, 1);
+      }],
+      [2.0, 5.2, (c, a) => {
+        reelWords(c, '1. SOLVE THE NUMBERS', 330, 76, THEME.ink, 1);
+        reelPuzzle(c, a, 950, 700, { loop: 0, shade: 0 });
+        reelLabel(c, 'Each number counts the lines around it', 1480, 1);
+      }],
+      [5.0, 8.4, (c, a, s) => {
+        reelWords(c, '2. CLOSE THE LOOP', 330, 76, THEME.ink, 1);
+        reelPuzzle(c, a, 950, 700, { loop: easeInOut(span(s, 0.3, 2.4)), shade: span(s, 2.4, 3.0) });
+        reelLabel(c, pictureOnly() ? 'Shade the inside: a piece of a picture' : 'Shade the inside: a letter appears', 1480, 1);
+      }],
+      [8.2, 11.4, (c, a, s) => {
+        reelWords(c, last, 330, 76, THEME.ink, 1);
+        reelPuzzle(c, a, 820, 520, { loop: 1, shade: 1 });
+        reelReveal(c, a, pictureOnly() ? 1160 : 1210, easeOut(span(s, 0.3, 0.8)));
+        reelLabel(c, pictureOnly() ? 'Name the picture to open the lock' : 'The letters open the Final Lock', 1520, 1);
+      }],
+      [11.2, 13.4, (c, a, s) => {
+        reelWords(c, 'WHAT YOU GET', 330, 84, THEME.ink, 1);
+        const rows = [[String(GAME.puzzles), 'LOGIC PUZZLES'], [GAME.audience.toUpperCase(), 'PLAYERS'], [GAME.minutes || '60', 'MINUTES OF PLAY']];
+        rows.forEach(([big, small], i) => {
+          const k = easeOut(span(s, 0.2 + i * 0.25, 0.6 + i * 0.25)), y = 520 + i * 330;
+          c.save();
+          c.globalAlpha *= k;
+          c.fillStyle = THEME.paper;
+          roundRect(c, safeX - 380, y, 760, 270, 18);
+          c.fill();
+          fitText(c, big, safeX, y + 150, 680, 110, 900, HEAD, THEME.loop, 1);
+          fitText(c, small, safeX, y + 225, 680, 40, 800, HEAD, THEME.pencil, 3);
+          c.restore();
+        });
+      }],
+      [13.2, 15, (c, a) => reelCta(c, a, 1)],
+    ]);
+  }
+
+  const REELS = [
+    ['reel-teaser', 11, reelTeaser],
+    ['reel-flip-through', 12, reelFlip],
+    ['reel-how-it-works', 15, reelHow],
+  ];
+  const reelSpec = (seconds, fn) => ({ fps: 24, seconds, width: RW, height: RH, draw: (ctx, A, t) => fn(ctx, A, t) });
+
+  // Cover for the profile grid: the hook, the title and the game's cover.
+  function reelCover(A) {
+    const c = newCanvas(RW, RH), x = c.getContext('2d');
+    reelBg(x, A);
+    reelWords(x, hook(), 330, 92, THEME.ink, 1);
+    drawPage(x, A.images.cover, RW / 2, 980, 640, -2);
+    drawSeal(x, RW / 2 + 290, 1270, 130, 0.95);
+    reelLabel(x, GAME.title, 1490, 1);
+    return c;
+  }
+
   root.ListingKit = {
+    PLATFORMS, buildPlatform, platformText: (p) => TEXTS[p](),
+    reelNames: REELS.map((r) => r[0]),
+    reelFrame(A, name, t) { const r = REELS.find((x) => x[0] === name); const c = newCanvas(RW, RH); r[2](c.getContext('2d'), A, t); return c; },
+    reelCover: (A) => reelCover(A),
     lightMaterials: Object.keys(LIGHT),
     analyzePdf, resolveVisual, createAssets, renderImage, encodeVideo,
     videoFrame(A, t) { const c = document.createElement('canvas'); c.width = W; c.height = H; drawVideoFrame(c.getContext('2d'), A, t); return c; },
