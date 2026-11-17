@@ -223,6 +223,36 @@
   const span = (t, a, b) => clamp01((t - a) / (b - a));
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 
+  // Canva export: while REC is an array, text is recorded as a box instead of drawn, so the picture
+  // underneath has no words and every word becomes an editable text box. Turned text (seals, the
+  // KDP spine) is not recorded and stays in the picture.
+  let REC = null;
+  function recText(ctx, e) {
+    if (!REC) return false;
+    const m = ctx.getTransform();
+    if (Math.abs(m.b) > 0.01 || Math.abs(m.c) > 0.01) return false;
+    const k = m.a;
+    REC.push({ type: 'text', lines: 1, ...e, x: k * e.x + m.e, y: m.d * e.y + m.f, w: e.w * k, size: e.size * k,
+      lineH: (e.lineH || 0) * k, spacing: (e.spacing || 0) * k, alpha: ctx.globalAlpha });
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    return true;
+  }
+
+  // A card, button or band that holds only text: drawn, or recorded as a shape in Canva mode.
+  function box(ctx, x, y, w, h, r, fill, shadow) {
+    const m = ctx.getTransform();
+    if (REC && Math.abs(m.b) < 0.01 && Math.abs(m.c) < 0.01) {
+      const k = m.a;
+      REC.push({ type: 'shape', x: k * x + m.e, y: m.d * y + m.f, w: w * k, h: h * k, r: r * k, fill, shadow: !!shadow, alpha: ctx.globalAlpha });
+      return;
+    }
+    ctx.save();
+    if (shadow) { ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 12; }
+    ctx.fillStyle = fill;
+    if (r) { roundRect(ctx, x, y, w, h, r); ctx.fill(); } else ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+
   function setFont(ctx, weight, px, family, spacing) {
     ctx.font = `${weight} ${px}px ${family}`;
     if ('letterSpacing' in ctx) ctx.letterSpacing = `${spacing || 0}px`;
@@ -241,6 +271,7 @@
   // Draws centred text, shrinking it until it fits maxW.
   function fitText(ctx, text, x, y, maxW, px, weight, family, fill, spacing) {
     const size = fittedSize(ctx, text, maxW, px, weight, family, spacing);
+    if (recText(ctx, { text, x, y, w: ctx.measureText(text).width, size, weight, family, fill, align: 'center', spacing })) return size;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = fill;
@@ -279,10 +310,11 @@
       if (lines.length <= maxLines) break;
       size -= 2;
     } while (size > 22);
+    const lineH = size * 1.28;
+    if (recText(ctx, { text, x, y, w: maxW, size, weight, family, fill, align: 'center', lines: lines.length, lineH })) return y + lines.length * lineH;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = fill;
-    const lineH = size * 1.28;
     lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineH));
     return y + lines.length * lineH;
   }
@@ -706,8 +738,7 @@
 
   function header(ctx, A) {
     ctx.drawImage(A.bg, 0, 0, W, H);
-    ctx.fillStyle = THEME.accent;
-    ctx.fillRect(0, 56, W, 96);
+    box(ctx, 0, 56, W, 96, 0, THEME.accent);
     const kicker = ['A SLITHERLINK ESCAPE GAME', GAME.audience.toUpperCase()].filter(Boolean).join('  ·  ');
     fitText(ctx, kicker, W / 2, 122, W - 160, 50, 800, HEAD, THEME.accentInk, 4);
     ctx.save();
@@ -780,9 +811,7 @@
     const w = 390, gap = 36, left = (W - steps.length * w - (steps.length - 1) * gap) / 2;
     steps.forEach((s, i) => {
       const x = left + i * (w + gap);
-      ctx.fillStyle = THEME.accent;
-      roundRect(ctx, x, 1120, w, 200, 14);
-      ctx.fill();
+      box(ctx, x, 1120, w, 200, 14, THEME.accent);
       fitText(ctx, String(i + 1), x + w / 2, 1200, w, 64, 900, HEAD, THEME.sealGold);
       fitText(ctx, s, x + w / 2, 1280, w - 40, 54, 800, HEAD, THEME.accentInk, 2);
     });
@@ -817,7 +846,7 @@
       setFont(ctx, 800, 52, HEAD);
       ctx.textAlign = 'left';
       ctx.fillStyle = THEME.ink;
-      ctx.fillText(item, 200, y);
+      if (!recText(ctx, { text: item, x: 200, y, w: ctx.measureText(item).width, size: 52, weight: 800, family: HEAD, fill: THEME.ink, align: 'left' })) ctx.fillText(item, 200, y);
     });
     const P = A.images;
     [
@@ -930,7 +959,7 @@
       ctx.textAlign = 'left';
       ctx.fillStyle = THEME.pencil;
       setFont(ctx, 400, 54, SC);
-      ctx.fillText(t, xs[0] + 170, y);
+      if (!recText(ctx, { text: t, x: xs[0] + 170, y, w: ctx.measureText(t).width, size: 54, weight: 400, family: SC, fill: THEME.pencil, align: 'left' })) ctx.fillText(t, xs[0] + 170, y);
     });
     drawWrapped(ctx, 'A question about the story or the theme', xs[0] + w / 2, top + 930, w - 70, 48, 400, SC, THEME.pencil, 2);
     title(xs[1], '2. Right answer? Get a hint card');
@@ -1017,8 +1046,9 @@
       drawMotif(ctx, THEME.motif, cx - 370, y - 18, 70, THEME.gold);
       ctx.textAlign = 'left';
       ctx.fillStyle = THEME.ink;
-      setFont(ctx, 800, fittedSize(ctx, t, 640, 56, 800, HEAD), HEAD);
-      ctx.fillText(t, cx - 300, y);
+      const fs2 = fittedSize(ctx, t, 640, 56, 800, HEAD);
+      setFont(ctx, 800, fs2, HEAD);
+      if (!recText(ctx, { text: t, x: cx - 300, y, w: ctx.measureText(t).width, size: fs2, weight: 800, family: HEAD, fill: THEME.ink, align: 'left' })) ctx.fillText(t, cx - 300, y);
     });
   }
 
@@ -1046,9 +1076,7 @@
     const w = 800, h = 280, gap = 50, left = (W - 2 * w - gap) / 2;
     OCCASIONS[key].forEach((t, i) => {
       const x = left + (i % 2) * (w + gap), y = 680 + (i >> 1) * (h + gap);
-      ctx.fillStyle = THEME.accent;
-      roundRect(ctx, x, y, w, h, 16);
-      ctx.fill();
+      box(ctx, x, y, w, h, 16, THEME.accent);
       fitText(ctx, t, x + w / 2, y + h / 2 + 24, w - 80, 70, 900, HEAD, THEME.accentInk, 2);
     });
   }
@@ -1065,7 +1093,7 @@
     const w = 820, h = 500, gap = 50, left = (W - 2 * w - gap) / 2;
     tiles.forEach(([value, label], i) => {
       const x = left + (i % 2) * (w + gap), y = 340 + (i >> 1) * (h + gap);
-      paperCard(ctx, x, y, w, h);
+      box(ctx, x, y, w, h, 16, THEME.paper, true);
       fitText(ctx, value, x + w / 2, y + 280, w - 80, 190, 900, HEAD, THEME.loop);
       fitText(ctx, label, x + w / 2, y + 400, w - 80, 60, 800, HEAD, THEME.pencil, 3);
     });
@@ -1256,6 +1284,8 @@
     '15-instant-download': drawMessage,
   };
 
+  const imageNames = () => Object.keys(IMAGES);
+
   function renderImage(name, A) {
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
@@ -1383,6 +1413,7 @@
       lines = wrapLines(ctx, text, maxW);
     }
     const lh = px * 1.15, total = lines.length * lh;
+    if (recText(ctx, { text, x: cx, y: y0 + (bandH - total) / 2 + px * 0.85, w: lines.length === 1 ? ctx.measureText(lines[0]).width : maxW, size: px, weight, family, fill, align: 'center', lines: Math.min(2, lines.length), lineH: lh })) return;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = fill;
@@ -1392,7 +1423,7 @@
 
   // A 2000x1600 scene placed on the theme background at another size, with a headline band above and
   // a short line below. Wide formats (Amazon A+) get the scene alone.
-  function framed(A, scene, w, h, top, bottom) {
+  function framed(A, scene, w, h, top, bottom, sceneText) {
     const c = newCanvas(w, h), x = c.getContext('2d');
     const s = Math.max(w / W, h / H);
     x.drawImage(A.bg, (w - W * s) / 2, (h - H * s) / 2, W * s, H * s);
@@ -1406,23 +1437,32 @@
     const topH = top ? (bottom ? free * 0.6 : free) : (bottom ? free * 0.4 : free / 2);
     const botH = bottom ? free - topH : 0;
     const sx = (w - sw) / 2, sy = pad + topH, r = pad * 0.35;
-    x.save();
-    x.shadowColor = 'rgba(0,0,0,.45)';
-    x.shadowBlur = pad * 0.6;
-    x.shadowOffsetY = pad * 0.2;
-    roundRect(x, sx, sy, sw, sh, r);
-    x.fillStyle = '#000';
-    x.fill();
-    x.restore();
-    x.save();
-    roundRect(x, sx, sy, sw, sh, r);
-    x.clip();
-    x.drawImage(scene, sx, sy, sw, sh);
-    x.restore();
-    x.strokeStyle = THEME.gold;
-    x.lineWidth = Math.max(2, pad * 0.07);
-    roundRect(x, sx, sy, sw, sh, r);
-    x.stroke();
+    if (REC && sceneText) {
+      REC.push({ type: 'image', data: scene.toDataURL('image/jpeg', 0.88), x: sx, y: sy, w: sw, h: sh, r, alpha: 1 });
+      REC.push({ type: 'shape', x: sx, y: sy, w: sw, h: sh, r, fill: null, stroke: THEME.gold, line: Math.max(2, pad * 0.07), alpha: 1 });
+      const k = sw / W;
+      sceneText.forEach((e) => REC.push(e.type === 'text'
+        ? { ...e, x: sx + e.x * k, y: sy + e.y * k, w: e.w * k, size: e.size * k, lineH: e.lineH * k, spacing: e.spacing * k }
+        : { ...e, x: sx + e.x * k, y: sy + e.y * k, w: e.w * k, h: e.h * k, r: e.r * k }));
+    } else {
+      x.save();
+      x.shadowColor = 'rgba(0,0,0,.45)';
+      x.shadowBlur = pad * 0.6;
+      x.shadowOffsetY = pad * 0.2;
+      roundRect(x, sx, sy, sw, sh, r);
+      x.fillStyle = '#000';
+      x.fill();
+      x.restore();
+      x.save();
+      roundRect(x, sx, sy, sw, sh, r);
+      x.clip();
+      x.drawImage(scene, sx, sy, sw, sh);
+      x.restore();
+      x.strokeStyle = THEME.gold;
+      x.lineWidth = Math.max(2, pad * 0.07);
+      roundRect(x, sx, sy, sw, sh, r);
+      x.stroke();
+    }
     x.save();
     x.shadowColor = THEME.textShadow;
     x.shadowBlur = 12;
@@ -1669,6 +1709,85 @@
 
   const TEXTS = { etsy: etsyText, pinterest: pinterestText, instagram: instagramText, shopify: shopifyText, tpt: tptText, kdp: kdpText };
 
+  // Canva (PPTX) ----------------------------------------------------------------------------------
+  // One slide per image: the picture without words, and every word as a text box on top.
+
+  const CANVA_FACE = (family) => (family === SC ? 'IM Fell English SC' : family === ITALIC ? 'IM Fell English' : 'Playfair Display');
+  const hex6 = (c) => (/^#[0-9a-f]{6}$/i.test(c || '') ? c.slice(1).toUpperCase() : '3B2412');
+
+  // A picture with its words recorded: [canvas, text boxes].
+  function recorded(draw) {
+    REC = [];
+    try {
+      const c = draw();
+      return [c, REC];
+    } finally {
+      REC = null;
+    }
+  }
+
+  function frameRecorded(A, name, w, h, top, bottom) {
+    const [scene, sceneText] = recorded(() => renderImage(name, A));
+    const out = recorded(() => framed(A, scene, w, h, top, bottom, sceneText));
+    scene.width = scene.height = 0;
+    return out;
+  }
+
+  async function canvaPptx(platform, A, game, say) {
+    if (!root.JSZip) await loadScript('assets/vendor/jszip.min.js');
+    if (!root.PptxGenJS) await loadScript('assets/vendor/pptxgen.min.js');
+    const spec = imageSpecs(platform);
+    const jobs = platform === 'etsy'
+      ? imageNames().map((name) => () => recorded(() => renderImage(name, A)))
+      : spec.list.map(([scene, top, bottom]) => () => frameRecorded(A, scene, spec.size[0], spec.size[1], top, bottom));
+    const [pw, ph] = platform === 'etsy' ? [W, H] : spec.size;
+    const inW = 10, inH = 10 * ph / pw, k = inW / pw;
+    const pptx = new root.PptxGenJS();
+    pptx.defineLayout({ name: 'KIT', width: inW, height: inH });
+    pptx.layout = 'KIT';
+    pptx.title = `${game.title} - ${platform} listing images`;
+    for (const [i, job] of jobs.entries()) {
+      say(`Canva file, slide ${i + 1} of ${jobs.length}`);
+      const [canvas, words] = job();
+      const slide = pptx.addSlide();
+      // A picture, not a slide background: Canva's PPTX import drops background images.
+      slide.addImage({ data: canvas.toDataURL('image/jpeg', 0.88).replace(/^data:/, ''), x: 0, y: 0, w: inW, h: inH });
+      canvas.width = canvas.height = 0;
+      words.filter((t) => t.alpha > 0.3).forEach((t) => {
+        if (t.type === 'image') {
+          slide.addImage({ data: t.data.replace(/^data:/, ''), x: t.x * k, y: t.y * k, w: t.w * k, h: t.h * k, rounding: false });
+          return;
+        }
+        if (t.type === 'shape') {
+          const opts = { x: t.x * k, y: t.y * k, w: t.w * k, h: t.h * k,
+            // Spelled out as fully transparent: some importers fill a shape that has no fill at all.
+            fill: t.fill ? { color: hex6(t.fill) } : { color: 'FFFFFF', transparency: 100 },
+            line: t.stroke ? { color: hex6(t.stroke), width: t.line * k * 72 } : { color: 'FFFFFF', transparency: 100, width: 0 } };
+          if (t.r) opts.rectRadius = Math.min(t.r, Math.min(t.w, t.h) / 2) * k; // inches
+          if (t.shadow) opts.shadow = { type: 'outer', blur: 10, offset: 4, angle: 90, color: '000000', opacity: 0.4 };
+          slide.addShape(t.r ? 'roundRect' : 'rect', opts);
+          return;
+        }
+        if (!t.text) return;
+        const multi = t.lines > 1;
+        // Canva measures fonts a little differently: single lines get room to spare.
+        const boxW = multi ? t.w * 1.04 : t.w + Math.max(t.size * 0.8, t.w * 0.25);
+        // Kept inside the slide, so Canva never gets a box hanging off the edge.
+        const bw = Math.min(boxW, pw);
+        const left = Math.max(0, Math.min(pw - bw, t.align === 'center' ? t.x - bw / 2 : t.x));
+        const boxH = (multi ? t.lines * t.lineH : t.size * 1.2) + t.size * 0.35;
+        slide.addText(t.text, {
+          x: left * k, y: Math.max(0, t.y - t.size * 0.92) * k, w: bw * k, h: boxH * k,
+          fontFace: CANVA_FACE(t.family), fontSize: Math.max(4, t.size * k * 72), bold: t.family === HEAD && t.weight >= 700,
+          italic: t.family === ITALIC, color: hex6(t.fill), align: t.align, valign: 'top', margin: 0, wrap: multi, fit: 'none',
+          lineSpacing: multi ? t.lineH * k * 72 : undefined, charSpacing: t.spacing ? t.spacing * k * 72 : undefined,
+        });
+      });
+      await new Promise((r) => setTimeout(r));
+    }
+    return pptx.write({ outputType: 'blob' });
+  }
+
   // Platform files --------------------------------------------------------------------------------
 
   const PLATFORMS = [
@@ -1799,6 +1918,8 @@
     }
     if (platform === 'tpt') { say('preview PDF'); add('preview.pdf', await tptPreview(game)); }
     if (platform === 'kdp') { say('paperback cover'); add('cover.pdf', (await kdpCover(A, game)).blob); }
+    say('Canva file');
+    add(`${platform}-canva.pptx`, await canvaPptx(platform, A, game, say));
     add(`${platform}-listing.txt`, new Blob([TEXTS[platform]()], { type: 'text/plain;charset=utf-8' }));
     return files;
   }

@@ -164,6 +164,13 @@
         box.rel = 'noopener';
         box.innerHTML = '<span class="mk-pdf-icon">PDF</span><span>Open to view</span>';
         card(f.name, `${fileTitle(f.name)} (PDF)`, box, url, grid);
+      } else if (/\.pptx$/.test(f.name)) {
+        const box = document.createElement('a');
+        box.className = 'mk-pdf';
+        box.href = url;
+        box.download = f.name;
+        box.innerHTML = '<span class="mk-pdf-icon">CANVA</span><span>Upload this PowerPoint file to Canva: every word is an editable text box</span>';
+        card(f.name, 'Editable in Canva (PPTX)', box, url, grid);
       } else if (/\.txt$/.test(f.name)) {
         const det = document.createElement('details');
         det.className = 'card mk-text';
