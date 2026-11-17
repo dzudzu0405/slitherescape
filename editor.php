@@ -229,7 +229,7 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
           </div>
           <a class="btn listing" id="btn-listing" href="marketing.php<?= $project ? '?project=' . (int)$project['id'] : '' ?>">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg>
-            <span class="listing-text"><b>Make listing images &amp; video<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></b><small>Etsy-ready mockups and a promo video for this game</small></span>
+            <span class="listing-text"><b>Make listing kits<?= has_plan($user, 'marketing') ? '' : ' <span class="nav-lock">&#128274;</span>' ?></b><small>Images, videos and listing text for Etsy, Amazon KDP, Pinterest, Instagram, TpT and Shopify</small></span>
             <span class="listing-go" aria-hidden="true">&rarr;</span>
           </a>
           <details class="verifier">

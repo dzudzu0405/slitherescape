@@ -325,7 +325,7 @@
   for (const m of K.materials) $('mk-material').add(new Option(m.charAt(0).toUpperCase() + m.slice(1), m));
   $('mk-run').addEventListener('click', run);
 
-  // Coming from the editor's "Make listing images & video" button: the PDF is already built,
+  // Coming from the editor's "Make listing kits" button: the PDF is already built,
   // so put it in the file field and start right away.
   if (new URLSearchParams(location.search).get('from') === 'editor' && window.Handoff) {
     window.Handoff.take().then((item) => {
