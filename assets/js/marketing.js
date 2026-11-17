@@ -90,7 +90,7 @@
     const meta = document.createElement('span');
     meta.className = 'small muted';
     const imgs = files.filter((f) => /\.jpg$/.test(f.name)).length;
-    const extra = files.filter((f) => !/\.(jpg|txt)$/.test(f.name)).map((f) => f.name);
+    const extra = files.filter((f) => !/\.(jpg|txt)$/.test(f.name)).map((f) => (/\.pptx$/.test(f.name) ? 'Canva file' : f.name));
     meta.textContent = [`${imgs} images`, ...extra, 'listing text'].join(' · ');
     head.append(h, meta);
     const strip = document.createElement('div');
@@ -122,7 +122,19 @@
     view.className = 'btn ghost';
     view.href = `#mk-sec-${platform}`;
     view.textContent = 'See the full kit';
-    actions.append(zipBtn, copyBtn, view);
+    actions.append(zipBtn);
+    // The Canva file sits next to the ZIP: upload it to Canva and every word, card and button is editable.
+    const pptx = files.find((f) => /\.pptx$/.test(f.name));
+    if (pptx) {
+      const canva = document.createElement('a');
+      canva.className = 'btn mk-canva-btn';
+      canva.href = URL.createObjectURL(pptx.blob);
+      canva.download = `${zipBase}-${pptx.name}`;
+      canva.title = 'Upload this PowerPoint file to Canva: every word, card and button is editable';
+      canva.textContent = 'Download for Canva (PPTX)';
+      actions.append(canva);
+    }
+    actions.append(copyBtn, view);
     box.append(head, strip, actions);
     $('mk-kits').appendChild(box);
   }
@@ -165,12 +177,7 @@
         box.innerHTML = '<span class="mk-pdf-icon">PDF</span><span>Open to view</span>';
         card(f.name, `${fileTitle(f.name)} (PDF)`, box, url, grid);
       } else if (/\.pptx$/.test(f.name)) {
-        const box = document.createElement('a');
-        box.className = 'mk-pdf';
-        box.href = url;
-        box.download = f.name;
-        box.innerHTML = '<span class="mk-pdf-icon">CANVA</span><span>Upload this PowerPoint file to Canva: every word is an editable text box</span>';
-        card(f.name, 'Editable in Canva (PPTX)', box, url, grid);
+        // Downloaded from the kit card above, next to the ZIP.
       } else if (/\.txt$/.test(f.name)) {
         const det = document.createElement('details');
         det.className = 'card mk-text';

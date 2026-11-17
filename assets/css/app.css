@@ -795,3 +795,5 @@ main.page > .legal-links { margin-top: 26px; }
 .mk-text summary { cursor: pointer; font-weight: 600; }
 .mk-text pre { white-space: pre-wrap; font-size: 13px; line-height: 1.5; margin: 10px 0 0; max-height: 520px; overflow: auto; }
 .mk-pdf span:last-child { text-align: center; padding: 0 18px; font-size: 13px; }
+.mk-canva-btn { border-color: var(--accent); color: var(--accent); background: #FFF8EC; }
+.mk-canva-btn:hover { background: var(--accent); color: #FFF6EA; }
