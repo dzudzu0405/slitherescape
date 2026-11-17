@@ -209,7 +209,7 @@
       status('Reading the PDF…');
       const game = await K.analyzePdf(new Uint8Array(await file.arrayBuffer()));
       const visual = K.resolveVisual({ themeId: $('mk-theme').value, customText: $('mk-custom').value, title: game.title, material: $('mk-material').value });
-      const A = await K.createAssets(game, visual, window.DEMO_PUZZLE);
+      const A = await K.createAssets(game, visual, window.DEMO_PUZZLE, brand.on ? brand : null);
       const base = slug(game.title);
       zipBase = base;
       // Etsy's 15 scenes at full size, only when Etsy is ticked. Kept as JPEG, not canvas: 15 live
@@ -246,6 +246,67 @@
       $('mk-run').disabled = false;
     }
   }
+
+  // Brand: logo (or shop name) in a corner of every picture, brand colours on the accents.
+  // Saved to the account a moment after each change.
+  const brand = Object.assign({ on: false, shop: '', color: '#7a2e1e', color2: '#e3bf7a', logo: '' }, (window.MARKETING && window.MARKETING.brand) || {});
+  let brandTimer = null;
+  function showBrand() {
+    $('mk-brand-on').checked = !!brand.on;
+    $('mk-brand-body').classList.toggle('hidden', !brand.on);
+    $('mk-shop').value = brand.shop || '';
+    $('mk-color').value = brand.color;
+    $('mk-color2').value = brand.color2;
+    const prev = $('mk-logo-preview');
+    prev.textContent = '';
+    if (brand.logo) { const img = new Image(); img.src = brand.logo; img.alt = 'Your logo'; prev.appendChild(img); }
+    else { const t = document.createElement('span'); t.className = 'small muted'; t.textContent = 'No logo'; prev.appendChild(t); }
+    $('mk-logo-remove').classList.toggle('hidden', !brand.logo);
+  }
+  function saveBrand() {
+    clearTimeout(brandTimer);
+    $('mk-brand-saved').textContent = 'Saving…';
+    brandTimer = setTimeout(async () => {
+      try {
+        await window.UI.api('brand', { brand });
+        $('mk-brand-saved').textContent = 'Saved to your account, so it is ready next time.';
+      } catch (e) {
+        $('mk-brand-saved').textContent = 'Could not save: ' + e.message;
+      }
+    }, 600);
+  }
+  // Logos are scaled down to 600 px on the long side: plenty for a corner badge, small to store.
+  function readLogo(file) {
+    return new Promise((resolve, reject) => {
+      if (!/^image\/(png|jpeg)$/.test(file.type)) { reject(new Error('Please choose a PNG or JPG file.')); return; }
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const k = Math.min(1, 600 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        let data = c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.9);
+        if (data.length > 680000) data = c.toDataURL('image/jpeg', 0.85);
+        if (data.length > 680000) { reject(new Error('That logo is too large. Try a smaller PNG.')); return; }
+        resolve(data);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file could not be read as an image.')); };
+      img.src = url;
+    });
+  }
+  $('mk-brand-on').addEventListener('change', () => { brand.on = $('mk-brand-on').checked; showBrand(); saveBrand(); });
+  $('mk-shop').addEventListener('input', () => { brand.shop = $('mk-shop').value; saveBrand(); });
+  $('mk-color').addEventListener('input', () => { brand.color = $('mk-color').value; saveBrand(); });
+  $('mk-color2').addEventListener('input', () => { brand.color2 = $('mk-color2').value; saveBrand(); });
+  $('mk-logo').addEventListener('change', async () => {
+    const file = $('mk-logo').files[0];
+    $('mk-logo').value = '';
+    if (!file) return;
+    try { brand.logo = await readLogo(file); showBrand(); saveBrand(); } catch (e) { $('mk-brand-saved').textContent = e.message; }
+  });
+  $('mk-logo-remove').addEventListener('click', () => { brand.logo = ''; showBrand(); saveBrand(); });
+  showBrand();
 
   // Platform picker.
   $('mk-platforms').innerHTML = K.PLATFORMS.map(([p, name]) => `<label class="mk-platform"><input type="checkbox" id="mk-p-${p}" checked> ${name}</label>`).join('');

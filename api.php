@@ -3,6 +3,7 @@
 //   save      { id?, title, data }  -> { id, updated }
 //   duplicate { id }                -> { id }   (copy with a new seed and no puzzles)
 //   delete    { id }                -> { ok }
+//   brand     { brand }             -> { ok }   (Marketing Studio brand settings)
 declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 
@@ -94,6 +95,30 @@ switch ($action) {
         db_exec('INSERT INTO projects (user_id, title, status, code, difficulty, puzzle_count, chapter_count, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [$uid, $title, $s['status'], $s['code'], $s['difficulty'], $s['puzzle_count'], $s['chapter_count'], json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), now(), now()]);
         json_out(['id' => (int)db()->lastInsertId()]);
+    }
+
+    case 'brand': {
+        if (!has_plan($user, 'marketing')) json_out(['error' => 'Marketing Studio is not on your account.'], 403);
+        $b = is_array($in['brand'] ?? null) ? $in['brand'] : [];
+        $color = fn($v, $d) => preg_match('/^#[0-9a-f]{6}$/i', (string)$v) ? strtolower((string)$v) : $d;
+        $logo = (string)($b['logo'] ?? '');
+        if ($logo !== '' && (!preg_match('#^data:image/(png|jpeg);base64,[A-Za-z0-9+/=]+$#', $logo) || strlen($logo) > 700000)) {
+            json_out(['error' => 'The logo must be a PNG or JPG under 500 KB.'], 400);
+        }
+        $brand = [
+            'on' => !empty($b['on']),
+            'shop' => mb_substr(trim((string)($b['shop'] ?? '')), 0, 60),
+            'color' => $color($b['color'] ?? '', '#7a2e1e'),
+            'color2' => $color($b['color2'] ?? '', '#e3bf7a'),
+            'logo' => $logo,
+        ];
+        $json = json_encode($brand, JSON_UNESCAPED_SLASHES);
+        if (db_one('SELECT user_id FROM brands WHERE user_id = ?', [$user['id']])) {
+            db_exec('UPDATE brands SET data = ?, updated_at = ? WHERE user_id = ?', [$json, now(), $user['id']]);
+        } else {
+            db_exec('INSERT INTO brands (user_id, data, updated_at) VALUES (?, ?, ?)', [$user['id'], $json, now()]);
+        }
+        json_out(['ok' => true]);
     }
 
     case 'delete': {

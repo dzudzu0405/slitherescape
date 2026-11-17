@@ -7,7 +7,7 @@ require_once __DIR__ . '/layout.php';
 const CONFIG_FILE = __DIR__ . '/../config.php';
 const DATA_DIR = __DIR__ . '/../data';
 // Bump when schema_sql() gains tables, so existing installs pick them up on the next visit.
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 const PLANS = ['pro' => 'SlitherEscape PRO', 'bulk' => 'Bulk Creator', 'marketing' => 'Marketing Studio'];
 // Purchase links: the FE link gives an account, each OTO link adds its plan.
 const ACCESS_PLANS = ['fe' => 'SlitherEscape Studio (FE)'] + PLANS;
@@ -125,6 +125,10 @@ function schema_sql(string $driver): array
             'CREATE TABLE IF NOT EXISTS settings (
                 name TEXT NOT NULL PRIMARY KEY,
                 value TEXT NOT NULL)',
+            'CREATE TABLE IF NOT EXISTS brands (
+                user_id INTEGER NOT NULL PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                data TEXT NOT NULL,
+                updated_at TEXT NOT NULL)',
             'CREATE TABLE IF NOT EXISTS library_images (
                 name TEXT NOT NULL PRIMARY KEY,
                 theme TEXT NOT NULL,
@@ -181,6 +185,12 @@ function schema_sql(string $driver): array
         'CREATE TABLE IF NOT EXISTS settings (
             name VARCHAR(60) NOT NULL PRIMARY KEY,
             value TEXT NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        // Marketing Studio brand: logo (a small PNG data URL), shop name and two colours, as JSON.
+        'CREATE TABLE IF NOT EXISTS brands (
+            user_id INT UNSIGNED NOT NULL PRIMARY KEY,
+            data MEDIUMTEXT NOT NULL,
+            updated_at DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
         'CREATE TABLE IF NOT EXISTS library_images (
             name VARCHAR(20) NOT NULL PRIMARY KEY,

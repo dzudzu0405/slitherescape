@@ -8,8 +8,8 @@
   const ITALIC = '"IM Fell Italic", Georgia, serif';
   const BASE_COLORS = { accentInk: '#f7ecd6', ink: '#fbf5e8', paper: '#efe0c0', paperEdge: '#7a5230', pencil: '#3b2412', loop: '#7a2e1e', shade: '#d9bf8c' };
 
-  // Set per render; the kit renders one game at a time.
-  let GAME, THEME, USED_PAGES;
+  // Set per render; the kit renders one game at a time. BRAND is null unless the seller turned their brand on.
+  let GAME, THEME, USED_PAGES, BRAND = null;
 
   // Theme -> visuals ----------------------------------------------------------------------------
 
@@ -250,6 +250,52 @@
     if (shadow) { ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 12; }
     ctx.fillStyle = fill;
     if (r) { roundRect(ctx, x, y, w, h, r); ctx.fill(); } else ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+
+  // Seller's brand ---------------------------------------------------------------------------------
+
+  // Light text on dark colours, dark text on light ones.
+  const readableOn = (c) => { const [r, g, b] = hex(c); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6 ? '#2b1d12' : '#fbf5e8'; };
+
+  function loadImage(src) {
+    return new Promise((res) => { if (!src) { res(null); return; } const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+  }
+
+  // The logo inside a box of maxW x maxH, centred on (cx, cy). In Canva mode it is its own picture.
+  function drawLogo(ctx, cx, cy, maxW, maxH) {
+    const img = BRAND.img, k = Math.min(maxW / img.width, maxH / img.height);
+    const w = img.width * k, h = img.height * k, x = cx - w / 2, y = cy - h / 2;
+    const m = ctx.getTransform();
+    if (REC && Math.abs(m.b) < 0.01 && Math.abs(m.c) < 0.01) {
+      REC.push({ type: 'image', data: BRAND.data, x: m.a * x + m.e, y: m.d * y + m.f, w: w * m.a, h: h * m.d, alpha: ctx.globalAlpha });
+      return;
+    }
+    ctx.drawImage(img, x, y, w, h);
+  }
+
+  // Logo (or shop name) on a small cream badge in a corner of a w x h picture.
+  // at: 'br' bottom-right, 'bl' bottom-left, or {cx, y}: centred on cx with its top at y (reels).
+  const noteW = (w) => (BRAND ? W - 760 : w);
+
+  function stampBrand(ctx, w, h, at = 'br', scale = 1) {
+    if (!BRAND || (!BRAND.img && !BRAND.shop)) return;
+    const m = Math.min(w, h), pad = m * 0.028, inner = m * 0.014 * scale;
+    let bw, bh;
+    if (BRAND.img) {
+      const maxH = m * 0.05 * scale, maxW = m * 0.16 * scale, k = Math.min(maxW / BRAND.img.width, maxH / BRAND.img.height);
+      bw = BRAND.img.width * k + inner * 2; bh = BRAND.img.height * k + inner * 2;
+    } else {
+      setFont(ctx, 400, m * 0.026 * scale, SC, 1);
+      bw = Math.min(m * 0.2 * scale, ctx.measureText(BRAND.shop).width + inner * 3); bh = m * 0.026 * scale + inner * 2.2;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    }
+    const x = at === 'br' ? w - pad - bw : at === 'bl' ? pad : at.cx - bw / 2;
+    const y = typeof at === 'string' ? h - pad - bh : at.y;
+    ctx.save();
+    box(ctx, x, y, bw, bh, Math.min(bh / 2, m * 0.012), '#fbf7ee', true);
+    if (BRAND.img) drawLogo(ctx, x + bw / 2, y + bh / 2, bw - inner * 2, bh - inner * 2);
+    else fitText(ctx, BRAND.shop, x + bw / 2, y + bh / 2 + m * 0.009 * scale, bw - inner * 2, m * 0.026 * scale, 400, SC, '#2b1d12', 1);
     ctx.restore();
   }
 
@@ -799,7 +845,10 @@
 
   function drawMessage(ctx, A) {
     ctx.drawImage(A.bg, 0, 0, W, H);
-    drawMotif(ctx, THEME.motif, W / 2, 400, 380, THEME.gold);
+    if (BRAND && BRAND.img) {
+      box(ctx, W / 2 - 330, 200, 660, 400, 30, '#fbf7ee', true);
+      drawLogo(ctx, W / 2, 400, 560, 320);
+    } else drawMotif(ctx, THEME.motif, W / 2, 400, 380, THEME.gold);
     ctx.save();
     ctx.shadowColor = THEME.textShadow;
     ctx.shadowBlur = 16;
@@ -969,7 +1018,7 @@
     title(xs[2], '3. Wrong answer? Wait 2 minutes');
     drawClock(ctx, xs[2] + w / 2, top + 500, 170);
     drawWrapped(ctx, 'Then try a different question. Every puzzle has two hints.', xs[2] + w / 2, top + 800, w - 80, 54, 400, SC, THEME.pencil, 4);
-    fitText(ctx, 'Example shown. Questions come from your game’s story and theme.', W / 2, 1490, W - 200, 46, 400, SC, THEME.gold);
+    fitText(ctx, 'Example shown. Questions come from your game’s story and theme.', W / 2, 1490, noteW(W - 200), 46, 400, SC, THEME.gold);
   }
 
   function drawPeople(ctx, cx, cy, count, color) {
@@ -1032,7 +1081,7 @@
       drawPuzzle(ctx, p, A.loop, x + (w - p.W * cell) / 2, top + 190, cell, { loop, shade: 0 });
       fitText(ctx, i ? 'About half of the loop' : 'A first piece of the loop', x + w / 2, top + 880, w - 80, 48, 400, SC, THEME.pencil);
     });
-    fitText(ctx, 'Example shown. Your cards match your puzzles. Six cards to a page, with cut lines.', W / 2, 1400, W - 180, 48, 400, SC, THEME.gold);
+    fitText(ctx, 'Example shown. Your cards match your puzzles. Six cards to a page, with cut lines.', W / 2, 1400, noteW(W - 180), 48, 400, SC, THEME.gold);
   }
 
   function drawHostGuide(ctx, A) {
@@ -1152,7 +1201,7 @@
       fitText(ctx, 'opens the last lock!', cols[2], 1020, 560, 50, 400, SC, THEME.ink);
     }
     if (GAME.hasPictures && GAME.hasLetters) fitText(ctx, 'Picture chapters: the solved puzzles are pieces of one big picture, and its name is the word.', W / 2, 1300, W - 200, 44, 400, SC, THEME.ink);
-    fitText(ctx, 'Example puzzle shown. Your game has its own puzzles and its own code.', W / 2, 1420, W - 200, 46, 400, SC, THEME.gold);
+    fitText(ctx, 'Example puzzle shown. Your game has its own puzzles and its own code.', W / 2, 1420, noteW(W - 200), 46, 400, SC, THEME.gold);
   }
 
   // Second video scene: the loop draws itself, the letter appears and drops into the code.
@@ -1217,6 +1266,7 @@
       ctx.drawImage(A.layer.canvas, 0, 0, W, H);
       ctx.restore();
     }
+    stampBrand(ctx, W, H);
   }
 
   // Output ---------------------------------------------------------------------------------------
@@ -1227,7 +1277,7 @@
   }
 
   // Renders only the pages the layouts use and activates this game and theme for drawing.
-  async function createAssets(game, visual, puzzle) {
+  async function createAssets(game, visual, puzzle, brand) {
     await Promise.all([
       document.fonts.load(`900 100px "Playfair Display"`),
       document.fonts.load(`800 100px "Playfair Display"`),
@@ -1240,6 +1290,19 @@
     // The puzzle seal is always light-on-red, whatever the background.
     THEME.sealInk = THEME.ink; THEME.sealGold = THEME.gold;
     if (isLight(visual.material)) Object.assign(THEME, { ink: '#2b1d12', gold: visual.accent, textShadow: 'rgba(255,255,255,0)' });
+    BRAND = null;
+    if (brand && brand.on) {
+      BRAND = { shop: (brand.shop || '').trim(), data: brand.logo || '', img: await loadImage(brand.logo) };
+      // The seller's colours go on the accents only; the background still follows the game's theme.
+      if (/^#[0-9a-f]{6}$/i.test(brand.color || '')) {
+        Object.assign(THEME, { accent: brand.color, accentInk: readableOn(brand.color), sealInk: readableOn(brand.color) });
+        if (isLight(visual.material)) THEME.gold = brand.color;
+      }
+      if (/^#[0-9a-f]{6}$/i.test(brand.color2 || '')) {
+        THEME.sealGold = brand.color2;
+        if (!isLight(visual.material)) THEME.gold = brand.color2;
+      }
+    }
     USED_PAGES = [];
     const first = (kind) => {
       const p = game.pages.find((x) => x.kind === kind);
@@ -1286,10 +1349,13 @@
 
   const imageNames = () => Object.keys(IMAGES);
 
-  function renderImage(name, A) {
+  // stamp: the brand badge in the corner. Off for scenes that go inside a platform frame.
+  function renderImage(name, A, stamp = true) {
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
-    IMAGES[name](c.getContext('2d'), A);
+    const ctx = c.getContext('2d');
+    IMAGES[name](ctx, A);
+    if (stamp && !(name === '15-instant-download' && BRAND && BRAND.img)) stampBrand(ctx, W, H, name === '01-hero' ? 'bl' : 'br');
     return c;
   }
 
@@ -1423,7 +1489,7 @@
 
   // A 2000x1600 scene placed on the theme background at another size, with a headline band above and
   // a short line below. Wide formats (Amazon A+) get the scene alone.
-  function framed(A, scene, w, h, top, bottom, sceneText) {
+  function framed(A, scene, w, h, top, bottom, sceneText, stamp = true) {
     const c = newCanvas(w, h), x = c.getContext('2d');
     const s = Math.max(w / W, h / H);
     x.drawImage(A.bg, (w - W * s) / 2, (h - H * s) / 2, W * s, H * s);
@@ -1469,12 +1535,16 @@
     bandText(x, top, w / 2, pad * 0.5, topH + pad * 0.3, w - pad * 2, THEME.ink, 900, HEAD, w * 0.075);
     x.restore();
     bandText(x, bottom, w / 2, sy + sh + pad * 0.2, botH + pad * 0.6, w - pad * 2, THEME.gold, 400, SC, w * 0.05);
+    if (stamp) stampBrand(x, w, h);
     return c;
   }
 
+  // The instant-download scene already shows the logo large, so its frame skips the corner badge.
+  const frameStamp = (name) => !(name === '15-instant-download' && BRAND && BRAND.img);
+
   function frameOf(A, name, w, h, top, bottom) {
-    const scene = renderImage(name, A);
-    const c = framed(A, scene, w, h, top, bottom);
+    const scene = renderImage(name, A, false);
+    const c = framed(A, scene, w, h, top, bottom, undefined, frameStamp(name));
     scene.width = scene.height = 0;
     return c;
   }
@@ -1759,8 +1829,8 @@
   }
 
   function frameRecorded(A, name, w, h, top, bottom) {
-    const [scene, sceneText] = recorded(() => renderImage(name, A));
-    const out = recorded(() => framed(A, scene, w, h, top, bottom, sceneText));
+    const [scene, sceneText] = recorded(() => renderImage(name, A, false));
+    const out = recorded(() => framed(A, scene, w, h, top, bottom, sceneText, frameStamp(name)));
     scene.width = scene.height = 0;
     return out;
   }
@@ -2140,7 +2210,8 @@
     ['reel-flip-through', 12, reelFlip],
     ['reel-how-it-works', 15, reelHow],
   ];
-  const reelSpec = (seconds, fn) => ({ fps: 24, seconds, width: RW, height: RH, draw: (ctx, A, t) => fn(ctx, A, t) });
+  const reelStamp = (ctx) => stampBrand(ctx, RW, RH, { cx: RW / 2, y: 112 }, 1.5);
+  const reelSpec = (seconds, fn) => ({ fps: 24, seconds, width: RW, height: RH, draw: (ctx, A, t) => { fn(ctx, A, t); reelStamp(ctx); } });
 
   // Cover for the profile grid: the hook, the title and the game's cover.
   function reelCover(A) {
@@ -2150,13 +2221,14 @@
     drawPage(x, A.images.cover, RW / 2, 980, 640, -2);
     drawSeal(x, RW / 2 + 290, 1270, 130, 0.95);
     reelLabel(x, GAME.title, 1490, 1);
+    reelStamp(x);
     return c;
   }
 
   root.ListingKit = {
     PLATFORMS, buildPlatform, platformText: (p) => TEXTS[p](),
     reelNames: REELS.map((r) => r[0]),
-    reelFrame(A, name, t) { const r = REELS.find((x) => x[0] === name); const c = newCanvas(RW, RH); r[2](c.getContext('2d'), A, t); return c; },
+    reelFrame(A, name, t) { const r = REELS.find((x) => x[0] === name); const c = newCanvas(RW, RH); const x = c.getContext('2d'); r[2](x, A, t); reelStamp(x); return c; },
     reelCover: (A) => reelCover(A),
     lightMaterials: Object.keys(LIGHT),
     analyzePdf, resolveVisual, createAssets, renderImage, encodeVideo,

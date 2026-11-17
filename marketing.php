@@ -29,6 +29,12 @@ if (isset($_GET['project'])) {
     $themeId = (string)((json_decode((string)($p['data'] ?? ''), true) ?: [])['themeId'] ?? '');
 }
 $upgrade = upgrade_url('marketing');
+// The seller's brand for the listing images (logo, shop name, two colours). Starts with the shop name.
+$brand = ['on' => false, 'shop' => (string)$user['shop_name'], 'color' => '#7a2e1e', 'color2' => '#e3bf7a', 'logo' => ''];
+if ($owned) {
+    $row = db_one('SELECT data FROM brands WHERE user_id = ?', [$user['id']]);
+    if ($row) $brand = array_merge($brand, json_decode((string)$row['data'], true) ?: []);
+}
 
 page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
 ?>
@@ -78,6 +84,25 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
       <div class="field-label">Listing kits for <span class="small muted">(each gets its own image sizes and ready-to-paste text)</span></div>
       <div class="mk-platforms" id="mk-platforms"></div>
     </div>
+    <div class="mk-brand" id="mk-brand">
+      <label class="toggle small"><input type="checkbox" id="mk-brand-on"><span class="track"></span> <b>Add my brand</b> <span class="small muted">&mdash; your logo in a corner of every image and video, and your colours on the ribbons, buttons and seal</span></label>
+      <div class="mk-brand-body hidden" id="mk-brand-body">
+        <div class="mk-brand-logo">
+          <div class="mk-logo-preview" id="mk-logo-preview"><span class="small muted">No logo</span></div>
+          <div>
+            <label class="btn ghost sm" style="cursor:pointer">Upload logo<input type="file" id="mk-logo" accept="image/png,image/jpeg" hidden></label>
+            <button class="btn ghost sm hidden" id="mk-logo-remove" type="button">Remove</button>
+            <p class="small muted" style="margin-top:6px">PNG with a transparent background looks best. Without a logo, your shop name is used.</p>
+          </div>
+        </div>
+        <div class="row">
+          <label class="field"><span>Shop name</span><input type="text" id="mk-shop" maxlength="60" placeholder="Your Shop Name"></label>
+          <label class="field"><span>Main colour <span class="small muted">(ribbons, buttons)</span></span><input type="color" id="mk-color"></label>
+          <label class="field"><span>Highlight colour <span class="small muted">(headlines, seal)</span></span><input type="color" id="mk-color2"></label>
+        </div>
+        <p class="small muted" id="mk-brand-saved">Saved to your account, so it is ready next time.</p>
+      </div>
+    </div>
     <label class="toggle small" style="margin:4px 0 16px"><input type="checkbox" id="mk-video" checked><span class="track"></span> Also make the videos: page-flip for Etsy, vertical for Instagram Reels (about a minute each)</label>
     <button class="btn primary lg" id="mk-run" type="button">Make listing kits</button>
   </div>
@@ -93,12 +118,12 @@ page_head('Marketing Studio', '', ['user' => $user, 'nav' => 'marketing']);
   <div id="mk-out"></div>
 <?php endif; ?>
 </main>
-<script>window.MARKETING = <?= json_encode(['themeId' => $themeId], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; window.LISTING_KIT_VENDOR = 'assets/vendor/pdfjs/';</script>
+<script>window.MARKETING = <?= json_encode(['themeId' => $themeId, 'brand' => $brand], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; window.LISTING_KIT_VENDOR = 'assets/vendor/pdfjs/';</script>
 <?php
 if ($owned) {
     foreach (['assets/vendor/mp4-muxer.min.js', 'assets/vendor/jszip.min.js', 'assets/js/themes.js'] as $src) echo '<script src="' . h($src) . '?v=' . h(asset_version()) . '"></script>' . "\n";
     foreach (['demo', 'kit'] as $f) echo '<script src="marketing.php?f=' . $f . '&amp;v=' . h(asset_version()) . '"></script>' . "\n";
-    page_foot(['assets/js/handoff.js', 'assets/js/marketing.js']);
+    page_foot(['assets/js/ui.js', 'assets/js/handoff.js', 'assets/js/marketing.js']);
 } else {
     page_foot();
 }
