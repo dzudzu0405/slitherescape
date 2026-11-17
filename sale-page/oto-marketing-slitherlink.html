@@ -585,6 +585,27 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 .shot figcaption{margin-top:11px; font-size:13.5px; color:var(--ink-dim); line-height:1.5;}
 .shot figcaption b{display:block; font-family:var(--serif); font-weight:400; font-size:18px; color:var(--ink);}
 .shots figure{margin:0;}
+.shot .frame.real{background:#2a2016;}
+.zoomable{display:block; width:100%; height:100%; padding:0; border:0; background:none; cursor:zoom-in;}
+.zoomable img{display:block; width:100%; height:100%; object-fit:cover; transition:transform .25s ease;}
+.zoomable:hover img{transform:scale(1.03);}
+.sizes{display:grid; grid-template-columns:2fr 2.4fr 3fr 1.69fr; gap:16px; align-items:end; margin-top:30px;}
+.sizes figure{margin:0;}
+.sizes .zoomable{border:2px solid var(--ink); border-radius:3px; overflow:hidden; box-shadow:4px 4px 0 var(--hard); height:auto;}
+.sizes .zoomable img{height:auto;}
+.sizes figcaption{margin-top:9px; font-size:13px; color:var(--ink-dim); text-align:center; line-height:1.4;}
+.sizes figcaption b{display:block; font-size:14px; color:var(--ink);}
+.brand-pair{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:34px;}
+.brand-pair figure{margin:0;}
+.brand-pair .zoomable{border:2px solid var(--ink); border-radius:3px; overflow:hidden; box-shadow:4px 4px 0 var(--hard); aspect-ratio:5/4; height:auto;}
+.brand-pair figcaption{margin-top:9px; font-size:13.5px; color:var(--ink-dim); text-align:center;}
+.brand-pair figcaption b{color:var(--ink);}
+.sub-head{text-align:center; margin-top:46px; font-family:var(--serif); font-size:24px; color:var(--ink);}
+.lightbox{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(28,17,8,.92); cursor:zoom-out;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%; max-height:100%; box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.lightbox button{position:absolute; top:14px; right:16px; border:2px solid #F4E8CB; background:transparent; color:#F4E8CB; border-radius:999px; padding:6px 14px; font:inherit; font-weight:700; cursor:pointer;}
+@media (max-width:720px){ .sizes{grid-template-columns:1fr 1fr;} .brand-pair{grid-template-columns:1fr;} }
 .mp{position:absolute; background:var(--card); border:1.5px solid var(--ink); box-shadow:2px 3px 0 rgba(0,0,0,.35); display:flex; flex-direction:column; gap:4px; padding:7px 6px;}
 .mp i{display:block; height:3px; background:var(--tan); border-radius:2px;}
 .mp i.s{width:60%;}
@@ -729,16 +750,16 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
     <div class="section-head center">
       <span class="eyebrow">Listing images</span>
       <h2>Fifteen <em>listing pictures</em>, in one click.</h2>
-      <p class="lead">Built from your own game pages and dressed in your theme. Six of the fifteen are shown here.</p>
+      <p class="lead">These are real images, made by Marketing Studio from <b>The Midnight Frost</b>, the sample game on our sales page. Nothing was edited. Six of the fifteen are shown; click any image to see it full size.</p>
     </div>
 
     <div class="shots" id="shots">
-      <figure class="card shot"><div class="frame"><div class="mp a"><i></i><i class="s"></i><i></i></div><div class="mp c"><i></i><i class="s"></i><i></i></div><div class="mp b"><i></i><i class="s"></i><i></i><i></i></div></div><figcaption><b>Cover mockup</b>Your cover and pages laid out on a backdrop that suits the theme.</figcaption></figure>
-      <figure class="card shot"><div class="frame paper"><div class="mini-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div><figcaption><b>&ldquo;What&rsquo;s included&rdquo;</b>The pages of the game at a glance, so buyers see what they get.</figcaption></figure>
-      <figure class="card shot"><div class="frame paper"><div class="how3"><div><b>1</b>Solve</div><em></em><div><b>2</b>Collect</div><em></em><div><b>3</b>Unlock</div></div></div><figcaption><b>&ldquo;How it works&rdquo;</b>Three steps: solve the puzzles, collect the letters or the picture, open the lock.</figcaption></figure>
-      <figure class="card shot"><div class="frame paper"><div class="badges"><span>Ages 11&ndash;17</span><span>2&ndash;6 players</span><span>A4 &amp; Letter</span><span>Instant download</span></div></div><figcaption><b>At a glance</b>Ages, players, play time and paper size in one picture.</figcaption></figure>
-      <figure class="card shot"><div class="frame paper"><div class="samp" style="left:8%;top:12%;transform:rotate(-5deg)"><span>PUZZLE</span></div><div class="samp" style="right:8%;top:12%;transform:rotate(4deg)"><span>HINTS</span></div></div><figcaption><b>Page close-ups</b>A puzzle, the Code Sheet, hint cards, host guide and certificate &mdash; never the answers.</figcaption></figure>
-      <figure class="card shot"><div class="frame paper"><div class="pin"><b>Escape Game</b>Printable Loop the Loop<small>Instant download</small></div></div><figcaption><b>Instant download</b>A closing picture that tells buyers it&rsquo;s a printable file.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-01-hero-l.jpg"><img src="sample/mk-01-hero.jpg" alt="Listing image: Cover mockup, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>Cover mockup</b>Your cover and pages laid out on a backdrop that suits the theme.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-02-included-l.jpg"><img src="sample/mk-02-included.jpg" alt="Listing image: Whats included, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>&ldquo;What&rsquo;s included&rdquo;</b>The pages of the game at a glance, so buyers see what they get.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-04-how-it-works-l.jpg"><img src="sample/mk-04-how-it-works.jpg" alt="Listing image: How it works, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>&ldquo;How it works&rdquo;</b>Solve the numbers, close the loop, crack the code.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-14-at-a-glance-l.jpg"><img src="sample/mk-14-at-a-glance.jpg" alt="Listing image: At a glance, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>At a glance</b>Ages, puzzles, play time and group size in one picture.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-10-hint-cards-l.jpg"><img src="sample/mk-10-hint-cards.jpg" alt="Listing image: Page close-ups, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>Page close-ups</b>Hint cards, the Code Sheet, host guide and certificate &mdash; never the answers.</figcaption></figure>
+      <figure class="card shot"><div class="frame real"><button type="button" class="zoomable" data-full="sample/mk-15-instant-download-l.jpg"><img src="sample/mk-15-instant-download.jpg" alt="Listing image: Instant download, made from The Midnight Frost" loading="lazy"></button></div><figcaption><b>Instant download</b>A closing picture that tells buyers it&rsquo;s a printable file.</figcaption></figure>
     </div>
     <p class="stagger-note">All fifteen: cover mockup, what&rsquo;s included, the story, how it works, the secret code, earning hints, ways to play, a puzzle, the Code Sheet, hint cards, host guide, certificate, occasions, at a glance and instant download. Each is a 2000&nbsp;&times;&nbsp;1600&nbsp;px JPG on one of nine backdrops drawn to suit your theme: wood, linen, stone, chalkboard and night sky, or the light oak, marble, kraft paper and theme pattern.</p>
   </div>
@@ -759,6 +780,18 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="card"><h3>Instagram</h3><p style="margin-top:4px;font-size:13px;color:var(--ink-dim);">Carousel and 3 reels</p><ul class="tick dim" style="margin-top:12px;font-size:14.5px;"><li>An 8-slide carousel, 1080 &times; 1350 px</li><li>3 vertical reels (11, 12 and 15 s, 1080 &times; 1920), also for TikTok and YouTube Shorts</li><li>Reel cover, captions and hashtags</li></ul></div>
       <div class="card"><h3>Teachers Pay Teachers</h3><p style="margin-top:4px;font-size:13px;color:var(--ink-dim);">4 thumbnails, 1500 &times; 1500 px</p><ul class="tick dim" style="margin-top:12px;font-size:14.5px;"><li>A PREVIEW PDF of sample pages, stamped and with no answers</li><li>Title, grades, subjects and a description written for teachers</li></ul></div>
       <div class="card"><h3>Shopify</h3><p style="margin-top:4px;font-size:13px;color:var(--ink-dim);">8 product images, 2048 &times; 2048 px</p><ul class="tick dim" style="margin-top:12px;font-size:14.5px;"><li>Square product images for your store</li><li>Product title, tags, SEO title, meta description and an HTML description</li></ul></div>
+    </div>
+    <h3 class="sub-head">The same game, sized for each marketplace</h3>
+    <div class="sizes">
+      <figure><button type="button" class="zoomable" data-full="sample/mk-pin-1.jpg"><img src="sample/mk-pin-1.jpg" alt="Pinterest pin made from The Midnight Frost" loading="lazy"></button><figcaption><b>Pinterest pin</b>1000 &times; 1500</figcaption></figure>
+      <figure><button type="button" class="zoomable" data-full="sample/mk-slide-1.jpg"><img src="sample/mk-slide-1.jpg" alt="Instagram carousel slide made from The Midnight Frost" loading="lazy"></button><figcaption><b>Instagram slide</b>1080 &times; 1350</figcaption></figure>
+      <figure><button type="button" class="zoomable" data-full="sample/mk-thumbnail-1.jpg"><img src="sample/mk-thumbnail-1.jpg" alt="Teachers Pay Teachers thumbnail made from The Midnight Frost" loading="lazy"></button><figcaption><b>TpT thumbnail</b>1500 &times; 1500</figcaption></figure>
+      <figure><button type="button" class="zoomable" data-full="sample/mk-reel.jpg"><img src="sample/mk-reel.jpg" alt="Reel cover made from The Midnight Frost" loading="lazy"></button><figcaption><b>Reel cover</b>1080 &times; 1920</figcaption></figure>
+    </div>
+    <h3 class="sub-head">With your brand turned on</h3>
+    <div class="brand-pair">
+      <figure><button type="button" class="zoomable" data-full="sample/mk-brand-01-hero-l.jpg"><img src="sample/mk-brand-01-hero.jpg" alt="Cover mockup with a sample shop logo and blue shop colours" loading="lazy"></button><figcaption><b>Your logo</b> in the corner, <b>your colours</b> on the ribbon and seal</figcaption></figure>
+      <figure><button type="button" class="zoomable" data-full="sample/mk-brand-15-instant-download-l.jpg"><img src="sample/mk-brand-15-instant-download.jpg" alt="Instant download image with a large sample shop logo" loading="lazy"></button><figcaption>The closing image shows your logo <b>large</b></figcaption></figure>
     </div>
     <p class="stagger-note">Every kit also includes a <b>PowerPoint file you can edit in Canva</b>: the headlines, text boxes, cards and buttons are separate pieces, so you can change any word without redrawing the image. Turn on <b>Add my brand</b> and your logo and colours go on every image and video. Or press <b>Download all (ZIP)</b> for every image, video and text file at once.</p>
   </div>
@@ -1133,5 +1166,21 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 </script>
 <!-- WarriorPlus Sales Page Code -->
 <script type="text/javascript" src="https://warriorplus.com/o2/js/dls249" defer></script>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Listing image, full size"><img alt=""><button type="button">Close &times;</button></div>
+<script>
+/* ---------- full-size listing images ---------- */
+(function(){
+  var box = document.getElementById('lightbox'), img = box.querySelector('img'), last = null;
+  function close(){ box.classList.remove('open'); img.removeAttribute('src'); document.body.style.overflow = ''; if (last) last.focus(); }
+  [].forEach.call(document.querySelectorAll('.zoomable'), function(b){
+    b.addEventListener('click', function(){
+      last = b; img.src = b.getAttribute('data-full'); img.alt = b.querySelector('img').alt;
+      box.classList.add('open'); document.body.style.overflow = 'hidden'; box.querySelector('button').focus();
+    });
+  });
+  box.addEventListener('click', close);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.classList.contains('open')) close(); });
+})();
+</script>
 </body>
 </html>
