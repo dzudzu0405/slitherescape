@@ -573,7 +573,7 @@
     this.font('FellSC', 14, C.brown);
     this.text(`${g.audience} · ${g.puzzles.length} Puzzles · ${g.minutes[0]}-${g.minutes[1]} Minutes`, cx, y + 26, { align: 'center' });
     this.font('Fell', 12, C.brown, 'italic');
-    this.text(`${s.chapters.length} chapters · one secret code · for groups or competing teams`, cx, y + 46, { align: 'center' });
+    this.text(`${s.chapters.length === 1 ? 'One picture' : `${s.chapters.length} chapters`} · one secret code · for groups or competing teams`, cx, y + 46, { align: 'center' });
     this.font('Fell', 11, C.brown);
     this.text(`© ${g.shop || 'Your Shop Name'}`, cx, box.y + box.h + 18, { align: 'center' });
   };
@@ -804,7 +804,7 @@
     const howWords = anyMosaic
       ? `${s.chapters.some((c) => !isMosaic(c)) ? "In a letter chapter, every solved puzzle reveals one letter of the chapter's word. " : ''}In a picture chapter, the solved puzzles are pieces of one picture; players glue them onto the Assembly Board, find the finished picture on the Answer Board, and its name is the chapter's word. The words together form`
       : "Every solved puzzle reveals one letter; each chapter's letters spell a word, and the words together form";
-    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Loop the Loop puzzles (a Slitherlink-style logic puzzle) in ${s.chapters.length} chapters. ${howWords} the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
+    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Loop the Loop puzzles (a Slitherlink-style logic puzzle) in ${s.chapters.length === 1 ? 'one chapter' : `${s.chapters.length} chapters`}. ${howWords} the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
     heading('What to print');
     bullets([
       `For the players: pages ${pages.playerFrom}-${pages.playerTo} (cover, story, How to Play, Code Sheet, chapters and puzzles, Final Lock), plus the certificate on page ${pages.certificate}.`,

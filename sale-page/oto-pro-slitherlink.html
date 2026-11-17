@@ -623,6 +623,24 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
   /* WarriorPlus disclaimer: W+ injects its own faint colours; keep it readable on the dark footer */
   .wplus_spdisclaimer, .wplus_spdisclaimer *{color:#E8DCC4 !important; opacity:1 !important;}
   .wplus_spdisclaimer b, .wplus_spdisclaimer strong{color:#F3E9D2 !important;}
+  /* ---------- sample game: page-flip book ---------- */
+  .sample-meta{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 10px; margin-top:18px;}
+  .sample-meta span{font-size:13px; font-weight:700; color:var(--ink-dim); background:var(--card); border:1.5px solid var(--line-strong); border-radius:999px; padding:4px 12px;}
+  .book-wrap{max-width:1000px; margin:0 auto; padding:10px 0 4px;}
+  .book{margin:0 auto; filter:drop-shadow(0 18px 26px rgba(59,36,18,.32));}
+  .book .page{background:#F7F2E6;}
+  .book .page img{display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; user-select:none;}
+  .book-bar{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:24px;}
+  .book-bar .bk-nav{width:46px; height:46px; border-radius:50%; border:2.5px solid var(--ink); background:var(--card); color:var(--ink); font-size:24px; line-height:1; cursor:pointer; box-shadow:0 3px 0 var(--hard);}
+  .book-bar .bk-nav:hover{background:var(--wash);}
+  .book-bar .bk-nav:disabled{opacity:.35; cursor:default;}
+  .book-label{min-width:220px; text-align:center; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .book-label small{display:block; font-weight:600; font-size:12.5px; color:var(--brown);}
+  .book-jump{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:20px;}
+  .book-jump button{font:inherit; font-size:13px; font-weight:700; color:var(--ink-dim); background:var(--card); border:1.5px solid var(--line-strong); border-radius:999px; padding:5px 13px; cursor:pointer;}
+  .book-jump button:hover, .book-jump button.on{border-color:var(--ink); color:var(--ink); background:var(--wash);}
+  .sample-note{margin-top:18px; font-size:13.5px; color:var(--brown); text-align:center;}
+  @media (max-width:720px){ .book-label{min-width:0;} .book-bar{gap:10px;} }
 </style>
 </head>
 
@@ -762,6 +780,62 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
       <div class="card"><h3>Pictures drawn for the grid</h3><p>Every picture is drawn directly on the grid, up to 30&times;30 cells &mdash; not borrowed from an icon set, which lost its character once the holes were filled in. Each picture has a strong outline, because the detail inside is what disappears. The shapes are hand-approved one by one before they enter the library.</p></div>
       <div class="card"><h3>One way to put it together</h3><p>Before a Mosaic can be exported, the app checks that the pieces fit together only one way and give the right picture. If they could go together another way, it tries another position, or prints a coordinate on one piece as a reference. No two pictures in a game look alike.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ============ SAMPLE MOSAIC GAME ============ -->
+<section class="reveal" id="sample">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">A real Mosaic game, page by page</span>
+      <h2>Seven pieces. <em>One picture.</em> One code.</h2>
+      <p class="lead"><b>Midnight at Harbor Tower</b> was made with PRO exactly the way you would make one, and nothing was retouched. Turn the pages: the pieces, the Assembly Board, the Answer Board, then the host pages with the finished picture.</p>
+      <div class="sample-meta"><span>Mosaic</span><span>Teens 14&ndash;17</span><span>7 puzzle pieces</span><span>35&ndash;56 minutes</span><span>21 pages &middot; US Letter</span><span>Seasonal pattern</span></div>
+    </div>
+    <div class="book-wrap">
+      <div class="book" id="book">
+        <div class="page"><img src="sample/harbor-01.jpg" alt="Midnight at Harbor Tower, page 1: Cover" width="900" height="1165"></div>
+        <div class="page"><img src="sample/harbor-02.jpg" alt="Midnight at Harbor Tower, page 2: Prologue" width="900" height="1165"></div>
+        <div class="page"><img src="sample/harbor-03.jpg" alt="Midnight at Harbor Tower, page 3: How to Play" width="900" height="1165"></div>
+        <div class="page"><img src="sample/harbor-04.jpg" alt="Midnight at Harbor Tower, page 4: Code Sheet" width="900" height="1165"></div>
+        <div class="page"><img src="sample/harbor-05.jpg" alt="Midnight at Harbor Tower, page 5: Chapter One" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-06.jpg" alt="Midnight at Harbor Tower, page 6: Picture pieces" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-07.jpg" alt="Midnight at Harbor Tower, page 7: Picture pieces" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-08.jpg" alt="Midnight at Harbor Tower, page 8: Assembly Board" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-09.jpg" alt="Midnight at Harbor Tower, page 9: Answer Board" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-10.jpg" alt="Midnight at Harbor Tower, page 10: Final Lock" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-11.jpg" alt="Midnight at Harbor Tower, page 11: Host guide" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-12.jpg" alt="Midnight at Harbor Tower, page 12: Checking the code" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-13.jpg" alt="Midnight at Harbor Tower, page 13: Hint questions" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-14.jpg" alt="Midnight at Harbor Tower, page 14: Hint questions" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-15.jpg" alt="Midnight at Harbor Tower, page 15: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-16.jpg" alt="Midnight at Harbor Tower, page 16: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-17.jpg" alt="Midnight at Harbor Tower, page 17: Hint cards" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-18.jpg" alt="Midnight at Harbor Tower, page 18: Answer key" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-19.jpg" alt="Midnight at Harbor Tower, page 19: Answer key" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-20.jpg" alt="Midnight at Harbor Tower, page 20: The finished picture" width="900" height="1165" loading="lazy"></div>
+        <div class="page"><img src="sample/harbor-21.jpg" alt="Midnight at Harbor Tower, page 21: Certificate" width="900" height="1165" loading="lazy"></div>
+      </div>
+    </div>
+    <div class="book-bar">
+      <button type="button" class="bk-nav" id="bkPrev" aria-label="Previous page">&lsaquo;</button>
+      <div class="book-label" id="bkLabel" aria-live="polite">Cover<small>Page 1 of 21</small></div>
+      <button type="button" class="bk-nav" id="bkNext" aria-label="Next page">&rsaquo;</button>
+    </div>
+    <div class="book-jump" id="bkJump">
+      <button type="button" data-page="1">Cover</button>
+      <button type="button" data-page="3">How to Play</button>
+      <button type="button" data-page="6">Picture pieces</button>
+      <button type="button" data-page="8">Assembly Board</button>
+      <button type="button" data-page="9">Answer Board</button>
+      <button type="button" data-page="10">Final Lock</button>
+      <button type="button" data-page="11">Host guide</button>
+      <button type="button" data-page="15">Hint cards</button>
+      <button type="button" data-page="18">Answer key</button>
+      <button type="button" data-page="20">Finished picture</button>
+      <button type="button" data-page="21">Certificate</button>
+    </div>
+    <p class="sample-note">Pages 11&ndash;21 are for the host only. The footer carries the seller&rsquo;s shop name: here, &ldquo;Your Shop Name&rdquo;.</p>
   </div>
 </section>
 
@@ -1220,5 +1294,47 @@ table.tbl{width:100%; border-collapse:collapse; font-size:14.5px; background:var
 </script>
 <!-- WarriorPlus Sales Page Code -->
 <script type="text/javascript" src="https://warriorplus.com/o2/js/krmgzn" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+<script>
+/* ---------- sample game: page-flip book ---------- */
+(function(){
+  var el = document.getElementById('book'); if (!el) return;
+  var N = 21, HOST = 11, NAMES = {"1":"Cover","2":"Prologue","3":"How to Play","4":"Code Sheet","5":"Chapter One","6":"Picture pieces","7":"Picture pieces","8":"Assembly Board","9":"Answer Board","10":"Final Lock","11":"Host guide","12":"Checking the code","13":"Hint questions","14":"Hint questions","15":"Hint cards","16":"Hint cards","17":"Hint cards","18":"Answer key","19":"Answer key","20":"The finished picture","21":"Certificate"};
+  var label = document.getElementById('bkLabel'), prev = document.getElementById('bkPrev'), next = document.getElementById('bkNext');
+  var jumps = [].slice.call(document.querySelectorAll('#bkJump button'));
+  if (!window.St || !St.PageFlip){
+    /* Library blocked: show the pages as a plain scrolling row. */
+    el.style.cssText = 'display:flex;gap:12px;overflow-x:auto;';
+    [].forEach.call(el.children, function(p){ p.style.cssText = 'flex:none;width:260px;'; });
+    document.querySelector('.book-bar').style.display = 'none'; document.getElementById('bkJump').style.display = 'none';
+    return;
+  }
+  var book = new St.PageFlip(el, {
+    width: 450, height: 583, size: 'stretch', minWidth: 240, maxWidth: 500, minHeight: 311, maxHeight: 647,
+    showCover: true, maxShadowOpacity: 0.45, mobileScrollSupport: true, flippingTime: 800, usePortrait: true
+  });
+  book.loadFromHTML(el.querySelectorAll('.page'));
+  function update(i){
+    var shown = [i + 1];
+    if (book.getOrientation && book.getOrientation() === 'landscape' && i > 0 && i < N - 1) shown = (i % 2) ? [i + 1, i + 2] : [i, i + 1];
+    shown = shown.filter(function(n){ return n >= 1 && n <= N; });
+    var names = shown.map(function(n){ return NAMES[n]; }).filter(function(v, k, a){ return a.indexOf(v) === k; });
+    label.innerHTML = names.join(' &middot; ') + '<small>' + (shown.length > 1 ? 'Pages ' + shown[0] + '&ndash;' + shown[1] : 'Page ' + shown[0]) + ' of ' + N + (shown[0] >= HOST ? ' &middot; host only' : '') + '</small>';
+    prev.disabled = i === 0; next.disabled = shown[shown.length - 1] >= N;
+    jumps.forEach(function(b){ b.classList.toggle('on', shown.indexOf(+b.getAttribute('data-page')) >= 0); });
+  }
+  book.on('flip', function(e){ update(e.data); });
+  book.on('changeOrientation', function(){ update(book.getCurrentPageIndex()); });
+  prev.addEventListener('click', function(){ book.flipPrev(); });
+  next.addEventListener('click', function(){ book.flipNext(); });
+  jumps.forEach(function(b){ b.addEventListener('click', function(){ book.flip(+b.getAttribute('data-page') - 1); }); });
+  document.addEventListener('keydown', function(e){
+    var r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    if (e.target.closest && e.target.closest('input,textarea,select')) return;
+    if (e.key === 'ArrowRight') book.flipNext(); else if (e.key === 'ArrowLeft') book.flipPrev();
+  });
+  update(0);
+})();
+</script>
 </body>
 </html>
