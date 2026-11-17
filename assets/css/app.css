@@ -492,6 +492,19 @@ body.editor > .workspace { flex: 1; }
 .flow-head { margin-bottom: 22px; }
 .flow-head p { color: var(--muted); margin: 6px 0 0; }
 .q-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.q-sub { margin: -6px 0 14px; font-size: 13px; color: var(--muted); }
+.style-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.style-opt { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 8px 8px 12px; text-align: left; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; font: inherit; color: var(--ink); transition: border-color .15s, box-shadow .15s; }
+.style-opt:hover { border-color: var(--line-strong); }
+.style-opt.on { border-color: var(--accent); background: #FFF8EF; box-shadow: 0 0 0 3px rgba(122, 46, 30, .1); }
+.style-pic { display: block; aspect-ratio: 5 / 4; overflow: hidden; border-radius: 7px; border: 1px solid var(--line); margin-bottom: 6px; background: #f4efe6; }
+.style-pic img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.style-opt b { font-family: var(--serif-ui); font-weight: normal; font-size: 16px; padding: 0 4px; }
+.style-opt .note { font-size: 11.5px; line-height: 1.35; color: var(--muted); padding: 0 4px; }
+.style-opt .check { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: #fff; }
+.style-opt.on .check { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2.2'/%3E%3C/svg%3E") center/14px no-repeat; }
+@media (max-width: 900px) { .style-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .style-grid { grid-template-columns: repeat(2, 1fr); } }
 .q-title .n {
   width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
   background: var(--ink); color: var(--paper); font: 700 13px var(--sans);

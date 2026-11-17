@@ -94,12 +94,18 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
     </div>
 
     <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">4</span>Pick a story type</h3>
+      <h3 class="q-title"><span class="n">4</span>Pick a paper style</h3>
+      <p class="q-sub">How the printed pages look. Each style comes with its own fonts.</p>
+      <div class="style-grid" id="style-grid"></div>
+    </div>
+
+    <div class="card card-pad section">
+      <h3 class="q-title"><span class="n">5</span>Pick a story type</h3>
       <div class="plot-grid" id="plot-grid"></div>
     </div>
 
     <div class="card card-pad section" id="code-section">
-      <h3 class="q-title"><span class="n">5</span>Your secret code <span class="optional">optional</span></h3>
+      <h3 class="q-title"><span class="n">6</span>Your secret code <span class="optional">optional</span></h3>
       <div class="code-input-row">
         <input type="text" id="code-input" class="big-input mono" maxlength="40" autocomplete="off" spellcheck="false" placeholder="e.g. HAPPY HALLOWEEN">
         <span class="code-count" id="code-count">0/20 letters</span>
@@ -109,7 +115,7 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
     </div>
 
     <div class="card card-pad section">
-      <h3 class="q-title"><span class="n">6</span>Get the story from your AI</h3>
+      <h3 class="q-title"><span class="n">7</span>Get the story from your AI</h3>
       <div class="ai-steps">
         <div class="ai-step">
           <p class="small muted">Copy the prompt and paste it into ChatGPT or Claude.</p>
@@ -175,17 +181,6 @@ window.MARKETING_OWNED = <?= has_plan($user, 'marketing') ? 'true' : 'false' ?>;
             <option value="letter">Letter</option>
             <option value="a4">A4</option>
             <option value="kdp">KDP 8.5×11 in with bleed</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Background</span>
-          <select id="adv-ink">
-            <option value="">Account default</option>
-<option value="aged">Aged paper</option>
-            <option value="white">Ink saver (white)</option>
-            <option value="clean">Clean &amp; Bright (white, theme colors)</option>
-            <option value="seasonal">Seasonal pattern (motifs of the season)</option>
-            <option value="noir">Detective Notebook (graph paper, fingerprint, paper clip)</option>
           </select>
         </label>
         <div class="field adv-wide">

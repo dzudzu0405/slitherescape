@@ -450,6 +450,30 @@
   });
 
   // ---------------------------------------------------------------- advanced
+  // Paper styles: the picture is a real puzzle page printed in that style.
+  const PAPER_STYLES = [
+    ['aged', 'Aged paper', 'Old parchment, classic serif type'],
+    ['white', 'Ink saver', 'Plain white page, saves printer ink'],
+    ['clean', 'Clean & Bright', 'White with theme colors, rounded type for kids'],
+    ['seasonal', 'Seasonal pattern', 'Faint motifs of the theme\'s season'],
+    ['noir', 'Detective Notebook', 'Graph paper, fingerprint and typewriter type']
+  ];
+  function renderStyles() {
+    const cur = effective().style;
+    $('#style-grid').innerHTML = PAPER_STYLES.map(([id, label, note]) =>
+      `<button type="button" class="style-opt ${id === cur ? 'on' : ''}" data-style="${id}">` +
+      `<span class="style-pic"><img src="assets/img/styles/${id}.jpg" alt="" loading="lazy"></span>` +
+      `<span class="check"></span><b>${esc(label)}</b><span class="note">${esc(note)}</span></button>`
+    ).join('');
+  }
+  $('#style-grid').addEventListener('click', (e) => {
+    const b = e.target.closest('.style-opt');
+    if (!b) return;
+    state.settings.ink = b.dataset.style;
+    $$('#style-grid .style-opt').forEach((o) => o.classList.toggle('on', o === b));
+    renderPrompt(); markDirty();
+  });
+
   function renderMotifs() {
     const auto = effective().motif;
     $('#motifs').innerHTML =
@@ -476,7 +500,6 @@
   advBind('adv-h', 'h', true);
   advBind('adv-reverse', 'reverse', true);
   advBind('adv-paper', 'paper', false);
-  advBind('adv-ink', 'ink', false);
 
   $('#project-title').addEventListener('input', () => { state.titleTouched = true; markDirty(); });
 
@@ -1166,6 +1189,7 @@
   renderPlots();
   renderTemplates();
   renderMotifs();
+  renderStyles();
   renderPrompt();
 
   // Reopen a saved project: restore every choice, then show the result screen
@@ -1187,9 +1211,8 @@
     $('#adv-h').value = st.h || '';
     $('#adv-reverse').value = String(st.reverse ?? 1);
     $('#adv-paper').value = st.paper || '';
-    $('#adv-ink').value = st.ink || '';
     state.mosaics = data.mosaics && !Array.isArray(data.mosaics) ? data.mosaics : {};
-    renderMode(); renderThemes(); renderPlots(); renderCode(); renderMotifs(); renderPrompt();
+    renderMode(); renderThemes(); renderPlots(); renderCode(); renderMotifs(); renderStyles(); renderPrompt();
     if (!data.story) return;
     state.story = Story.normalise(data.story);
     const puzzles = Array.isArray(data.puzzles) ? data.puzzles : [];
