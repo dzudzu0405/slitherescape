@@ -707,7 +707,7 @@
     const wrongPiece = state.puzzles.filter((p, i) => p && slots[i] && slots[i].kind === 'piece' && p.inside.join('') !== slots[i].mask.join('')).length;
     if (slots.some((x) => x.kind === 'piece')) out.push([wrongPiece ? 'err' : 'ok', 'Pieces match the pictures', wrongPiece ? `${wrongPiece} piece(s) do not match` : 'Each loop traces its part of the picture']);
     const broken = built.filter((p) => !p.verify || p.verify.problems.some((x) => x !== 'more than one solution' && x !== 'no solution'));
-    out.push([broken.length ? 'err' : 'ok', 'Valid Slitherlink', broken.length ? broken[0].verify.problems.join('; ') : 'One closed loop, every dot has degree 0 or 2, clues match the loop']);
+    out.push([broken.length ? 'err' : 'ok', 'Valid loop puzzle', broken.length ? broken[0].verify.problems.join('; ') : 'One closed loop, every dot has degree 0 or 2, clues match the loop']);
     const notUnique = built.filter((p) => !p.verify || !p.verify.unique);
     out.push([notUnique.length ? 'err' : 'ok', 'Unique solution', notUnique.length ? `${notUnique.length} puzzle(s) failed the solution count` : 'The solution counter confirms exactly one solution per puzzle']);
     out.push(['ok', 'Answers shuffled', 'Correct answers spread evenly over A, B and C']);
@@ -734,7 +734,7 @@
     ].join('');
 
     $('#cover-preview').innerHTML = `
-      <div class="cv-kicker">A Slitherlink Escape Game</div>
+      <div class="cv-kicker">A Loop the Loop Escape Game</div>
       <div class="cv-title">${esc(s.title)}</div>
       <div class="cv-tag">${esc(s.tagline)}</div>
       <svg class="cv-motif" viewBox="0 0 32 32">${MOTIFS[eff.motif].svg}</svg>

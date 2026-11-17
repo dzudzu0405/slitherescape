@@ -10,7 +10,7 @@ const DATA_DIR = __DIR__ . '/../data';
 const SCHEMA_VERSION = 3;
 const PLANS = ['pro' => 'SlitherEscape PRO', 'bulk' => 'Bulk Creator', 'marketing' => 'Marketing Studio'];
 // Purchase links: the FE link gives an account, each OTO link adds its plan.
-const ACCESS_PLANS = ['fe' => 'Slitherlink Escape Game Builder (FE)'] + PLANS;
+const ACCESS_PLANS = ['fe' => 'SlitherEscape Studio (FE)'] + PLANS;
 
 require_once __DIR__ . '/access.php';
 require_once __DIR__ . '/legal.php';

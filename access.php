@@ -12,7 +12,7 @@ if ($plan === null) {
     page_head('Link not valid', 'auth', ['bare' => true]);
     ?>
 <main class="auth-box">
-  <div class="auth-brand"><?= brand_logo() ?><h1>SlitherEscape <em>Studio</em></h1></div>
+  <div class="auth-brand"><?= brand_logo() ?><h1>SlitherEscape <em>Studio</em><small class="brand-sub">Logic Loop Puzzles</small></h1></div>
   <div class="card">
     <div class="alert err">This access link is not valid any more.</div>
     <p class="small muted">Please use the link from your purchase receipt, or contact the seller for a new one.</p>

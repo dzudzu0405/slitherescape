@@ -739,7 +739,7 @@
   function header(ctx, A) {
     ctx.drawImage(A.bg, 0, 0, W, H);
     box(ctx, 0, 56, W, 96, 0, THEME.accent);
-    const kicker = ['A SLITHERLINK ESCAPE GAME', GAME.audience.toUpperCase()].filter(Boolean).join('  ·  ');
+    const kicker = ['A LOOP THE LOOP ESCAPE GAME', GAME.audience.toUpperCase()].filter(Boolean).join('  ·  ');
     fitText(ctx, kicker, W / 2, 122, W - 160, 50, 800, HEAD, THEME.accentInk, 4);
     ctx.save();
     ctx.shadowColor = THEME.textShadow;
@@ -820,7 +820,7 @@
   function drawIncluded(ctx, A) {
     heading(ctx, A, 'EVERYTHING YOU NEED', `One ${GAME.pageCount}-page printable PDF`);
     const items = [
-      `${GAME.puzzles} Slitherlink puzzles`,
+      `${GAME.puzzles} Loop the Loop puzzles`,
       'Story and mission pages',
       'How to Play with an example',
       'Code Sheet and Final Lock',
@@ -1525,7 +1525,7 @@
 
   function includedList() {
     return [
-      `${GAME.puzzles} Slitherlink logic puzzles${GAME.hasPictures ? ' (picture chapters included)' : ''}`,
+      `${GAME.puzzles} Loop the Loop logic puzzles (Slitherlink-style)${GAME.hasPictures ? ' (picture chapters included)' : ''}`,
       'Story and mission pages',
       'How to Play page with a worked example',
       'Code Sheet and Final Lock',
@@ -1583,7 +1583,7 @@
     const ageTags = { kids: ['kids escape room', 'kids party game', 'classroom activity'], teens: ['teen escape room', 'teen party game', 'classroom activity'],
       adults: ['adult escape room', 'adult party game', 'team building game'] }[age];
     const tags = [...new Set(['escape room game', 'printable escape', 'escape room kit', 'logic puzzle game', ...themeTags(), ...ageTags,
-      'family game night', 'puzzle hunt', 'instant download', 'printable game'].map((x) => x.slice(0, 20).trim()))].slice(0, 13);
+      'family game night', 'puzzle hunt', 'instant download', 'loop the loop'].map((x) => x.slice(0, 20).trim()))].slice(0, 13);
     const desc = [
       // The first lines show in search previews: say what it is before the story.
       `Printable escape room game for ${plainAudience()}: solve ${GAME.puzzles} logic puzzles, ${pictureOnly() ? 'build the hidden picture' : 'collect the letters'} and crack the secret code. Print at home and play today.`,
@@ -1708,7 +1708,7 @@
   function kdpText() {
     const age = ageKey(), tw = themeWord();
     const audienceLong = { kids: 'Kids Ages 11-13', teens: 'Teens Ages 14-17', adults: 'Adults' }[age];
-    const subtitle = `An Escape Room Puzzle Book for ${audienceLong}: ${GAME.puzzles} Slitherlink Logic Puzzles, One Secret Code`;
+    const subtitle = `An Escape Room Puzzle Book for ${audienceLong}: ${GAME.puzzles} Loop the Loop Logic Puzzles, One Secret Code`;
     const html = [
       GAME.tagline ? `<p><i>${GAME.tagline}</i></p>` : '',
       `<p><b>${GAME.title}</b> is an escape room in a book. ${GAME.mission || ''}</p>`,
@@ -1724,7 +1724,7 @@
       'brain teaser games for groups',
       `puzzle book gift for ${who}`,
       'party game for game night',
-      'loop puzzles and codes',
+      'slitherlink style loop puzzles',
       'classroom team building activity',
     ].map((k) => k.slice(0, 50));
     const cats = age === 'adults'

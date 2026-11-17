@@ -113,12 +113,12 @@ page_head($mode === 'reset' ? 'Reset password' : 'Install', 'auth', ['bare' => t
 <main class="auth-box" style="max-width:520px">
   <div class="auth-brand">
     <?= brand_logo() ?>
-    <h1>SlitherEscape <em>Studio</em></h1>
+    <h1>SlitherEscape <em>Studio</em><small class="brand-sub">Logic Loop Puzzles</small></h1>
     <p><?= $mode === 'reset' ? 'Reset the owner password' : 'Installation' ?></p>
   </div>
   <div class="card">
   <?php if ($mode === 'done'): ?>
-    <div class="alert ok">SlitherEscape Studio is already installed.</div>
+    <div class="alert ok">SlitherEscape Studio: Logic Loop Puzzles is already installed.</div>
     <p class="small muted">To change the database settings, edit <span class="mono">config.php</span> in File Manager. To start over, delete <span class="mono">config.php</span> and open this page again.</p>
     <a class="btn primary lg block" href="login.php">Go to login</a>
 

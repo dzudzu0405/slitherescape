@@ -47,7 +47,7 @@ function legal_page_start(string $title): void
     page_head($title, 'legal', ['bare' => true]);
     ?>
 <header class="legal-top">
-  <a class="brand" href="index.php"><?= brand_logo() ?><span>SlitherEscape <em>Studio</em></span></a>
+  <a class="brand" href="index.php"><?= brand_logo() ?><span>SlitherEscape <em>Studio</em><small class="brand-sub">Logic Loop Puzzles</small></span></a>
   <?= legal_links() ?>
 </header>
 <main class="legal-page">

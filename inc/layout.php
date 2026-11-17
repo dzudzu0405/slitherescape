@@ -1,7 +1,7 @@
 <?php
 // Shared page chrome for SlitherEscape Studio.
 
-const APP_NAME = 'SlitherEscape Studio';
+const APP_NAME = 'SlitherEscape Studio: Logic Loop Puzzles';
 
 function h($s): string
 {
@@ -36,7 +36,7 @@ function page_head(string $title, string $bodyClass = '', array $opts = []): voi
 <body class="<?= h($bodyClass) ?>">
 <?php if (empty($opts['bare'])): ?>
 <header class="topbar">
-  <a class="brand" href="dashboard.php"><?= brand_logo() ?><span>SlitherEscape <em>Studio</em></span></a>
+  <a class="brand" href="dashboard.php"><?= brand_logo() ?><span>SlitherEscape <em>Studio</em><small class="brand-sub">Logic Loop Puzzles</small></span></a>
   <?php if (!empty($opts['center'])): ?><div class="topbar-center"><?= $opts['center'] ?></div><?php endif; ?>
   <nav class="topnav">
     <a href="dashboard.php" class="<?= ($opts['nav'] ?? '') === 'projects' ? 'active' : '' ?>">Projects</a>

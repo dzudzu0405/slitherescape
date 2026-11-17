@@ -75,6 +75,8 @@ p { margin: 0 0 10px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--paper); font-family: var(--serif); font-size: 20px; white-space: nowrap; }
 .brand:hover { text-decoration: none; }
 .brand em { color: var(--tan); font-style: italic; }
+.brand-sub { display: block; font-family: var(--sans, inherit); font-style: normal; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; opacity: .72; margin-top: 2px; line-height: 1.2; }
+.auth-brand h1 .brand-sub { font-size: 12px; margin-top: 6px; color: var(--muted); opacity: 1; }
 .logo { width: 30px; height: 30px; }
 .topbar .logo rect { fill: #5A3A20; }
 .topbar-center { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; }

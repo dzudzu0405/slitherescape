@@ -42,8 +42,8 @@ page_head('Log in', 'auth', ['bare' => true]);
 <main class="auth-box">
   <div class="auth-brand">
     <?= brand_logo() ?>
-    <h1>SlitherEscape <em>Studio</em></h1>
-    <p>Printable escape games built from Slitherlink puzzles</p>
+    <h1>SlitherEscape <em>Studio</em><small class="brand-sub">Logic Loop Puzzles</small></h1>
+    <p>Printable escape games built from Loop the Loop (Slitherlink-style) logic puzzles</p>
   </div>
   <div class="card">
     <?php if ($f): ?><div class="alert <?= h($f['kind']) ?>"><?= h($f['msg']) ?></div><?php endif; ?>

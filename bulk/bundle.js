@@ -399,7 +399,7 @@
           const cx = b.geo.W / 2;
           let y = box.y + box.h * 0.13;
           b.font('FellSC', 13, C.brown);
-          b.text('A Slitherlink Escape Collection', cx, y, { align: 'center' });
+          b.text('A Loop the Loop Escape Collection', cx, y, { align: 'center' });
           b.divider(cx, y + 16, 170);
           b.font('Fell', 42, C.ink);
           y = b.para(st.name, box.x + 20, y + 68, box.w - 40, { align: 'center', lineHeight: 1.08 });

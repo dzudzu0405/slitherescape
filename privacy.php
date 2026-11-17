@@ -8,7 +8,7 @@ if (!is_installed()) redirect('install.php');
 
 legal_page_start('Privacy Policy');
 ?>
-  <p>This policy explains what information SlitherEscape Studio (the "Service") collects when you use it, why, and what you can do about it. The Service is operated by <?= legal_value('name') ?> ("we", "us"). Questions: <?= legal_email_link() ?>.</p>
+  <p>This policy explains what information SlitherEscape Studio: Logic Loop Puzzles (the "Service") collects when you use it, why, and what you can do about it. The Service is operated by <?= legal_value('name') ?> ("we", "us"). Questions: <?= legal_email_link() ?>.</p>
 
   <h2>Who the Service is for</h2>
   <p>The Service is a tool for sellers who create printable escape games and sell them on marketplaces such as Etsy and Amazon KDP. It is meant for adults (18 or older). The people who later play the printed games do not use the Service, and we collect nothing about them.</p>

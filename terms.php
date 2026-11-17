@@ -7,10 +7,10 @@ if (!is_installed()) redirect('install.php');
 
 legal_page_start('Terms of Service');
 ?>
-  <p>These terms are an agreement between you and <?= legal_value('name') ?> ("we", "us") for the use of SlitherEscape Studio (the "Service"). By creating an account or using the Service you accept these terms. If you do not accept them, do not use the Service. Our <a href="privacy.php">Privacy Policy</a> explains how we handle your information.</p>
+  <p>These terms are an agreement between you and <?= legal_value('name') ?> ("we", "us") for the use of SlitherEscape Studio: Logic Loop Puzzles (the "Service"). By creating an account or using the Service you accept these terms. If you do not accept them, do not use the Service. Our <a href="privacy.php">Privacy Policy</a> explains how we handle your information.</p>
 
   <h2>1. The Service and your plans</h2>
-  <p>The Service lets you create printable escape games built from Slitherlink puzzles and export them as PDF files. Features depend on the plans on your account:</p>
+  <p>The Service lets you create printable escape games built from Loop the Loop (Slitherlink-style) logic puzzles and export them as PDF files. Features depend on the plans on your account:</p>
   <ul>
     <?php foreach (ACCESS_PLANS as $label): ?><li><?= h($label) ?></li><?php endforeach; ?>
   </ul>

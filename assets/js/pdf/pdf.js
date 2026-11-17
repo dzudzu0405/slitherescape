@@ -561,7 +561,7 @@
     const cx = this.geo.W / 2;
     let y = box.y + box.h * 0.16;
     this.font('FellSC', 13, C.brown);
-    this.text('A Slitherlink Escape Game', cx, y, { align: 'center' });
+    this.text('A Loop the Loop Escape Game', cx, y, { align: 'center' });
     this.divider(cx, y + 16, 150);
     this.font('Fell', 46, C.ink);
     y = this.para(s.title, box.x + 20, y + 72, box.w - 40, { align: 'center', lineHeight: 1.08 });
@@ -804,7 +804,7 @@
     const howWords = anyMosaic
       ? `${s.chapters.some((c) => !isMosaic(c)) ? "In a letter chapter, every solved puzzle reveals one letter of the chapter's word. " : ''}In a picture chapter, the solved puzzles are pieces of one picture; players glue them onto the Assembly Board, find the finished picture on the Answer Board, and its name is the chapter's word. The words together form`
       : "Every solved puzzle reveals one letter; each chapter's letters spell a word, and the words together form";
-    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Slitherlink puzzles in ${s.chapters.length} chapters. ${howWords} the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
+    para(`${s.title} is a printable escape game for ${g.audienceLong}. Players solve ${total} Loop the Loop puzzles (a Slitherlink-style logic puzzle) in ${s.chapters.length} chapters. ${howWords} the secret code that opens the Final Lock. Expect about ${g.minutes[0]} to ${g.minutes[1]} minutes of play.`);
     heading('What to print');
     bullets([
       `For the players: pages ${pages.playerFrom}-${pages.playerTo} (cover, story, How to Play, Code Sheet, chapters and puzzles, Final Lock), plus the certificate on page ${pages.certificate}.`,
