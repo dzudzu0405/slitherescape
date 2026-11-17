@@ -1402,7 +1402,8 @@
     const minBand = h * 0.085;
     if (h - sh - pad * 2 < bands * minBand) { sh = h - pad * 2 - bands * minBand; sw = sh * W / H; }
     const free = Math.max(0, h - sh - pad * 2);
-    const topH = top ? (bottom ? free * 0.6 : free) : (bottom ? 0 : free / 2);
+    // No headline: the scene sits in the middle, with the short line in the space below it.
+    const topH = top ? (bottom ? free * 0.6 : free) : (bottom ? free * 0.4 : free / 2);
     const botH = bottom ? free - topH : 0;
     const sx = (w - sw) / 2, sy = pad + topH, r = pad * 0.35;
     x.save();
